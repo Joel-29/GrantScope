@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.npm-cache/
+.env
+.env.*
+!.env.example
+*.local
+*.tsbuildinfo
+.vercel/
+.DS_Store
+Thumbs.db
