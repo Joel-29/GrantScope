@@ -56,6 +56,8 @@ export const anonRpc = {
     active.request(...args),
   close: () => active.close(),
   selectTransport(transport: AnonymousTransport, gateway?: string) {
+    if (!['nym', 'nox', 'tor-js'].includes(transport))
+      throw new Error('Unsupported anonymous transport');
     if (transport === 'tor-js' && gateway && !validKpsGateway(gateway))
       throw new Error('Invalid authenticated KPS address');
     active.close();

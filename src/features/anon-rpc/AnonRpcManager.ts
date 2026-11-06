@@ -1,8 +1,10 @@
 import { toFunctionSelector } from 'viem';
 import { decodeRpc } from './JsonRpcAdapter';
+import { abortable } from '../../lib/abortable';
 import {
   READ_NETWORKS,
   WORKERS,
+  NOX_CONFIG,
   validKpsGateway,
   type AnonymousTransport,
   type ReadChainId,
@@ -110,7 +112,12 @@ export class AnonRpcManager {
       outcome = 'successful';
       return result;
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError')
+      if (
+        error &&
+        typeof error === 'object' &&
+        'name' in error &&
+        error.name === 'AbortError'
+      )
         outcome = 'cancelled';
       throw error;
     } finally {
@@ -227,7 +234,9 @@ export class AnonRpcManager {
           config:
             this.transport === 'tor-js'
               ? { gateways: [this.gateway!] }
-              : undefined,
+              : this.transport === 'nox'
+                ? NOX_CONFIG
+                : undefined,
           preExisting: {
             rpcProvider: {
               request: (args) => {
@@ -348,6 +357,8 @@ export class AnonRpcManager {
     params: readonly unknown[] = [],
     signal?: AbortSignal,
   ): Promise<unknown> {
+    if (!Object.hasOwn(READ_NETWORKS, chainId))
+      return Promise.reject(new Error('Unsupported read chain'));
     if (this.transport === 'nox' && chainId !== 11155111)
       return Promise.reject(new Error('Nox is verified for Sepolia only'));
     if (!readMethods.has(method))
@@ -357,20 +368,24 @@ export class AnonRpcManager {
         throw new Error('Anonymous transport is not ready; no direct fallback');
       const worker = this.worker;
       const id = ++this.sequence;
-      const response = await worker.fetch(READ_NETWORKS[chainId].rpc, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
-        signal: AbortSignal.any([
-          this.controller.signal,
-          AbortSignal.timeout(this.requestTimeoutMs),
-          ...(signal ? [signal] : []),
-        ]),
-        ...(this.transport === 'tor-js'
-          ? { anonOptions: { isolationKey: this.isolationKey } }
-          : {}),
-      });
-      const result = await decodeRpc(response, id);
+      const requestSignal = AbortSignal.any([
+        this.controller.signal,
+        AbortSignal.timeout(this.requestTimeoutMs),
+        ...(signal ? [signal] : []),
+      ]);
+      const result = await abortable(async () => {
+        const response = await worker.fetch(READ_NETWORKS[chainId].rpc, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
+          signal: requestSignal,
+          ...(this.transport === 'tor-js'
+            ? { anonOptions: { isolationKey: this.isolationKey } }
+            : {}),
+        });
+        return decodeRpc(response, id, requestSignal);
+      }, requestSignal);
+      requestSignal.throwIfAborted();
       if (worker !== this.worker || this.snapshot.phase !== 'ready')
         throw new DOMException('Worker session changed', 'AbortError');
       this.update({

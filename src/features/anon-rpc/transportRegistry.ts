@@ -18,6 +18,15 @@ export const WORKERS = {
   },
 } as const;
 export type AnonymousTransport = keyof typeof WORKERS;
+// Documented @hisoka-io/anon-rpc-worker 0.4.0 settings. Keep end-to-end TLS required.
+// Avoid background spare-tunnel failures blacklisting exits during a slow live scan.
+export const NOX_CONFIG = {
+  tls: 'required',
+  tlsSpares: 0,
+  tlsOpenTimeoutMs: 15000,
+  attemptTimeoutMs: 30000,
+  callDeadlineMs: 45000,
+} as const;
 export function validKpsGateway(value: string): boolean {
   const match =
     /^(\d{1,3}(?:\.\d{1,3}){3}):(\d{1,5}):(u[A-Za-z0-9_-]{40,100})$/.exec(

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Address } from 'viem';
 import type { ReadChainId } from '../anon-rpc/transportRegistry';
 import { parseAddress } from './address';
+import { READ_NETWORKS } from '../anon-rpc/transportRegistry';
 
 export type InspectionTarget = { address: Address; chainId: ReadChainId };
 type State = {
@@ -16,6 +17,8 @@ export const useInspectionSession = create<State>((set) => ({
   revision: 0,
   history: [],
   inspect: (input, chainId) => {
+    if (!Object.hasOwn(READ_NETWORKS, chainId))
+      throw new Error('Unsupported inspection chain');
     const address = parseAddress(input);
     set((state) => ({
       target: { address, chainId },

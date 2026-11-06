@@ -23,6 +23,7 @@ export function AppProviders({ children }: PropsWithChildren) {
             gcTime: 300_000,
             retry: false,
             refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
           },
         },
       }),

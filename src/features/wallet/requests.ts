@@ -29,6 +29,7 @@ export async function walletRequest(
     if (
       args.method === 'eth_chainId' &&
       typeof result === 'string' &&
+      result.length <= 66 &&
       /^0x[0-9a-f]+$/i.test(result) &&
       BigInt(result) <= BigInt(Number.MAX_SAFE_INTEGER)
     )

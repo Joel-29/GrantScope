@@ -1,4 +1,9 @@
-import { createPublicClient, formatEther, type Address } from 'viem';
+import { createClient, formatEther, type Address } from 'viem';
+import {
+  waitForTransactionReceipt,
+  type WaitForTransactionReceiptParameters,
+} from 'viem/actions';
+import { blockHeader } from '../discovery/logs';
 import { mainnet, sepolia } from 'viem/chains';
 import type { AnonRpcManager } from '../anon-rpc/AnonRpcManager';
 import {
@@ -27,14 +32,21 @@ export function publicClient(
   chainId: ReadChainId,
   signal?: AbortSignal,
 ) {
-  return createPublicClient({
+  return createClient({
     chain: chainId === 1 ? mainnet : sepolia,
     transport: anonymousViemTransport((method, params) =>
       manager.request(chainId, method, params, signal),
     ),
-    batch: { multicall: false },
+    ccipRead: false,
     cacheTime: 0,
   });
+}
+export function waitAnonymousReceipt(
+  manager: AnonRpcManager,
+  chain: ReadChainId,
+  options: WaitForTransactionReceiptParameters,
+) {
+  return waitForTransactionReceipt(publicClient(manager, chain), options);
 }
 export async function inspectAccount(
   manager: AnonRpcManager,
@@ -57,6 +69,7 @@ export async function inspectAccount(
     await manager.request(chainId, 'eth_blockNumber', [], signal),
   );
   const block = `0x${blockNumber.toString(16)}`;
+  const before = await blockHeader(manager, chainId, blockNumber, signal);
   const balanceWei = rpcQuantity(
     await manager.request(chainId, 'eth_getBalance', [address, block], signal),
   );
@@ -67,6 +80,9 @@ export async function inspectAccount(
     signal,
   );
   const kind = accountKind(code);
+  const after = await blockHeader(manager, chainId, blockNumber, signal);
+  if (before.hash !== after.hash)
+    throw new Error('Account snapshot changed during read. Retry explicitly');
   signal?.throwIfAborted();
   return {
     address,

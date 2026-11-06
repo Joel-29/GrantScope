@@ -16,7 +16,7 @@ import { rpcQuantity } from '../anon-rpc/JsonRpcAdapter';
 import { READ_NETWORKS } from '../anon-rpc/transportRegistry';
 import { accountKind, parseAddress } from '../wallet/address';
 import { walletChain, type InjectedProvider } from '../wallet/provider';
-import { publicClient } from '../wallet/inspection';
+import { waitAnonymousReceipt } from '../wallet/inspection';
 import { blockHeader, hash32 } from '../discovery/logs';
 import { contractRead } from '../erc20/engine';
 import type { Permission } from '../exposure/analysis';
@@ -398,10 +398,7 @@ export async function followRevocation(
   onPhase: (phase: RevocationPhase, hash: Hex) => void,
 ) {
   onPhase('pending', hash);
-  const receipt = await publicClient(
-    manager,
-    prepared.record.chainId,
-  ).waitForTransactionReceipt({
+  const receipt = await waitAnonymousReceipt(manager, prepared.record.chainId, {
     hash,
     confirmations: 2,
     timeout: 180000,
@@ -409,6 +406,8 @@ export async function followRevocation(
     retryCount: 0,
     onReplaced: ({ transaction }) => onPhase('replaced', transaction.hash),
   });
+  if (receipt.status !== 'success')
+    throw new RevocationError('Transaction reverted; revocation not verified');
   onPhase('confirmed', receipt.transactionHash);
   const result = await verifyRevocation(manager, prepared, receipt);
   onPhase('verified-zero', result.hash);

@@ -8,6 +8,7 @@ import { READ_NETWORKS, type ReadChainId } from '../anon-rpc/transportRegistry';
 import { parseAddress } from './address';
 import { useInspectionSession } from './session';
 import { useInspection } from './useInspection';
+import { clearInspection } from './clearInspection';
 
 export function InspectionForm({ onInspect }: { onInspect?: () => void }) {
   const id = useId();
@@ -114,12 +115,9 @@ export function InspectionForm({ onInspect }: { onInspect?: () => void }) {
           <Button
             size="sm"
             onClick={() => {
-              session.clear();
-              void queryClient
-                .cancelQueries({ queryKey: ['account'] })
-                .then(() =>
-                  queryClient.removeQueries({ queryKey: ['account'] }),
-                );
+              clearInspection(queryClient);
+              setInput('');
+              setError(null);
             }}
           >
             Clear inspection session

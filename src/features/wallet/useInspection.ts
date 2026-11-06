@@ -22,6 +22,7 @@ export function useInspection() {
       return inspectAccount(manager, target.address, target.chainId, signal);
     },
     retry: false,
+    refetchOnMount: false,
     staleTime: 20_000,
   });
 }
