@@ -22,6 +22,7 @@ const readMethods = new Set([
   'eth_chainId',
   'eth_blockNumber',
   'eth_getBalance',
+  'eth_getTransactionCount',
   'eth_getCode',
   'eth_call',
   'eth_getLogs',
