@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-test('mock wallet setup explains an unsupported network without automatic wallet or blockchain requests', async ({
+test('mock wallet setup switches an unsupported network only after an explicit click without blockchain reads or signing', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -9,8 +9,24 @@ test('mock wallet setup explains an unsupported network without automatic wallet
     Object.defineProperty(window, 'ethereum', {
       configurable: true,
       value: {
-        request: async ({ method }: { method: string }) => {
+        request: async ({
+          method,
+          params,
+        }: {
+          method: string;
+          params?: unknown[];
+        }) => {
           methods.push(method);
+          if (method === 'wallet_switchEthereumChain') {
+            if (
+              JSON.stringify(params) !==
+              JSON.stringify([{ chainId: '0xaa36a7' }])
+            )
+              throw new Error('Unexpected test network parameters');
+            chain = '0xaa36a7';
+            listeners.get('chainChanged')?.(chain);
+            return null;
+          }
           if (method === 'eth_chainId') return chain;
           if (method === 'eth_accounts' || method === 'eth_requestAccounts')
             return ['0x0000000000000000000000000000000000000001'];
@@ -23,10 +39,6 @@ test('mock wallet setup explains an unsupported network without automatic wallet
     });
     (window as unknown as { mockWallet: unknown }).mockWallet = {
       methods,
-      switchChain: () => {
-        chain = '0xaa36a7';
-        listeners.get('chainChanged')?.(chain);
-      },
     };
   });
   const directRpc: string[] = [];
@@ -55,11 +67,18 @@ test('mock wallet setup explains an unsupported network without automatic wallet
   await expect(
     page.getByText('Select the inspected owner first'),
   ).toBeVisible();
-  await page.evaluate(() =>
-    (
-      window as unknown as { mockWallet: { switchChain(): void } }
-    ).mockWallet.switchChain(),
-  );
+  expect(
+    await page.evaluate(
+      () =>
+        (window as unknown as { mockWallet: { methods: string[] } }).mockWallet
+          .methods,
+    ),
+  ).toEqual(['eth_requestAccounts', 'eth_accounts', 'eth_chainId']);
+  await page
+    .getByRole('button', {
+      name: 'Switch wallet to Ethereum Sepolia (11155111)',
+    })
+    .click();
   await expect(
     page.getByText(/Wallet network: Ethereum Sepolia \(11155111\)/),
   ).toBeVisible();
@@ -72,7 +91,13 @@ test('mock wallet setup explains an unsupported network without automatic wallet
         (window as unknown as { mockWallet: { methods: string[] } }).mockWallet
           .methods,
     ),
-  ).toEqual(['eth_requestAccounts', 'eth_accounts', 'eth_chainId']);
+  ).toEqual([
+    'eth_requestAccounts',
+    'eth_accounts',
+    'eth_chainId',
+    'wallet_switchEthereumChain',
+    'eth_chainId',
+  ]);
   expect(directRpc).toEqual([]);
 });
 test('wallet rejection stays rejected and never creates transaction success', async ({
