@@ -21,7 +21,11 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:live": "node scripts/run-live.mjs",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build && npm run check:local-config",
+    "test:release": "node --test scripts/release-checks.test.mjs",
+    "verify:deployment": "node scripts/verify-deployment.mjs",
+    "test:hosted": "node scripts/run-hosted.mjs",
+    "verify:local-revocation": "node scripts/verify-local-revocation.mjs",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run test:release && npm run build && npm run check:local-config",
     "check:local-config": "node scripts/check-local-config.mjs",
     "screenshots": "node scripts/capture-public-ui.mjs"
   },
