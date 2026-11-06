@@ -5,6 +5,7 @@ type WalletMethod =
   | 'eth_requestAccounts'
   | 'eth_accounts'
   | 'eth_chainId'
+  | 'wallet_switchEthereumChain'
   | 'eth_sendTransaction';
 let sequence = 0;
 export async function walletRequest(
@@ -16,10 +17,28 @@ export async function walletRequest(
     'eth_requestAccounts',
     'eth_accounts',
     'eth_chainId',
+    'wallet_switchEthereumChain',
     'eth_sendTransaction',
   ]);
   if (!allowed.has(args.method))
     throw new Error('Wallet adapter refuses application blockchain reads');
+  if (args.method === 'wallet_switchEthereumChain') {
+    const parameter = args.params?.[0];
+    if (
+      !Array.isArray(args.params) ||
+      args.params?.length !== 1 ||
+      !parameter ||
+      typeof parameter !== 'object' ||
+      Array.isArray(parameter) ||
+      Object.keys(parameter).length !== 1 ||
+      !Object.hasOwn(parameter, 'chainId') ||
+      !('chainId' in parameter) ||
+      typeof parameter.chainId !== 'string' ||
+      !['0x1', '0xaa36a7'].includes(parameter.chainId)
+    )
+      throw new Error('Wallet network switch requires one supported chain ID');
+    chainId = Number(BigInt(parameter.chainId));
+  }
   const start = performance.now(),
     timestamp = new Date().toISOString(),
     id = --sequence;
@@ -61,7 +80,9 @@ export async function walletRequest(
       reason:
         args.method === 'eth_sendTransaction'
           ? 'Wallet-provider submission; extension internals unobserved'
-          : 'Wallet account/network metadata; extension internals unobserved',
+          : args.method === 'wallet_switchEthereumChain'
+            ? 'Explicit wallet network change; extension internals unobserved'
+            : 'Wallet account/network metadata; extension internals unobserved',
     });
   }
 }
