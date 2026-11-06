@@ -20,8 +20,26 @@ import { waitAnonymousReceipt } from '../wallet/inspection';
 import { blockHeader, hash32 } from '../discovery/logs';
 import { contractRead } from '../erc20/engine';
 import type { Permission } from '../exposure/analysis';
+import { abortable } from '../../lib/abortable';
+import {
+  preparationFailure,
+  preparationStages,
+  type PreparationStage,
+} from './preparation';
 
 export class RevocationError extends Error {}
+export class RevocationPreparationError extends RevocationError {
+  constructor(
+    public readonly stage: PreparationStage,
+    cause: unknown,
+  ) {
+    super(
+      cause instanceof RevocationError
+        ? `Preparation stopped: ${preparationStages[stage]}. ${cause.message}`
+        : preparationFailure(cause, stage),
+    );
+  }
+}
 export type Intent = { from: Address; to: Address; data: Hex; value: '0x0' };
 export type Prepared = {
   record: Permission;
@@ -69,17 +87,19 @@ export function revocationIntent(record: Permission): Intent {
 export async function assertWallet(
   provider: InjectedProvider,
   record: Permission,
+  signal?: AbortSignal,
 ) {
-  const accounts = await walletRequest(
-      provider,
-      { method: 'eth_accounts' },
-      record.chainId,
-    ),
-    chain = await walletRequest(
-      provider,
-      { method: 'eth_chainId' },
-      record.chainId,
-    );
+  const metadata = (method: 'eth_accounts' | 'eth_chainId') =>
+    signal
+      ? abortable(
+          () => walletRequest(provider, { method }, record.chainId),
+          signal,
+        )
+      : walletRequest(provider, { method }, record.chainId);
+  const accounts = await metadata('eth_accounts');
+  signal?.throwIfAborted();
+  const chain = await metadata('eth_chainId');
+  signal?.throwIfAborted();
   if (
     !Array.isArray(accounts) ||
     typeof accounts[0] !== 'string' ||
@@ -138,136 +158,172 @@ export async function prepareRevocation(
   provider: InjectedProvider,
   record: Permission,
   signal?: AbortSignal,
+  onStage?: (stage: PreparationStage) => void,
 ): Promise<Prepared> {
-  const intent = revocationIntent(record);
-  signal?.throwIfAborted();
-  await assertWallet(provider, record);
-  await manager.initialize();
-  if (
-    rpcQuantity(
-      await manager.request(record.chainId, 'eth_chainId', [], signal),
-    ) !== BigInt(record.chainId)
-  )
-    throw new RevocationError('Anonymous RPC is on the wrong chain');
-  const blockNumber = rpcQuantity(
-    await manager.request(record.chainId, 'eth_blockNumber', [], signal),
-  );
-  const tag = `0x${blockNumber.toString(16)}`;
-  const anchor = await blockHeader(
-    manager,
-    record.chainId,
-    blockNumber,
-    signal,
-  );
-  const ownerCode = await manager.request(
-    record.chainId,
-    'eth_getCode',
-    [intent.from, tag],
-    signal,
-  );
-  if (accountKind(ownerCode) !== 'eoa')
-    throw new RevocationError(
-      'Code-present accounts are read-only; no smart-account execution adapter is supported',
-    );
-  const code = await manager.request(
-    record.chainId,
-    'eth_getCode',
-    [intent.to, tag],
-    signal,
-  );
-  if (typeof code !== 'string' || !/^0x(?:[0-9a-f]{2})+$/i.test(code))
-    throw new RevocationError(
-      'Revocation target has no readable contract code',
-    );
-  const codeHash = keccak256(code as Hex);
-  if (
-    record.kind === 'permit2' &&
-    codeHash.toLowerCase() !== record.codeHash.toLowerCase()
-  )
-    throw new RevocationError('Permit2 code changed since inspection');
-  const amount = await currentAmount(manager, record, blockNumber, signal);
-  if (amount === 0n)
-    throw new RevocationError(
-      'Allowance is already zero. Refresh the scan; no transaction is needed',
-    );
-  const simulation = await manager.request(
-    record.chainId,
-    'eth_call',
-    [intent, 'latest'],
-    signal,
-  );
-  if (
-    typeof simulation !== 'string' ||
-    !/^0x(?:[0-9a-f]{2})*$/i.test(simulation)
-  )
-    throw new RevocationError('Invalid simulation return');
-  if (record.kind === 'erc20') {
-    if (
-      simulation.length !== 66 ||
-      simulation.toLowerCase() !==
-        encodeFunctionResult({
-          abi: erc20Abi,
-          functionName: 'approve',
-          result: true,
-        })
-    )
-      throw new RevocationError(
-        'Token simulation did not return true; nonstandard approve is unsupported',
-      );
-  } else if (simulation !== '0x')
-    throw new RevocationError('Unexpected Permit2 simulation result');
-  const estimate = rpcQuantity(
-    await manager.request(record.chainId, 'eth_estimateGas', [intent], signal),
-  );
-  const gas = (estimate * 125n + 99n) / 100n;
-  if (estimate < 21000n || gas > 5000000n)
-    throw new RevocationError('Gas estimate outside supported bounds');
-  const gasPrice = rpcQuantity(
-    await manager.request(record.chainId, 'eth_gasPrice', [], signal),
-  );
-  if (gasPrice === 0n) throw new RevocationError('Gas price is unavailable');
-  const feeCap = gas * gasPrice;
-  const balance = rpcQuantity(
-    await manager.request(
-      record.chainId,
-      'eth_getBalance',
-      [intent.from, 'latest'],
-      signal,
-    ),
-  );
-  if (balance < feeCap)
-    throw new RevocationError(
-      'Insufficient ETH for the prepared gas limit and gas price',
-    );
-  const nonce = rpcQuantity(
-    await manager.request(
-      record.chainId,
-      'eth_getTransactionCount',
-      [intent.from, 'pending'],
-      signal,
-    ),
-  );
-  if (nonce > BigInt(Number.MAX_SAFE_INTEGER))
-    throw new RevocationError(
-      'Nonce exceeds supported receipt-tracking precision',
-    );
-  signal?.throwIfAborted();
-  await assertWallet(provider, record);
-  const after = await blockHeader(manager, record.chainId, blockNumber, signal);
-  if (after.hash !== anchor.hash)
-    throw new RevocationError('Reorg during preparation; prepare again');
-  return {
-    record,
-    intent,
-    amount,
-    blockNumber,
-    codeHash,
-    gas,
-    gasPrice,
-    feeCap,
-    nonce,
-    createdAt: Date.now(),
+  let stage: PreparationStage = 'checking-wallet';
+  const advance = (next: PreparationStage) => {
+    signal?.throwIfAborted();
+    stage = next;
+    onStage?.(next);
   };
+  try {
+    advance('checking-wallet');
+    const intent = revocationIntent(record);
+    signal?.throwIfAborted();
+    await assertWallet(provider, record, signal);
+    advance('starting-worker');
+    if (signal) await abortable(() => manager.initialize(), signal);
+    else await manager.initialize();
+    advance('checking-network');
+    if (
+      rpcQuantity(
+        await manager.request(record.chainId, 'eth_chainId', [], signal),
+      ) !== BigInt(record.chainId)
+    )
+      throw new RevocationError('Anonymous RPC is on the wrong chain');
+    advance('pinning-block');
+    const blockNumber = rpcQuantity(
+      await manager.request(record.chainId, 'eth_blockNumber', [], signal),
+    );
+    const tag = `0x${blockNumber.toString(16)}`;
+    const anchor = await blockHeader(
+      manager,
+      record.chainId,
+      blockNumber,
+      signal,
+    );
+    advance('checking-owner');
+    const ownerCode = await manager.request(
+      record.chainId,
+      'eth_getCode',
+      [intent.from, tag],
+      signal,
+    );
+    if (accountKind(ownerCode) !== 'eoa')
+      throw new RevocationError(
+        'Code-present accounts are read-only; no smart-account execution adapter is supported',
+      );
+    advance('checking-target');
+    const code = await manager.request(
+      record.chainId,
+      'eth_getCode',
+      [intent.to, tag],
+      signal,
+    );
+    if (typeof code !== 'string' || !/^0x(?:[0-9a-f]{2})+$/i.test(code))
+      throw new RevocationError(
+        'Revocation target has no readable contract code',
+      );
+    const codeHash = keccak256(code as Hex);
+    if (
+      record.kind === 'permit2' &&
+      codeHash.toLowerCase() !== record.codeHash.toLowerCase()
+    )
+      throw new RevocationError('Permit2 code changed since inspection');
+    advance('reading-allowance');
+    const amount = await currentAmount(manager, record, blockNumber, signal);
+    if (amount === 0n)
+      throw new RevocationError(
+        'Allowance is already zero. Refresh the scan; no transaction is needed',
+      );
+    advance('simulating');
+    const simulation = await manager.request(
+      record.chainId,
+      'eth_call',
+      [intent, 'latest'],
+      signal,
+    );
+    if (
+      typeof simulation !== 'string' ||
+      !/^0x(?:[0-9a-f]{2})*$/i.test(simulation)
+    )
+      throw new RevocationError('Invalid simulation return');
+    if (record.kind === 'erc20') {
+      if (
+        simulation.length !== 66 ||
+        simulation.toLowerCase() !==
+          encodeFunctionResult({
+            abi: erc20Abi,
+            functionName: 'approve',
+            result: true,
+          })
+      )
+        throw new RevocationError(
+          'Token simulation did not return true; nonstandard approve is unsupported',
+        );
+    } else if (simulation !== '0x')
+      throw new RevocationError('Unexpected Permit2 simulation result');
+    advance('estimating-gas');
+    const estimate = rpcQuantity(
+      await manager.request(
+        record.chainId,
+        'eth_estimateGas',
+        [intent],
+        signal,
+      ),
+    );
+    const gas = (estimate * 125n + 99n) / 100n;
+    if (estimate < 21000n || gas > 5000000n)
+      throw new RevocationError('Gas estimate outside supported bounds');
+    advance('reading-fees');
+    const gasPrice = rpcQuantity(
+      await manager.request(record.chainId, 'eth_gasPrice', [], signal),
+    );
+    if (gasPrice === 0n) throw new RevocationError('Gas price is unavailable');
+    const feeCap = gas * gasPrice;
+    advance('checking-funds');
+    const balance = rpcQuantity(
+      await manager.request(
+        record.chainId,
+        'eth_getBalance',
+        [intent.from, 'latest'],
+        signal,
+      ),
+    );
+    if (balance < feeCap)
+      throw new RevocationError(
+        'Insufficient ETH for the prepared gas limit and gas price',
+      );
+    advance('reading-nonce');
+    const nonce = rpcQuantity(
+      await manager.request(
+        record.chainId,
+        'eth_getTransactionCount',
+        [intent.from, 'pending'],
+        signal,
+      ),
+    );
+    if (nonce > BigInt(Number.MAX_SAFE_INTEGER))
+      throw new RevocationError(
+        'Nonce exceeds supported receipt-tracking precision',
+      );
+    signal?.throwIfAborted();
+    advance('rechecking-wallet');
+    await assertWallet(provider, record, signal);
+    advance('checking-snapshot');
+    const after = await blockHeader(
+      manager,
+      record.chainId,
+      blockNumber,
+      signal,
+    );
+    if (after.hash !== anchor.hash)
+      throw new RevocationError('Reorg during preparation; prepare again');
+    return {
+      record,
+      intent,
+      amount,
+      blockNumber,
+      codeHash,
+      gas,
+      gasPrice,
+      feeCap,
+      nonce,
+      createdAt: Date.now(),
+    };
+  } catch (cause) {
+    throw new RevocationPreparationError(stage, cause);
+  }
 }
 export function sameIntent(
   value: unknown,
