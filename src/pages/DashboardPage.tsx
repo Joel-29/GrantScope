@@ -1,3 +1,4 @@
+import { ActivityList } from '../features/revocation/ActivityList';
 import { ExposurePanel } from '../features/exposure/ExposurePanel';
 import { Fingerprint } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -23,8 +24,9 @@ export function DashboardPage() {
       />
       <Notice title="Read-only account inspection">
         ETH balance and bytecode can be read anonymously. Selected ERC-20 pairs
-        can be scanned on demand. Transaction execution is not available yet. No
-        wallet connection is required.
+        can be scanned on demand. The connected owner can prepare supported
+        revocations from a verified permission detail. No wallet connection is
+        required.
       </Notice>
       <InspectionPanel />
       <AccountCard />
@@ -62,10 +64,7 @@ export function DashboardPage() {
         title="Recent revocations"
         description="Only confirmed transactions with a freshly verified allowance will appear here."
       >
-        <StatePanel
-          title="No revocation activity"
-          description="Transaction execution has not been implemented. Nothing has been submitted or confirmed."
-        />
+        <ActivityList />
       </Panel>
     </div>
   );

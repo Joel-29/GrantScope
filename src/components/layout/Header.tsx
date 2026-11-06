@@ -1,11 +1,10 @@
+import { ActivityList } from '../../features/revocation/ActivityList';
 import { useState, type ReactNode } from 'react';
 import { Activity, ArrowRight, Search } from 'lucide-react';
 import { useLocation, useNavigation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { Button } from '../ui/Button';
 import { InfoDialog } from '../ui/InfoDialog';
-import { Badge } from '../ui/Badge';
-import { StatePanel } from '../ui/StatePanel';
 import { env } from '../../lib/config/env';
 import { useAnonRpc } from '../../features/anon-rpc/runtime';
 import { WORKERS } from '../../features/anon-rpc/transportRegistry';
@@ -105,7 +104,7 @@ export function Header({ mobileNavigation }: { mobileNavigation: ReactNode }) {
         <InfoDialog
           drawer
           title="Transaction activity"
-          description="Wallet submissions and confirmed revocations will be listed here when transaction execution is implemented."
+          description="Wallet requests, receipts and verified zero allowances are separate states."
           trigger={
             <Button
               variant="ghost"
@@ -117,11 +116,7 @@ export function Header({ mobileNavigation }: { mobileNavigation: ReactNode }) {
             </Button>
           }
         >
-          <Badge>No wallet connected</Badge>
-          <StatePanel
-            title="No transaction activity"
-            description="No transactions have been submitted by this application. There is no transaction execution module yet."
-          />
+          <ActivityList />
         </InfoDialog>
         <InspectionDialog compact />
       </div>

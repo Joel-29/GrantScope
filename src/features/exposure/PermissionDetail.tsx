@@ -1,3 +1,4 @@
+import { RevocationControl } from '../revocation/RevocationControl';
 import { useParams, Link } from 'react-router-dom';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Panel } from '../../components/ui/Panel';
@@ -28,6 +29,7 @@ export function PermissionDetail() {
                 <Permit2Record grant={record} />
               )}
               <AnalysisRecord record={record} />
+              <RevocationControl record={record} />
             </>
           ) : (
             <StatePanel

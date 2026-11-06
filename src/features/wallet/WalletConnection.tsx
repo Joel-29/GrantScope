@@ -31,8 +31,8 @@ export function WalletConnection() {
         )}
         {wallet.error && <p role="alert">{wallet.error}</p>}
         <p>
-          No seed phrase or private key is ever requested. No transaction
-          execution is implemented yet.
+          No seed phrase or private key is ever requested. Supported revocations
+          require an explicit confirmation from a verified permission detail.
         </p>
       </div>
     </Panel>
