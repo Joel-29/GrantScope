@@ -1,5 +1,13 @@
 # Testing
 
+## Module 12 final release checks
+
+TypeScript, ESLint, Prettier, 82 unit/Testing Library tests across thirteen files, production build, fixture/local-demo exclusion and tracked/staged configuration guards passed. The final production Playwright suite passed 24 deterministic desktop/mobile tests with twelve opt-in live cases skipped. Four focused route/navigation tests passed again after final copy cleanup. Development browser checks in Module 11 passed 24 tests with twelve live skips; those are separate from the real configured-pair success.
+
+Actual final production dashboard captures were generated in dark, light and mobile views using fresh browser contexts with no account selected and no external requests. No local demo identities were captured. The production output contains neither the development loader nor locally configured addresses.
+
+The latest real configured Sepolia positive-allowance browser scan passed with documented Nox settings and no wallet signing/submission. Earlier Nym and Nox failures remain recorded above/below; no blind retry or direct fallback is presented as success. Owner-signed revocation, verified post-signing zero state, hosted Vercel-origin checks, judging video and published demo URL remain pending. The configured allowance was intentionally preserved. Build warnings remain the two upstream Zod annotations and a main chunk above 500 kB. No remote CI run or independent audit is claimed.
+
 ## Module 11 evidence
 
 82 unit/Testing Library tests passed across thirteen files. Strict TypeScript, ESLint, Prettier, production build and the production/local-configuration exclusion guards passed. Regressions cover stalled SDK deadlines, pre-dispatch cancellation, bounded/ambiguous RPC bodies, wallet startup races and partial listener cleanup, all-cache cancellation, unsupported chains, scan-local metadata reuse and reorg-discarded snapshots. The development and production browser suites each passed 24 deterministic checks with twelve opt-in live cases skipped. No full test-coverage percentage is claimed.

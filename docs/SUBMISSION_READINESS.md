@@ -1,0 +1,19 @@
+# Submission readiness
+
+**Engineering implementation is available; full submission acceptance remains pending.** Do not describe the project as a completed live end-to-end revocation demo yet.
+
+| Acceptance item                         | Evidence/status                                                                                                                                                                           |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public source and license               | GitHub API verified public visibility, MIT and main branch. Four commits per module; local environment excluded.                                                                          |
+| Real anonymous responses                | Nym and Nox returned actual Sepolia reads. Later Nym timeouts and Nox tunnel failures are recorded. Tor's demo gateway failed.                                                            |
+| Address/allowance inspection            | Real account, ERC-20 and canonical Permit2 reads; a positive configured Sepolia allowance was displayed through the actual worker. Identities remain local.                               |
+| Privacy transparency                    | Actual centrally measured routes, latency, failures, direct bootstrap exceptions, distinct wallet accounting and sanitized export.                                                        |
+| Authorization implementation            | Unit/browser guards and rejection/revert/replacement/verification tests; code-present accounts read-only.                                                                                 |
+| Owner-signed live revocation            | **Pending by design.** The configured allowance was preserved. The owner must intentionally authorize MetaMask, then capture actual hash/receipt and fresh anonymous zero-state evidence. |
+| Positive Permit2 lockdown demonstration | Not performed. Stored-state/dependency reads succeeded; offchain signatures remain out of scope.                                                                                          |
+| Production build and local checks       | Executed checks are in [TESTING](TESTING.md). Passing local tests is not remote CI or a hosted-origin audit.                                                                              |
+| Vercel deployment                       | Configuration prepared; no published URL or deployed-origin worker verification has been claimed.                                                                                         |
+| Judging recording/submission URL        | Three-minute runbook prepared; no completed published recording or ETHGlobal project URL exists in the evidence.                                                                          |
+| Independent security/anonymity audit    | Not performed; development audit and trust limitations are explicit.                                                                                                                      |
+
+To finish: perform the intentional owner-signed test and verify zero, validate an actual HTTPS deployment, record the consented public demo within the judging limit, and add only genuine public links/evidence. Keep the existing local identities out of public artifacts. Recheck the [official criteria](https://ethglobal.com/events/mumbai/prizes#ethereum-foundation) at submission time.
