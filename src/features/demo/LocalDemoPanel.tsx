@@ -15,6 +15,8 @@ import { anonRpc, useAnonRpc } from '../anon-rpc/runtime';
 import { permissionPath } from '../exposure/permissionRoutes';
 import { useTransactions } from '../revocation/store';
 import { boundedDemoRead } from './read';
+import { WalletConnection } from '../wallet/WalletConnection';
+import { RevocationControl } from '../revocation/RevocationControl';
 import { DemoReadError, demoFailure, demoQueryKey, demoStages } from './status';
 
 function localConfig() {
@@ -90,7 +92,8 @@ export function LocalDemoPanel() {
       ? snapshot.data
       : null;
   async function load() {
-    if (!config || controller.current) return;
+    if (!config || controller.current || useTransactions.getState().busy)
+      return;
     const attempt = new AbortController();
     controller.current = attempt;
     setRunning(true);
@@ -179,7 +182,10 @@ export function LocalDemoPanel() {
           is only needed for signing.
         </p>
         <div className="component-row">
-          <Button disabled={running} onClick={() => void load()}>
+          <Button
+            disabled={running || transactionBusy}
+            onClick={() => void load()}
+          >
             Load configured Sepolia demo
           </Button>
           {running && (
@@ -264,6 +270,8 @@ export function LocalDemoPanel() {
                 requires fresh checks.
               </p>
               <PermissionRecord row={row} />
+              <WalletConnection />
+              <RevocationControl record={row} />
               <details className="disclosure">
                 <summary>Unsigned revocation transaction</summary>
                 <p>To: {intent.to} · Value: 0 ETH · approve(spender, 0)</p>

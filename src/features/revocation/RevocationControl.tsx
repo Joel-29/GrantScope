@@ -17,6 +17,11 @@ import {
   type Prepared,
 } from './engine';
 import { supersedingVerification, useTransactions } from './store';
+import {
+  preparationStages,
+  walletPreparationStage,
+  type PreparationStage,
+} from './preparation';
 
 function safeError(error: unknown) {
   return error instanceof RevocationError
@@ -26,13 +31,25 @@ function safeError(error: unknown) {
 export function RevocationControl({ record }: { record: Permission }) {
   const prepareButton = useRef<HTMLButtonElement>(null);
   const controller = useRef<AbortController | null>(null);
-  useEffect(() => () => controller.current?.abort(), [record.id]);
+  useEffect(
+    () => () => {
+      const attempt = controller.current;
+      controller.current = null;
+      attempt?.abort();
+    },
+    [record.id],
+  );
   const wallet = useWallet(),
     inspection = useInspection(),
     transactions = useTransactions(),
     cache = useQueryClient();
   const [open, setOpen] = useState(false),
     [checking, setChecking] = useState(false),
+    [preparationStage, setPreparationStage] =
+      useState<PreparationStage>('checking-wallet'),
+    [preparationTransport, setPreparationTransport] = useState(
+      anonRpc.current().transport,
+    ),
     [prepared, setPrepared] = useState<Prepared | null>(null),
     [error, setError] = useState('');
   const [scope, setScope] = useState<{
@@ -48,10 +65,12 @@ export function RevocationControl({ record }: { record: Permission }) {
     const provider = injectedProvider();
     if (!provider) return;
     setChecking(true);
+    setPreparationStage('checking-wallet');
     setPrepared(null);
     setError('');
     const manager = anonRpc.current(),
       revision = useInspectionSession.getState().revision;
+    setPreparationTransport(manager.transport);
     controller.current?.abort();
     const attempt = new AbortController();
     controller.current = attempt;
@@ -61,6 +80,10 @@ export function RevocationControl({ record }: { record: Permission }) {
         provider,
         record,
         attempt.signal,
+        (stage) => {
+          if (controller.current === attempt && !attempt.signal.aborted)
+            setPreparationStage(stage);
+        },
       );
       attempt.signal.throwIfAborted();
       if (
@@ -72,9 +95,15 @@ export function RevocationControl({ record }: { record: Permission }) {
       setPrepared(result);
       setOpen(true);
     } catch (e) {
-      setError(safeError(e));
+      if (controller.current === attempt)
+        setError(
+          `${safeError(e)} Selected anonymous transport: ${manager.transport}.`,
+        );
     } finally {
-      setChecking(false);
+      if (controller.current === attempt) {
+        controller.current = null;
+        setChecking(false);
+      }
     }
   }
   async function submit() {
@@ -210,6 +239,14 @@ export function RevocationControl({ record }: { record: Permission }) {
       >
         {checking ? 'Checking revocation…' : 'Prepare revocation'}
       </Button>
+      {checking && (
+        <p role="status" data-testid="revocation-preparation-stage">
+          {preparationStages[preparationStage]} ·{' '}
+          {walletPreparationStage(preparationStage)
+            ? 'wallet provider; outside anonymous-read accounting'
+            : `${preparationTransport} anonymous worker`}
+        </p>
+      )}
       {checking && (
         <Button onClick={() => controller.current?.abort()}>
           Cancel preparation

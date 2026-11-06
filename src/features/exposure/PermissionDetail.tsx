@@ -8,6 +8,7 @@ import { Permit2Record } from '../permit2/Permit2Panel';
 import { usePermissionData } from './usePermissionData';
 import { AnalysisRecord } from './ExposurePanel';
 import { permissionRouteId } from './permissionRoutes';
+import { WalletConnection } from '../wallet/WalletConnection';
 
 export function PermissionDetail() {
   const { id } = useParams();
@@ -30,6 +31,7 @@ export function PermissionDetail() {
                 <Permit2Record grant={record} />
               )}
               <AnalysisRecord record={record} />
+              <WalletConnection />
               <RevocationControl record={record} />
             </>
           ) : (
