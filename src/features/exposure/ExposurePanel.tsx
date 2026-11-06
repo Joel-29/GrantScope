@@ -6,6 +6,7 @@ import { tokenAmount } from '../erc20/amounts';
 import { analyze, groupPermissions, type Permission } from './analysis';
 import { usePermissionData } from './usePermissionData';
 import { supersedingVerification, useTransactions } from '../revocation/store';
+import { permissionPath } from './permissionRoutes';
 
 export function AnalysisRecord({ record }: { record: Permission }) {
   const activity = useTransactions((state) => state.activity);
@@ -128,7 +129,7 @@ export function ExposurePanel() {
                   <div key={record.id}>
                     <Link
                       className="text-link address-value"
-                      to={`/permissions/${encodeURIComponent(record.id)}`}
+                      to={permissionPath(record.id)}
                     >
                       {record.kind === 'permit2'
                         ? 'Permit2 grant'

@@ -13,6 +13,7 @@ import { PermissionRecord } from '../erc20/AllowanceInventory';
 import { revocationIntent } from '../revocation/engine';
 import { anonRpc, useAnonRpc } from '../anon-rpc/runtime';
 import type { AnonymousTransport } from '../anon-rpc/transportRegistry';
+import { permissionPath } from '../exposure/permissionRoutes';
 
 function localConfig() {
   const owner = import.meta.env.VITE_DEMO_OWNER,
@@ -148,10 +149,7 @@ export function LocalDemoPanel() {
                 <p className="address-value">Calldata: {intent.data}</p>
                 <p>No wallet signing or submission has been requested.</p>
               </details>
-              <Link
-                className="text-link"
-                to={`/permissions/${encodeURIComponent(row.id)}`}
-              >
+              <Link className="text-link" to={permissionPath(row.id)}>
                 Review owner-authorized revocation
               </Link>
             </div>

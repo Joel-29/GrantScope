@@ -7,11 +7,12 @@ import { PermissionRecord } from '../erc20/AllowanceInventory';
 import { Permit2Record } from '../permit2/Permit2Panel';
 import { usePermissionData } from './usePermissionData';
 import { AnalysisRecord } from './ExposurePanel';
+import { permissionRouteId } from './permissionRoutes';
 
 export function PermissionDetail() {
   const { id } = useParams();
   const { records } = usePermissionData();
-  const record = records.find((row) => row.id === id);
+  const record = records.find((row) => permissionRouteId(row.id) === id);
   return (
     <div className="page">
       <PageHeader
