@@ -63,6 +63,8 @@ To use installed Chrome, set `PLAYWRIGHT_CHANNEL=chrome`. Build first and set `P
 
 Keep the development server running on port 5173 for `demo:check -- --local`. It makes real anonymous reads and verifies the unsigned local workflow without connecting a wallet. If primary Nym fails, explicitly add `--transport nox` for Sepolia. Reports are sanitized and saved only under ignored `.npm-cache/demo-rehearsals/`. [Rehearsal instructions and actual results](docs/DEMO_CHECK.md).
 
+The local demo loader shows its current stage and elapsed time, supports **Cancel demo read**, and stops one attempt after four minutes. After a failed or cancelled Nym attempt, **Try Nox anonymously on Sepolia** requires an explicit click. [Slow-read recovery and real recheck](docs/DEMO_LOADING.md).
+
 `npm run test:live` performs the real public Sepolia diagnostic. Explicitly set `LIVE_TRANSPORT=nox` for the alternative. For the ignored local configuration, run the development server on port 4174 and opt in with `LIVE_LOCAL_DEMO=1`, then run `npx playwright test e2e/local-demo.live.spec.ts --project desktop-chromium --workers=1`. That case disables screenshots, tracing and video. It makes no wallet submission. [Executed checks, failures and reproduction details](docs/TESTING.md).
 
 Before pushing, inspect `git status` and `git diff --cached`, then run `npm run check:local-config`. The guard rejects tracked dotenv files and configured addresses in tracked/staged content. Every module has four cohesive commits.

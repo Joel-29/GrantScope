@@ -1,5 +1,9 @@
 # Testing
 
+## Demo loading follow-up, 6 November 2026
+
+The [demo loading report](DEMO_LOADING.md) records 116 unit/UI tests, nine release-tool tests, typecheck, lint, production build and browser checks. The real Nox read-only recheck returned the configured positive allowance with 19 anonymous successes, three separately counted bootstrap attempts and zero wallet calls. Cancellation/deadline tests use isolated mocks; that live report is actual worker data. No transaction was signed or submitted.
+
 ## Local wallet setup handoff, 6 November 2026
 
 The [local handoff](LOCAL_HANDOFF.md) records 109 unit/UI tests, nine release-tool tests, TypeScript, ESLint, a production build and final browser results. New coverage exercises unsupported networks, a supported but mismatched chain, a different owner, metadata updates, missing inspection targets and the absence of automatic wallet or blockchain requests. These are mocked wallet tests, not actual MetaMask authorization. No new signed or live blockchain result is claimed; earlier real read-only evidence remains separately linked.

@@ -2,6 +2,8 @@
 
 For the latest local wallet-setup guidance and code validation, see [LOCAL_HANDOFF](LOCAL_HANDOFF.md). The real blockchain sessions below remain dated evidence; the wallet-guidance update did not submit a transaction or repeat those reads.
 
+The [demo loading follow-up](DEMO_LOADING.md) adds stage/elapsed display, prompt cancellation, a total deadline and explicit Nox retry. Its real configured-pair recheck passed with 19 anonymous reads and three bootstrap attempts. The rehearsal waits slightly longer than the UI deadline so it can record the actual timeout message rather than race it.
+
 Run the application in one terminal, then the rehearsal in another:
 
 ```sh
