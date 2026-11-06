@@ -1,7 +1,7 @@
 {
   "name": "grantscope",
   "private": true,
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Privacy-first Ethereum permission observatory with real anonymous RPC transport.",
   "type": "module",
   "license": "MIT",
@@ -21,7 +21,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:live": "node scripts/run-live.mjs",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build && npm run check:local-config",
+    "check:local-config": "node scripts/check-local-config.mjs",
+    "screenshots": "node scripts/capture-public-ui.mjs"
   },
   "dependencies": {
     "@anon-rpc/browser-harness": "^0.4.0",

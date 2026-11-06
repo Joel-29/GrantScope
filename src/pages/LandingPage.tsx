@@ -40,7 +40,7 @@ export function LandingPage() {
     <div className="page landing-page">
       <div className="intro-meta">
         <span className="eyebrow">ETHEREUM PERMISSION OBSERVATORY</span>
-        <span className="tag">Anonymous inspection · v0.4</span>
+        <span className="tag">Anonymous inspection · v0.12</span>
       </div>
       <section className="hero">
         <motion.div
@@ -121,7 +121,7 @@ export function LandingPage() {
           </div>
           <div className="blueprint-footer">
             <span className="status-dot" />
-            Live state has not been queried
+            Conceptual model · Inspect an address for live state
           </div>
         </div>
       </section>
@@ -131,7 +131,7 @@ export function LandingPage() {
       >
         <div className="section-heading">
           <h2 id="principles-title">Clarity at every layer</h2>
-          <span className="muted">The workflow we’re building</span>
+          <span className="muted">Verified state, explained clearly</span>
         </div>
         <div className="principle-grid">
           {principles.map(({ icon: Icon, number, title, description }) => (
@@ -142,7 +142,7 @@ export function LandingPage() {
               </div>
               <h3>{title}</h3>
               <p>{description}</p>
-              <span className="planned-label">Planned capability</span>
+              <span className="planned-label">Supported workflow</span>
             </article>
           ))}
         </div>
@@ -155,8 +155,9 @@ export function LandingPage() {
           <p className="eyebrow">PRIVACY YOU CAN INSPECT</p>
           <h2>Every route should tell its story.</h2>
           <p>
-            Anon-RPC is planned as the default read transport. Bootstrap
-            exceptions and wallet submissions will be disclosed separately.
+            Application reads use Anon-RPC. Real worker outcomes, direct
+            bootstrap exceptions and wallet submissions have separate
+            accounting.
           </p>
         </div>
         <Link to="/privacy" className="button button-secondary">

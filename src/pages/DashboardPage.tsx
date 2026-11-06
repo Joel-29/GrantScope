@@ -47,7 +47,7 @@ export function DashboardPage() {
       <div className="two-column">
         <Panel
           title="Token exposure"
-          description="Overlapping authority will be explained, not added together."
+          description="Authority bounds are explained above, per permission and snapshot."
         >
           <StatePanel
             title="Authority depends on the verified snapshot"
@@ -57,8 +57,8 @@ export function DashboardPage() {
         <TransportSummary />
       </div>
       <Panel
-        title="Recent revocations"
-        description="Only confirmed transactions with a freshly verified allowance will appear here."
+        title="Revocation activity"
+        description="Wallet requests, receipt inclusion and freshly verified zero allowance are distinct states."
       >
         <ActivityList />
       </Panel>
