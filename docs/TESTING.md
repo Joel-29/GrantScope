@@ -1,5 +1,11 @@
 # Testing
 
+## Module 5 evidence
+
+37 unit tests passed across five files; TypeScript, ESLint, formatting and production build passed. The production deterministic browser suite passed 16 tests, with six live cases skipped. A separately opted-in real Nox Sepolia ERC-20 scan passed in 57.9 seconds (59.1 seconds total): six USDC/WETH ? registered-spender pairs, valid metadata/balance/allowance responses, zero failed pair reads, and a working maximum-size filter. The zero address was inspected; this proves real allowance reads, not a positive grant or a signed revocation. Browser request auditing permitted only the two fixed bootstrap selectors directly; no target reads used conventional RPC. The first live run returned all six pairs but stalled at an overly strict label selector; the corrected test passed.
+
+Reproduce: set `PLAYWRIGHT_CHANNEL=chrome`, `PLAYWRIGHT_PRODUCTION=1`, `LIVE_ANON_RPC=1`, and explicitly `LIVE_TRANSPORT=nox`, then run `npx playwright test e2e/allowances.spec.ts --grep "live anonymous" --project desktop-chromium --workers=1`. Nym remains the default; Nox was selected explicitly after the preceding documented Nym timeout.
+
 ## Module 4 evidence
 
 32 unit tests passed across four files. Strict TypeScript, ESLint and production build passed. The deterministic production browser suite passed 14 tests with four live cases skipped. A separately opted-in real Sepolia inspection via explicitly selected Nox passed in 30.4 seconds, displaying native ETH and no-code account detection without a wallet connection and without direct target RPC. A preceding Nym initialization timed out and remained a visible failure. No signing or transaction was exercised. See [INSPECTION](INSPECTION.md).

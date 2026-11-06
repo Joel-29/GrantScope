@@ -1,0 +1,11 @@
+# ERC-20 allowance inspection (Module 5)
+
+Select an address and Ethereum or Sepolia, then explicitly scan selected pairs. Application-controlled reads use `AnonRpcManager.request`; there is no direct provider or indexer path. The engine verifies chain identity, pins bytecode and typed ABI calls to one block, checks `decimals`, `symbol`, optional `name`, `balanceOf(owner)` and `allowance(owner,spender)`, and returns failures separately from verified zeros.
+
+Amounts remain uint256 BigInts. Display uses `formatUnits`, never floating point. Zero, limited, exact uint256 maximum, and near maximum (within uint128 maximum of uint256 maximum) are separate sizes. This size threshold is a display convention, not a token behavior or loss prediction. Tokens with missing/nonstandard mandatory metadata are explicitly unreadable; no guessed decimals or symbol is substituted. Strings are bounded and rendered as text, never HTML.
+
+The initial registry contains mainnet and Sepolia USDC/WETH, Permit2, SwapRouter02 and Universal Router. Address provenance: [Circle USDC contracts](https://developers.circle.com/stablecoins/usdc-contract-addresses) and [Uniswap Ethereum deployments](https://developers.uniswap.org/docs/protocols/v3/deployments/v3-ethereum-deployments). Runtime metadata is checked onchain and mismatches disclosed. A registry match is not a safety endorsement. Manual pairs are validated locally before adding. Unknown spenders are unclassified, not malicious.
+
+The UI shows progress, cancellation, explicit retry, failed pair details, exact quantities and block coverage. Search and size controls filter real returned records. Neither a zero result nor an empty filtered list proves an address has no approvals elsewhere. Known-pair scanning covers six initial pairs per supported chain, plus selected manual pairs. Historical discovery and Permit2 grants are separate subsequent modules.
+
+The [ERC-20 standard](https://eips.ethereum.org/EIPS/eip-20) makes metadata optional. Contracts whose metadata cannot be decoded are left unsupported with a failure; this limits coverage. Calls are bounded to four concurrent pair readers; no multicall, external metadata API, USD pricing or aggregate loss estimate is used.
