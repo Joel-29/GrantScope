@@ -2,6 +2,13 @@ import type { Address } from 'viem';
 import type { ReadChainId } from '../anon-rpc/transportRegistry';
 import type { allowanceSize } from './amounts';
 
+export type AllowanceStage =
+  | 'initializing'
+  | 'checking-network'
+  | 'pinning-block'
+  | 'reading-token'
+  | 'checking-snapshot';
+
 export type TokenSpenderPair = {
   token: Address;
   spender: Address;

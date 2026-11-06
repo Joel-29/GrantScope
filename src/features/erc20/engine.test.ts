@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   decodeFunctionData,
   encodeFunctionResult,
@@ -49,6 +49,29 @@ function setup(fail = false, reorg = false) {
   });
 }
 describe('ERC-20 allowance engine', () => {
+  it('cancels while a shared worker initializes and sends no late account reads', async () => {
+    const { manager } = setup();
+    let ready!: () => void;
+    const initialization = new Promise<void>((resolve) => {
+      ready = resolve;
+    });
+    const initialize = vi
+      .spyOn(manager, 'initialize')
+      .mockReturnValue(initialization);
+    const request = vi.spyOn(manager, 'request');
+    const controller = new AbortController();
+    const pending = scanAllowances(manager, owner, 11155111, [pair], {
+      signal: controller.signal,
+    });
+    await Promise.resolve();
+    expect(initialize).toHaveBeenCalledOnce();
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    ready();
+    await Promise.resolve();
+    expect(request).not.toHaveBeenCalled();
+    manager.close();
+  });
   it('discards all allowance rows if the pinned block reorganizes during scanning', async () => {
     const { manager } = setup(false, true);
     await expect(

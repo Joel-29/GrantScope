@@ -14,7 +14,13 @@ import type { ReadChainId } from '../anon-rpc/transportRegistry';
 import { parseAddress } from '../wallet/address';
 import { blockHeader } from '../discovery/logs';
 import { allowanceSize } from './amounts';
-import type { AllowanceScan, Erc20Permission, TokenSpenderPair } from './types';
+import { abortable } from '../../lib/abortable';
+import type {
+  AllowanceScan,
+  AllowanceStage,
+  Erc20Permission,
+  TokenSpenderPair,
+} from './types';
 
 function hasControl(value: string) {
   return [...value].some((char) => {
@@ -230,6 +236,7 @@ export async function scanAllowances(
     signal?: AbortSignal;
     concurrency?: number;
     onProgress?: (done: number, total: number) => void;
+    onStage?: (stage: AllowanceStage) => void;
   } = {},
 ): Promise<AllowanceScan> {
   const owner = parseAddress(ownerInput),
@@ -251,12 +258,17 @@ export async function scanAllowances(
     ).values(),
   ];
   if (unique.length > 512) throw new Error('Scan capped at 512 selected pairs');
-  await manager.initialize();
+  options.onStage?.('initializing');
+  if (signal) await abortable(() => manager.initialize(), signal);
+  else await manager.initialize();
+  signal?.throwIfAborted();
+  options.onStage?.('checking-network');
   if (
     rpcQuantity(await manager.request(chainId, 'eth_chainId', [], signal)) !==
     BigInt(chainId)
   )
     throw new Error('Wrong chain; allowance scan refused');
+  options.onStage?.('pinning-block');
   const blockNumber = rpcQuantity(
       await manager.request(chainId, 'eth_blockNumber', [], signal),
     ),
@@ -267,6 +279,7 @@ export async function scanAllowances(
   let cursor = 0,
     completed = 0;
   options.onProgress?.(0, unique.length);
+  options.onStage?.('reading-token');
   await Promise.all(
     Array.from({ length: Math.min(concurrency, unique.length) }, async () => {
       while (cursor < unique.length) {
@@ -299,6 +312,7 @@ export async function scanAllowances(
     }),
   );
   signal?.throwIfAborted();
+  options.onStage?.('checking-snapshot');
   const after = await blockHeader(manager, chainId, blockNumber, signal);
   if (before.hash !== after.hash)
     throw new Error(
