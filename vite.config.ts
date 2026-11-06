@@ -6,7 +6,12 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     rollupOptions: {
-      output: { manualChunks: { motion: ['motion/react'] } },
+      output: {
+        manualChunks: {
+          motion: ['motion/react'],
+          'anon-harness': ['@anon-rpc/browser-harness'],
+        },
+      },
     },
   },
   test: {

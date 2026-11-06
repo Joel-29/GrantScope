@@ -1,8 +1,8 @@
 {
   "name": "grantscope",
   "private": true,
-  "version": "0.2.0",
-  "description": "A privacy-first Ethereum permission observatory. Module 2: design system and application shell.",
+  "version": "0.3.0",
+  "description": "Privacy-first Ethereum permission observatory with real anonymous RPC transport.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -20,9 +20,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:live": "node scripts/run-live.mjs",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build"
   },
   "dependencies": {
+    "@anon-rpc/browser-harness": "^0.4.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@tanstack/react-query": "^5.90.0",
     "lucide-react": "^0.468.0",
@@ -30,6 +32,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.0",
+    "viem": "^2.57.16",
     "zod": "^4.1.0",
     "zustand": "^5.0.8"
   },
