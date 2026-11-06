@@ -15,7 +15,7 @@ export function EmptyState({
       </div>
       <h2>{title}</h2>
       <div className="empty-description">{children}</div>
-      <span className="tag">Module 1 · Foundation</span>
+      <span className="tag">Live inspection not available</span>
     </section>
   );
 }
