@@ -1,5 +1,9 @@
 # Testing
 
+## Module 7 evidence
+
+45 unit tests passed across seven files, including both official Permit2 grant event layouts, foreign emitters, uint160 maximum, uint48 maximum nonce, expiry at the exact boundary, shared zero underlying approval and chain mismatch. TypeScript, ESLint and production build passed. The deterministic production browser suite passed 20 tests with ten live cases skipped. The separately opted-in Nox browser test passed in 58.8 seconds, reading four canonical Sepolia Permit2 pairs and their actual ERC-20 dependencies with zero unreadable pairs. The zero owner produced no claimed positive authorization; no signed Permit or lockdown transaction has been demonstrated. Reproduce with `e2e/permit2.spec.ts --grep "live canonical"` and the explicit live environment variables.
+
 ## Module 6 evidence
 
 42 unit tests passed across six files, including encoded known Approval logs, duplicate events, ERC-721 ambiguity, range-limit splitting, permanent provider failure and changed canonical anchors. TypeScript, ESLint and the production build passed. The production browser suite passed 18 deterministic tests with eight live cases skipped. The opted-in Nox browser test successfully queried Sepolia block 1,000,000 for the zero owner: one anonymous log request, zero coverage gaps, 28.7 seconds (30.1 seconds total). This establishes a real configured-network log query, not discovery of a positive historical grant. No exhaustive history or mainnet discovery evidence is claimed.
