@@ -1,10 +1,11 @@
+import { ExposurePanel } from '../features/exposure/ExposurePanel';
+import { PermissionDetail } from '../features/exposure/PermissionDetail';
 import { Permit2Panel } from '../features/permit2/Permit2Panel';
 import { DiscoveryPanel } from '../features/discovery/DiscoveryPanel';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Notice } from '../components/ui/Notice';
 import { Panel } from '../components/ui/Panel';
-import { StatePanel } from '../components/ui/StatePanel';
 import { AllowanceInventory } from '../features/erc20/AllowanceInventory';
 
 export function PermissionsPage() {
@@ -23,6 +24,7 @@ export function PermissionsPage() {
       <AllowanceInventory />
       <DiscoveryPanel />
       <Permit2Panel />
+      <ExposurePanel />
       <div className="two-column">
         <Panel title="Know the layers">
           <div className="panel-body">
@@ -60,25 +62,4 @@ export function PermissionsPage() {
   );
 }
 
-export function PermissionDetailPage() {
-  return (
-    <div className="page">
-      <PageHeader
-        eyebrow="PERMISSION INSPECTION"
-        title="Permission unavailable"
-        description="No verified permission records exist in this interface release."
-      />
-      <Panel title="Authorization details">
-        <StatePanel
-          title="Nothing to inspect yet"
-          description="A URL alone does not identify a verified allowance. Permission details require a successful live scan."
-          action={
-            <Link to="/permissions" className="button button-secondary">
-              Back to permissions
-            </Link>
-          }
-        />
-      </Panel>
-    </div>
-  );
-}
+export const PermissionDetailPage = PermissionDetail;

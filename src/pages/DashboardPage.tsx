@@ -1,17 +1,12 @@
-import {
-  Fingerprint,
-  Layers3,
-  ScanLine,
-  ShieldCheck,
-  Infinity as InfinityIcon,
-} from 'lucide-react';
+import { ExposurePanel } from '../features/exposure/ExposurePanel';
+import { Fingerprint } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Notice } from '../components/ui/Notice';
 import { Panel } from '../components/ui/Panel';
 import { Badge } from '../components/ui/Badge';
 import { StatePanel } from '../components/ui/StatePanel';
-import { MetricCard } from '../components/dashboard/MetricCard';
+import { SummaryCards } from '../features/exposure/SummaryCards';
 import { AccountCard } from '../components/dashboard/AccountCard';
 import { InspectionDialog } from '../components/layout/Header';
 import { AllowanceInventory } from '../features/erc20/AllowanceInventory';
@@ -33,41 +28,17 @@ export function DashboardPage() {
       </Notice>
       <InspectionPanel />
       <AccountCard />
-      <div className="summary-grid">
-        {[
-          {
-            title: 'Active grants',
-            icon: Layers3,
-            detail: 'ERC-20 and Permit2 · Not measured',
-          },
-          {
-            title: 'Review suggested',
-            icon: ShieldCheck,
-            detail: 'Evidence-based assessment pending',
-          },
-          {
-            title: 'Unlimited allowances',
-            icon: InfinityIcon,
-            detail: 'Permission sizes · Not measured',
-          },
-          {
-            title: 'Scan coverage',
-            icon: ScanLine,
-            detail: 'Last scanned block unavailable',
-          },
-        ].map((item) => (
-          <MetricCard key={item.title} {...item} />
-        ))}
-      </div>
+      <SummaryCards />
       <AllowanceInventory />
+      <ExposurePanel />
       <div className="two-column">
         <Panel
           title="Token exposure"
           description="Overlapping authority will be explained, not added together."
         >
           <StatePanel
-            title="Balances and exposure unavailable"
-            description="A successful chain read is required to assess token balances and the bounds of spending authority."
+            title="Authority depends on the verified snapshot"
+            description="Run a permission scan to populate Authority analysis. Bounds are per permission, overlap across layers, and are not estimates of loss."
           />
         </Panel>
         <Panel
