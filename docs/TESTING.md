@@ -1,5 +1,13 @@
 # Testing
 
+## Module 11 evidence
+
+82 unit/Testing Library tests passed across thirteen files. Strict TypeScript, ESLint, Prettier, production build and the production/local-configuration exclusion guards passed. Regressions cover stalled SDK deadlines, pre-dispatch cancellation, bounded/ambiguous RPC bodies, wallet startup races and partial listener cleanup, all-cache cancellation, unsupported chains, scan-local metadata reuse and reorg-discarded snapshots. The development and production browser suites each passed 24 deterministic checks with twelve opt-in live cases skipped. No full test-coverage percentage is claimed.
+
+The first configured local Sepolia browser scan failed while the default Nox tunnel settings were unstable; a separate sequential probe returned some real reads before a tunnel-open failure. A fresh Nym attempt also timed out and remained a failure. After applying documented Nox 0.4.0 timeout bounds with TLS required and background spare tunnels disabled, the real configured-pair browser test passed in approximately 1.7 minutes. It verified positive ERC-20 allowance/metadata on the dashboard, unsigned approve-to-zero calldata, no direct target RPC, no wallet submission, and a disabled owner-signing action without a connected wallet. Local identities are omitted from source, tests, screenshots and committed evidence; screenshots, tracing and video were disabled for that case. No revocation was executed.
+
+GitHub public API returned HTTP 200 with public visibility, MIT license and main as the default branch. This verifies repository metadata, not a Vercel deployment or CI run.
+
 ## Module 10 evidence
 
 72 unit/Testing Library tests passed across twelve files, including full-session counters after 1,100 records, separate read/bootstrap/wallet denominators, failed-worker no-fallback behavior, wallet-read refusal and export field exclusion. TypeScript, ESLint, formatting and production build passed. The production browser suite passed 24 tests with ten live cases skipped, including unavailable Tor and accurate empty export.

@@ -14,6 +14,8 @@ The user superseded Tor-as-primary after the official demonstration gateway time
 
 ## Verification and privacy
 
+Before **every Git push**, inspect `git status` and `git diff --cached`. Local Sepolia demo addresses belong only in ignored `.env.local` (`VITE_DEMO_OWNER`, `VITE_DEMO_TOKEN`, `VITE_DEMO_SPENDER`), never in application source, committed tests, documentation, screenshots or commits. Keep `.env.example` empty/placeholder-only. Demo configuration is for local Sepolia testing; arbitrary-address inspection must remain supported. Never automatically revoke a demo allowance. Owner confirmation in MetaMask is required.
+
 Run TypeScript checks, ESLint, relevant automated tests, and the production build before pushing. Never claim an unexecuted check passed. Keep secrets, local environment files, dependencies, caches, generated build output, and transient test artifacts out of Git.
 
 The master specification requires real blockchain evidence for integrations. Until an integration module is requested, keep blockchain reads, wallet signing, scanner logic, Permit2 execution, and revocation unimplemented. UI fixtures belong only in the development-only design preview and must be labeled fictional. The production build must exclude those fixtures. No silent direct RPC fallback or invented anonymity claims.

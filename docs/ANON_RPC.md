@@ -43,6 +43,8 @@ Tor's official gateway timed out during KPS dialing for `/bootstrap.zip.zst`. Th
 
 ## Reproduce
 
+During the later configured-token scan, Nox's default five-second tunnel-open deadline produced `TunnelOpenTimeoutError`; some subsequent calls failed immediately after exits had become unavailable. The official `@hisoka-io/anon-rpc-worker` 0.4.0 package README documents `tlsOpenTimeoutMs`, `attemptTimeoutMs`, `callDeadlineMs` and `tlsSpares`. GrantScope now uses 15-second tunnel open, 30-second attempts, 45-second call deadlines and zero background spare sessions, retaining `tls: required` and the official hash-verified worker. A subsequent real browser scan of an ignored local Sepolia configuration succeeded and displayed a positive ERC-20 allowance without a wallet submission. This is an observed improvement, not an availability guarantee. Nym remains primary; the failed Nym attempt was never relabeled successful. See [published configuration](https://www.npmjs.com/package/@hisoka-io/anon-rpc-worker/v/0.4.0).
+
 Run `npm ci`, `npm run dev`, open `/privacy`, leave Nym selected, and choose **Run live anonymous diagnostic**. It validates the Sepolia chain ID, reads a block number, and reads the public zero-address balance. Inspect the recorded actual route and disclosed bootstrap records.
 
 `npm run test:live` opts into real external browser networking. To use installed Chrome, set `PLAYWRIGHT_CHANNEL=chrome`. To test built output, build first and set `PLAYWRIGHT_PRODUCTION=1`. The live test is skipped in the ordinary deterministic suite; a skip is not a passing integration test. Browser artifacts stay in ignored `test-results/`.
