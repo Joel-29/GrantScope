@@ -21,6 +21,9 @@ const baseURL = remoteUrl?.origin ?? `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  // Cold Vite transforms and browser workers compete with WASM transports.
+  // Keep the default run reproducible; explicit --workers overrides this.
+  workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: 'list',

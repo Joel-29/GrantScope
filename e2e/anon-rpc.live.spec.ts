@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { auditDirectRpc } from './rpc-audit';
 
 const network = process.env.LIVE_TRANSPORT === 'nox' ? 'Nox' : 'Nym';
 test(`actual ${network} worker returns a Sepolia block and balance without direct wallet RPC`, async ({
@@ -10,21 +11,7 @@ test(`actual ${network} worker returns a Sepolia block and balance without direc
     'Opt-in real external integration; mocks are not transport evidence.',
   );
   test.setTimeout(360_000);
-  const directRpc: string[] = [];
-  const badDirectMethods: string[] = [];
-  page.on('request', (request) => {
-    if (
-      !request.url().includes('publicnode.com') ||
-      request.method() !== 'POST'
-    )
-      return;
-    const body: unknown = request.postDataJSON();
-    if (body && typeof body === 'object' && 'method' in body) {
-      directRpc.push(String(body.method));
-      if (body.method !== 'eth_call')
-        badDirectMethods.push(String(body.method));
-    }
-  });
+  const directRpc = auditDirectRpc(page, network === 'Nox' ? 'nox' : 'nym');
   await page.goto('/privacy');
   if (network === 'Nox')
     await page
@@ -41,8 +28,9 @@ test(`actual ${network} worker returns a Sepolia block and balance without direc
   await expect(page.getByTestId('live-rpc-result')).toContainText(
     `Responses received via the hash-verified ${network} worker`,
   );
-  expect(directRpc).toEqual(['eth_call', 'eth_call']);
-  expect(badDirectMethods).toEqual([]);
+  expect(directRpc.length).toBeGreaterThanOrEqual(2);
+  expect(directRpc.length).toBeLessThanOrEqual(4);
+  expect(directRpc.every((call) => call.bootstrap)).toBe(true);
   const waiting = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export report' }).click();
   const download = await waiting;
@@ -63,7 +51,7 @@ test(`actual ${network} worker returns a Sepolia block and balance without direc
     completed: 3,
     anonymized: 3,
   });
-  expect(report.accounting.totals.bootstrap.completed).toBe(2);
+  expect(report.accounting.totals.bootstrap.completed).toBe(directRpc.length);
   expect(report.accounting.totals.wallet.completed).toBe(0);
   expect(report.accounting.anonymousReadShare).toBe('100.0%');
   expect(

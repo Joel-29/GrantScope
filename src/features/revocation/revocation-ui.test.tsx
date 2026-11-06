@@ -89,6 +89,10 @@ describe('revocation UI security boundaries', () => {
     await user.click(
       screen.getByRole('button', { name: 'Prepare revocation' }),
     );
+    expect(await screen.findByTestId('revocation-calldata')).toHaveTextContent(
+      prepared.intent.data,
+    );
+    expect(send).not.toHaveBeenCalled();
     await user.click(
       await screen.findByRole('button', { name: 'Confirm in wallet' }),
     );

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { auditDirectRpc } from './rpc-audit';
 test.use({
-  baseURL: 'http://127.0.0.1:4174',
+  baseURL: `http://127.0.0.1:${process.env.PLAYWRIGHT_PORT ?? 4174}`,
   trace: 'off',
   screenshot: 'off',
   video: 'off',
@@ -14,23 +15,10 @@ test('local configured Sepolia pair returns real state without wallet submission
     'Explicit ignored local demo configuration required',
   );
   test.setTimeout(300000);
-  const directTargets: string[] = [];
-  page.on('request', (request) => {
-    if (
-      !request.url().includes('publicnode.com') ||
-      request.method() !== 'POST'
-    )
-      return;
-    const body = request.postDataJSON() as {
-      method: string;
-      params: { data?: string }[];
-    };
-    if (
-      body.method !== 'eth_call' ||
-      !['0x3898587d', '0x1c67ff29'].includes(body.params[0]?.data ?? '')
-    )
-      directTargets.push(body.method);
-  });
+  const directTargets = auditDirectRpc(
+    page,
+    process.env.LIVE_TRANSPORT === 'nox' ? 'nox' : 'nym',
+  );
   await page.goto('/privacy');
   if (process.env.LIVE_TRANSPORT === 'nox')
     await page
@@ -82,7 +70,7 @@ test('local configured Sepolia pair returns real state without wallet submission
   await expect(
     page.getByRole('button', { name: 'Prepare revocation' }),
   ).toBeDisabled();
-  expect(directTargets).toEqual([]);
+  expect(directTargets.filter((call) => !call.bootstrap)).toEqual([]);
   await page.getByRole('link', { name: 'Privacy Lab', exact: true }).click();
   await expect(
     page.getByText('0 transaction-submission requests.', { exact: false }),
