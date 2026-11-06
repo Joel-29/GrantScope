@@ -63,7 +63,7 @@ describe('application foundation', () => {
   });
 
   it.each([
-    ['/permissions', 'Permission scanning is not implemented'],
+    ['/permissions', 'Choose an address to scan'],
     ['/permissions/unknown', 'Permission unavailable'],
     ['/settings', 'Settings'],
     ['/about', 'Authority, made understandable.'],

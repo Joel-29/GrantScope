@@ -101,12 +101,7 @@ describe('Module 2 design system', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(trigger).toHaveFocus());
     expect(fetchSpy).not.toHaveBeenCalled();
-    expect(
-      screen.getByRole('searchbox', { name: 'Search permissions' }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole('combobox', { name: 'Permission type' }),
-    ).toBeDisabled();
+    expect(screen.getByText('Choose an address to scan')).toBeInTheDocument();
     expect(screen.queryByText('Preview emerald')).not.toBeInTheDocument();
   });
 
