@@ -12,3 +12,35 @@ The repository contains a deployment configuration, not a published deployment. 
 8. Publish the URL only after those checks. Preserve actual results and failures; do not rename a local preview or build success as a deployment.
 
 Reference: [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite). Static hosting observes page/asset requests. Browser security policies, mixnet reachability and RPC provider behavior can differ from loopback tests. The app remains buildable/rehostable but fails closed when its selected read route is unavailable.
+
+## Deploy through the Vercel dashboard
+
+Open [Vercel New Project](https://vercel.com/new), import `Joel-29/GrantScope`, and deploy branch `main` from the repository root. Use these settings:
+
+| Setting                           | Value                     |
+| --------------------------------- | ------------------------- |
+| Framework                         | Vite                      |
+| Install command                   | `npm ci`                  |
+| Build command                     | `npm run build`           |
+| Output directory                  | `dist`                    |
+| Node version                      | 22.x                      |
+| Optional public environment label | `VITE_APP_ENV=production` |
+
+Leave all `VITE_DEMO_*` variables unset on Vercel. No private key, recovery phrase, RPC secret or database is needed. Keep Web Analytics and Speed Insights unconfigured: this app ships no tracking client. The account's own deployment/hosting logs remain a separate platform boundary.
+
+## Verify the actual hosted origin
+
+Replace the placeholder below with the real HTTPS origin printed by Vercel; it is not a published project URL:
+
+```sh
+npm run verify:deployment -- https://your-deployment.vercel.app
+npm run test:hosted -- https://your-deployment.vercel.app
+```
+
+The HTTP verifier checks eight route entries, configured privacy/security headers, the application shell and its same-origin JavaScript entry. It rejects credential-bearing URLs, inaccessible deployments, redirects, unexpected assets and development-only entry markers. It performs no blockchain requests and does not establish worker anonymity.
+
+The hosted browser runner uses the remote origin instead of starting a local server, checks production behavior, and disables both live networking and the private local-config test. Installed Chrome can be selected with `PLAYWRIGHT_CHANNEL=chrome`; otherwise install the Playwright browser as documented in README. A protected preview may require Vercel authentication; do not publish bypass tokens. Validate the public judging origin after making it accessible through the dashboard.
+
+For a separate real diagnostic, explicitly set `PLAYWRIGHT_BASE_URL` to that HTTPS origin, `PLAYWRIGHT_PRODUCTION=1`, `LIVE_ANON_RPC=1`, and run only `e2e/anon-rpc.live.spec.ts` on desktop Chromium. Nym stays primary. If it fails, explicitly select `LIVE_TRANSPORT=nox` for the tested Sepolia alternative. Never use real local demo identities in hosted automated tests or public captures. A successful loopback test is not a hosted-origin result.
+
+Vercel CLI/agent setup is independent of project deployment. The [official setup guide](https://vercel.com/get-started.md) covers CLI, plugin guidance and the shared OAuth MCP endpoint. Global agent configuration and local CLI authentication are not application files and must not be committed. No project linkage or deployment was created during the release handoff; the repository still requires an actual deployed-origin check.

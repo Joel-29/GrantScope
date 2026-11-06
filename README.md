@@ -47,6 +47,7 @@ npm run typecheck
 npm run lint
 npm run format:check
 npm test
+npm run test:release
 npm run build
 npm run check:local-config
 npx playwright install chromium
@@ -91,6 +92,8 @@ The [official EF prize page](https://ethglobal.com/events/mumbai/prizes#ethereum
 ## Deployment and screenshots
 
 `vercel.json` supplies the Vite build, static output, SPA deep links and basic privacy/security headers. `.vercelignore` excludes local environment and test artifacts. Import this repository into Vercel with `npm ci`, `npm run build`, and output `dist`; do not upload local demo variables. [Deployment checks](docs/DEPLOYMENT.md) must be run against the actual HTTPS origin before publishing a demo URL. No deployed URL exists in this repository's evidence.
+
+After your Vercel deployment finishes, run `npm run verify:deployment -- https://your-deployment.vercel.app` for route/header/asset checks, then `npm run test:hosted -- https://your-deployment.vercel.app` for desktop/mobile browser checks. These commands do not sign or submit transactions. Hosted tests disable the private local-demo case; real anonymous worker checks remain a separate explicit opt-in. [Private post-revocation verification](docs/DEMO.md#private-verification-after-owner-confirmation) keeps the actual transaction hash out of public output and commits.
 
 [Screenshot instructions](docs/SCREENSHOTS.md) distinguish actual UI captures, historical worker evidence, and excluded local target data. The component workshop is development-only and its fictional fixtures never enter production.
 

@@ -36,3 +36,21 @@ The canonical Sepolia deployment has returned real stored-grant/dependency reads
 - Use **Export report** for sanitized accounting. Do not publish traces/screenshots containing local demo identities. The configured browser test disables screenshot, trace and video capture and never requests signing.
 
 See [executed evidence](TESTING.md), [revocation semantics](REVOCATION.md), [traffic accounting](TRAFFIC.md) and [submission readiness](SUBMISSION_READINESS.md).
+
+## Private verification after owner confirmation
+
+The configured local allowance remains preserved. Perform the revocation only when the owner intentionally approves the exact zeroing action in MetaMask. Inspection, loading a demo, deployment and the verification tool below never authorize a transaction. Keep the existing local identities and transaction hash out of public recordings and commits.
+
+After the owner-confirmed transaction is mined, keep the development server on `http://127.0.0.1:4174`. Supply its actual hash through a local environment variable, not a tracked file. For PowerShell:
+
+```powershell
+$env:GRANTSCOPE_REVOCATION_HASH='paste the actual owner-confirmed transaction hash locally'
+$env:PLAYWRIGHT_CHANNEL='chrome'
+$env:LIVE_TRANSPORT='nox'
+npm.cmd run verify:local-revocation
+Remove-Item Env:GRANTSCOPE_REVOCATION_HASH
+```
+
+Nox is an explicit Sepolia alternative after a failed Nym attempt; omit `LIVE_TRANSPORT` to use primary Nym. The verifier reads the configured owner/token/spender from ignored local environment configuration, uses the application Anon-RPC adapter, reads actual token state, and verifies the supplied transaction/receipt, exact approve-to-zero action, nonce, canonical anchors, two confirmations and fresh zero allowance. Missing hashes and unsupported transports are refused. It never connects a wallet or calls `eth_sendTransaction`.
+
+On success, its private hash-bearing proof is saved only in ignored `.npm-cache/release/verified-revocation.json`. Console output omits that hash and target addresses; no screenshots, tracing or video are recorded. Do not commit or publish the private proof: a transaction hash can reveal all involved identities. No real signed result is claimed until this flow or the application's owner-signing flow actually succeeds. A failed or nonzero result remains unverified.
