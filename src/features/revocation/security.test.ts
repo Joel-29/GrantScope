@@ -22,7 +22,7 @@ import {
 
 const wait = vi.hoisted(() => vi.fn());
 vi.mock('../wallet/inspection', () => ({
-  publicClient: () => ({ waitForTransactionReceipt: wait }),
+  waitAnonymousReceipt: wait,
 }));
 const owner = '0x0000000000000000000000000000000000000001',
   token = '0x0000000000000000000000000000000000000002',
@@ -318,7 +318,8 @@ describe('owner-authorized revocation security', () => {
     const replacement = `0x${'ef'.repeat(32)}` as Hex;
     t.state.txHash = replacement;
     t.state.amount = 0n;
-    wait.mockImplementation(async ({ onReplaced }) => {
+    wait.mockImplementation(async (...args) => {
+      const { onReplaced } = args[2];
       onReplaced({ transaction: { hash: replacement } });
       return {
         transactionHash: replacement,

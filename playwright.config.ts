@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 4173);
+if (!Number.isInteger(port) || port < 1 || port > 65535)
+  throw new Error('Invalid local Playwright port');
+const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -7,7 +11,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL,
     trace: 'retain-on-failure',
     ...(process.env.PLAYWRIGHT_CHANNEL
       ? { channel: process.env.PLAYWRIGHT_CHANNEL }
@@ -20,9 +24,9 @@ export default defineConfig({
   webServer: {
     command:
       process.env.PLAYWRIGHT_PRODUCTION === '1'
-        ? 'node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort'
-        : 'node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4173 --strictPort',
-    url: 'http://127.0.0.1:4173',
+        ? `node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port ${port} --strictPort`
+        : `node node_modules/vite/bin/vite.js --host 127.0.0.1 --port ${port} --strictPort`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
   },
 });

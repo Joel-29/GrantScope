@@ -30,6 +30,22 @@ function worker() {
 }
 
 describe('anonymous transport (mock responses are not live evidence)', () => {
+  it('uses documented Nox bounds while requiring end-to-end TLS and disabling spare tunnels', async () => {
+    const handle = worker(),
+      factory = vi.fn<WorkerFactory>(() => handle);
+    const manager = new AnonRpcManager(factory, undefined, 100, 100, 'nox');
+    await manager.initialize();
+    expect(factory.mock.calls[0]?.[0]).toMatchObject({
+      config: {
+        tls: 'required',
+        tlsSpares: 0,
+        tlsOpenTimeoutMs: 15000,
+        attemptTimeoutMs: 30000,
+        callDeadlineMs: 45000,
+      },
+    });
+    manager.close();
+  });
   it('times out initialization without attempting a direct query', async () => {
     vi.useFakeTimers();
     try {
@@ -81,7 +97,7 @@ describe('anonymous transport (mock responses are not live evidence)', () => {
       )
       .catch((error) => error);
     controller.abort();
-    expect(await pending).toBeInstanceOf(DOMException);
+    expect(await pending).toMatchObject({ name: 'AbortError' });
     expect(manager.getSnapshot().metrics[0]).toMatchObject({
       actualTransport: 'nym',
       outcome: 'cancelled',

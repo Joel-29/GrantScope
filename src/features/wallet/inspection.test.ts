@@ -21,13 +21,19 @@ function mockedManager(chain = '0xaa36a7', code = '0x') {
         };
         calls.push(body);
         const result =
-          body.method === 'eth_chainId'
-            ? chain
-            : body.method === 'eth_blockNumber'
-              ? '0xabc'
-              : body.method === 'eth_getBalance'
-                ? '0xde0b6b3a7640001'
-                : code;
+          body.method === 'eth_getBlockByNumber'
+            ? {
+                number: body.params[0],
+                hash: `0x${'ab'.repeat(32)}`,
+                timestamp: '0x100',
+              }
+            : body.method === 'eth_chainId'
+              ? chain
+              : body.method === 'eth_blockNumber'
+                ? '0xabc'
+                : body.method === 'eth_getBalance'
+                  ? '0xde0b6b3a7640001'
+                  : code;
         return new Response(
           JSON.stringify({ jsonrpc: '2.0', id: body.id, result }),
         );
@@ -59,12 +65,17 @@ describe('read-only account inspection', () => {
     expect(calls.map((item) => item.method)).toEqual([
       'eth_chainId',
       'eth_blockNumber',
+      'eth_getBlockByNumber',
       'eth_getBalance',
       'eth_getCode',
+      'eth_getBlockByNumber',
     ]);
     expect(
       calls
-        .slice(2)
+        .filter(
+          (item) =>
+            item.method === 'eth_getBalance' || item.method === 'eth_getCode',
+        )
         .every(
           (item) => item.params[0] === owner && item.params[1] === '0xabc',
         ),
@@ -129,7 +140,9 @@ describe('read-only account inspection', () => {
   it('subscribes to account/network changes and disconnects without requesting chain reads', async () => {
     const events = new Map<string, (...args: unknown[]) => void>();
     const request = vi.fn(async ({ method }: { method: string }) =>
-      method === 'eth_requestAccounts' ? [owner] : '0xaa36a7',
+      method === 'eth_requestAccounts' || method === 'eth_accounts'
+        ? [owner]
+        : '0xaa36a7',
     );
     Object.defineProperty(window, 'ethereum', {
       configurable: true,
@@ -148,6 +161,7 @@ describe('read-only account inspection', () => {
     expect(useWallet.getState().chainId).toBe(1);
     expect(request.mock.calls.map((call) => call[0].method)).toEqual([
       'eth_requestAccounts',
+      'eth_accounts',
       'eth_chainId',
     ]);
     useWallet.getState().disconnect();
