@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { Hex } from 'viem';
 import type { ReadChainId } from '../anon-rpc/transportRegistry';
 import type { RevocationPhase } from './engine';
+import type { Permission } from '../exposure/analysis';
 export type Activity = {
   id: string;
   recordId: string;
@@ -9,8 +10,28 @@ export type Activity = {
   phase: RevocationPhase | 'failed' | 'rejected' | 'unverified' | 'reverted';
   hash?: Hex;
   verifiedBlock?: bigint;
+  verifiedAt?: number;
   message?: string;
 };
+// Verification is historical evidence, not a permanent assertion about an allowance.
+export function supersedingVerification(
+  record: Permission,
+  activity: readonly Activity[],
+  includeDependency = false,
+) {
+  return activity.find(
+    (entry) =>
+      entry.chainId === record.chainId &&
+      (entry.recordId === record.id ||
+        (includeDependency &&
+          record.kind === 'permit2' &&
+          entry.recordId === record.underlying.id)) &&
+      entry.phase === 'verified-zero' &&
+      entry.verifiedBlock !== undefined &&
+      entry.verifiedAt !== undefined &&
+      entry.verifiedAt >= record.readAt,
+  );
+}
 export const useTransactions = create<{
   busy: boolean;
   activity: Activity[];

@@ -16,7 +16,7 @@ import {
   RevocationError,
   type Prepared,
 } from './engine';
-import { useTransactions } from './store';
+import { supersedingVerification, useTransactions } from './store';
 
 function safeError(error: unknown) {
   return error instanceof RevocationError
@@ -26,7 +26,7 @@ function safeError(error: unknown) {
 export function RevocationControl({ record }: { record: Permission }) {
   const prepareButton = useRef<HTMLButtonElement>(null);
   const controller = useRef<AbortController | null>(null);
-  useEffect(() => () => controller.current?.abort(), []);
+  useEffect(() => () => controller.current?.abort(), [record.id]);
   const wallet = useWallet(),
     inspection = useInspection(),
     transactions = useTransactions(),
@@ -43,13 +43,7 @@ export function RevocationControl({ record }: { record: Permission }) {
   const owner =
     wallet.address === record.owner && wallet.chainId === record.chainId;
   const codePresent = inspection.data?.kind === 'code-present';
-  const verified = transactions.activity.find(
-    (entry) =>
-      entry.recordId === record.id &&
-      entry.phase === 'verified-zero' &&
-      entry.verifiedBlock !== undefined &&
-      entry.verifiedBlock >= record.blockNumber,
-  );
+  const verified = supersedingVerification(record, transactions.activity);
   async function prepare() {
     const provider = injectedProvider();
     if (!provider) return;
@@ -96,8 +90,12 @@ export function RevocationControl({ record }: { record: Permission }) {
       })
     )
       return;
+    controller.current?.abort();
+    const attempt = new AbortController();
+    controller.current = attempt;
     setError('');
     const guard = () => {
+      attempt.signal.throwIfAborted();
       const target = useInspectionSession.getState();
       if (
         target.revision !== scope.revision ||
@@ -121,7 +119,7 @@ export function RevocationControl({ record }: { record: Permission }) {
         scope.provider,
         prepared,
         guard,
-        undefined,
+        attempt.signal,
         () => {
           walletRequested = true;
           state.update(id, { phase: 'awaiting-wallet' });
@@ -141,6 +139,7 @@ export function RevocationControl({ record }: { record: Permission }) {
         phase: 'verified-zero',
         hash: verified.hash,
         verifiedBlock: verified.blockNumber,
+        verifiedAt: Date.now(),
       });
       await Promise.all(
         ['allowances', 'discovery', 'permit2'].map((key) =>

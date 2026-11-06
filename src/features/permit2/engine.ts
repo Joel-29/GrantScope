@@ -1,13 +1,12 @@
 import {
   decodeEventLog,
-  decodeFunctionResult,
   encodeFunctionData,
   keccak256,
   pad,
   toEventSelector,
   type Address,
 } from 'viem';
-import { permit2Abi } from '../../lib/abi/permit2';
+import { decodePermit2Allowance, permit2Abi } from '../../lib/abi/permit2';
 import { PERMIT2_ADDRESS, spenders } from '../../data/spenders';
 import { tokens } from '../../data/tokens';
 import type { AnonRpcManager } from '../anon-rpc/AnonRpcManager';
@@ -148,10 +147,8 @@ export async function inspectPermit2(
         functionName: 'allowance',
         args: [owner, pair.token, pair.spender],
       });
-      const [amount, expirationValue, nonceValue] = decodeFunctionResult({
-        abi: permit2Abi,
-        functionName: 'allowance',
-        data: await contractRead(
+      const [amount, expirationValue, nonceValue] = decodePermit2Allowance(
+        await contractRead(
           manager,
           chainId,
           PERMIT2_ADDRESS,
@@ -159,7 +156,7 @@ export async function inspectPermit2(
           blockNumber,
           signal,
         ),
-      });
+      );
       const expiration = smallUint(expirationValue),
         nonce = smallUint(nonceValue);
       if (amount < 0n || amount > (1n << 160n) - 1n)

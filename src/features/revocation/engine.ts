@@ -9,7 +9,7 @@ import {
   type TransactionReceipt,
 } from 'viem';
 import { erc20Abi } from '../../lib/abi/erc20';
-import { permit2Abi } from '../../lib/abi/permit2';
+import { decodePermit2Allowance, permit2Abi } from '../../lib/abi/permit2';
 import { PERMIT2_ADDRESS } from '../../data/spenders';
 import type { AnonRpcManager } from '../anon-rpc/AnonRpcManager';
 import { rpcQuantity } from '../anon-rpc/JsonRpcAdapter';
@@ -101,17 +101,20 @@ export async function currentAmount(
       functionName: 'allowance',
       args: [record.owner, record.spender],
     });
+    const result = await contractRead(
+      manager,
+      record.chainId,
+      record.token,
+      data,
+      blockNumber,
+      signal,
+    );
+    if (result.length !== 66)
+      throw new RevocationError('Noncanonical ERC-20 allowance result');
     return decodeFunctionResult({
       abi: erc20Abi,
       functionName: 'allowance',
-      data: await contractRead(
-        manager,
-        record.chainId,
-        record.token,
-        data,
-        blockNumber,
-        signal,
-      ),
+      data: result,
     });
   }
   const data = encodeFunctionData({
@@ -119,10 +122,8 @@ export async function currentAmount(
     functionName: 'allowance',
     args: [record.owner, record.token, record.spender],
   });
-  return decodeFunctionResult({
-    abi: permit2Abi,
-    functionName: 'allowance',
-    data: await contractRead(
+  return decodePermit2Allowance(
+    await contractRead(
       manager,
       record.chainId,
       PERMIT2_ADDRESS,
@@ -130,7 +131,7 @@ export async function currentAmount(
       blockNumber,
       signal,
     ),
-  })[0];
+  )[0];
 }
 export async function prepareRevocation(
   manager: AnonRpcManager,
@@ -152,6 +153,12 @@ export async function prepareRevocation(
     await manager.request(record.chainId, 'eth_blockNumber', [], signal),
   );
   const tag = `0x${blockNumber.toString(16)}`;
+  const anchor = await blockHeader(
+    manager,
+    record.chainId,
+    blockNumber,
+    signal,
+  );
   const ownerCode = await manager.request(
     record.chainId,
     'eth_getCode',
@@ -246,6 +253,9 @@ export async function prepareRevocation(
     );
   signal?.throwIfAborted();
   await assertWallet(provider, record);
+  const after = await blockHeader(manager, record.chainId, blockNumber, signal);
+  if (after.hash !== anchor.hash)
+    throw new RevocationError('Reorg during preparation; prepare again');
   return {
     record,
     intent,
@@ -380,14 +390,16 @@ export async function verifyRevocation(
   );
   if (blockNumber < receipt.blockNumber + 1n)
     throw new RevocationError('Two block confirmations are required');
+  const stateAnchor = await blockHeader(manager, chain, blockNumber, signal);
   if (
     (await currentAmount(manager, prepared.record, blockNumber, signal)) !== 0n
   )
     throw new RevocationError(
       'Current allowance is not zero; revocation not verified',
     );
+  const stateAfter = await blockHeader(manager, chain, blockNumber, signal);
   const after = await blockHeader(manager, chain, receipt.blockNumber, signal);
-  if (after.hash !== anchor.hash)
+  if (after.hash !== anchor.hash || stateAfter.hash !== stateAnchor.hash)
     throw new RevocationError('Reorg during verification');
   return { hash: receipt.transactionHash, blockNumber };
 }

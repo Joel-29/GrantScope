@@ -1,4 +1,9 @@
-import { parseAbi } from 'viem';
+import {
+  decodeFunctionResult,
+  encodeFunctionResult,
+  parseAbi,
+  type Hex,
+} from 'viem';
 
 // Exact entries from Uniswap/permit2 IAllowanceTransfer.sol, MIT.
 // Narrow ABI: only reads, discovery events and the supported revocation entrypoint.
@@ -13,3 +18,26 @@ export const permit2Abi = parseAbi([
   'error InsufficientAllowance(uint256 amount)',
   'error ExcessiveInvalidation()',
 ]);
+
+export function decodePermit2Allowance(data: Hex) {
+  if (data.length !== 194)
+    throw new Error('Noncanonical Permit2 allowance result');
+  try {
+    const result = decodeFunctionResult({
+      abi: permit2Abi,
+      functionName: 'allowance',
+      data,
+    });
+    if (
+      encodeFunctionResult({
+        abi: permit2Abi,
+        functionName: 'allowance',
+        result,
+      }).toLowerCase() !== data.toLowerCase()
+    )
+      throw new Error('Invalid ABI words');
+    return result;
+  } catch {
+    throw new Error('Noncanonical Permit2 allowance result');
+  }
+}

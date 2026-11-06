@@ -6,7 +6,7 @@ import {
   encodeFunctionResult,
   type Hex,
 } from 'viem';
-import { permit2Abi } from '../../lib/abi/permit2';
+import { decodePermit2Allowance, permit2Abi } from '../../lib/abi/permit2';
 import { erc20Abi } from '../../lib/abi/erc20';
 import { mockRpc } from '../../test/mockRpc';
 import { PERMIT2_ADDRESS } from '../../data/spenders';
@@ -16,6 +16,19 @@ const owner = '0x0000000000000000000000000000000000000000';
 const pair = knownPermit2Pairs(11155111)[0]!;
 const max160 = (1n << 160n) - 1n;
 describe('official Permit2 AllowanceTransfer', () => {
+  it('rejects out-of-width ABI words for each stored allowance field', () => {
+    for (const values of [
+      [1n << 160n, 0n, 0n],
+      [0n, 1n << 48n, 0n],
+      [0n, 0n, 1n << 48n],
+    ] as const) {
+      const malformed = encodeAbiParameters(
+        [{ type: 'uint256' }, { type: 'uint256' }, { type: 'uint256' }],
+        values,
+      );
+      expect(() => decodePermit2Allowance(malformed)).toThrow('Noncanonical');
+    }
+  });
   it('decodes official Permit and Approval events and rejects foreign emitters', () => {
     for (const eventName of ['Permit', 'Approval'] as const) {
       const topics = encodeEventTopics({
@@ -115,6 +128,53 @@ describe('official Permit2 AllowanceTransfer', () => {
       inspectPermit2(manager, owner, 11155111, [pair]),
     ).rejects.toThrow('Wrong');
     expect(calls).toHaveLength(1);
+    manager.close();
+  });
+  it('rejects trailing words in a Permit2 allowance response instead of claiming a checked grant', async () => {
+    const { manager } = mockRpc((call) => {
+      if (call.method === 'eth_chainId') return '0xaa36a7';
+      if (call.method === 'eth_blockNumber') return '0x10';
+      if (call.method === 'eth_getBlockByNumber')
+        return {
+          number: '0x10',
+          hash: `0x${'ab'.repeat(32)}`,
+          timestamp: '0x64',
+        };
+      if (call.method === 'eth_getCode') return '0x6000';
+      const target = call.params[0] as { to: string; data: Hex };
+      if (target.to === PERMIT2_ADDRESS)
+        return (
+          encodeFunctionResult({
+            abi: permit2Abi,
+            functionName: 'allowance',
+            result: [0n, 0, 0],
+          }) + '00'.repeat(32)
+        );
+      const { functionName } = decodeFunctionData({
+        abi: erc20Abi,
+        data: target.data,
+      });
+      if (functionName === 'symbol' || functionName === 'name')
+        return encodeFunctionResult({
+          abi: erc20Abi,
+          functionName,
+          result: 'TEST',
+        });
+      if (functionName === 'decimals')
+        return encodeFunctionResult({
+          abi: erc20Abi,
+          functionName,
+          result: 18,
+        });
+      return encodeFunctionResult({
+        abi: erc20Abi,
+        functionName: 'allowance',
+        result: 0n,
+      });
+    });
+    const result = await inspectPermit2(manager, owner, 11155111, [pair]);
+    expect(result.rows).toHaveLength(0);
+    expect(result.failures).toHaveLength(1);
     manager.close();
   });
 });

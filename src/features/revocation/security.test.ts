@@ -67,6 +67,7 @@ function setup() {
     permit: false,
     txTo: token as string,
     headerHash: blockHash,
+    headHeaderHash: blockHash,
   };
   const rpc = mockRpc((call) => {
     if (call.method === 'eth_chainId') return state.rpcChain;
@@ -83,7 +84,10 @@ function setup() {
     if (call.method === 'eth_getBlockByNumber')
       return {
         number: call.params[0],
-        hash: state.headerHash,
+        hash:
+          call.params[0] === state.head
+            ? state.headHeaderHash
+            : state.headerHash,
         timestamp: '0x100',
       };
     if (call.method === 'eth_getTransactionByHash')
@@ -134,6 +138,78 @@ function setup() {
   return { ...rpc, state, provider: { request } };
 }
 describe('owner-authorized revocation security', () => {
+  it('rejects noncanonical zero responses during post-confirmation verification', async () => {
+    for (const permit of [false, true]) {
+      const t = setup();
+      const p = await prepareRevocation(t.manager, t.provider, record);
+      if (permit) {
+        t.state.permit = true;
+        p.record = {
+          ...record,
+          kind: 'permit2',
+          underlying: record,
+        } as unknown as Permit2Grant;
+        p.intent = revocationIntent(p.record);
+        t.state.txTo = PERMIT2_ADDRESS;
+        t.state.txData = p.intent.data;
+      }
+      t.state.amount = 0n;
+      const request = t.manager.request.bind(t.manager);
+      vi.spyOn(t.manager, 'request').mockImplementation(async (...args) => {
+        const result = await request(...args);
+        return args[1] === 'eth_call'
+          ? String(result) + '00'.repeat(32)
+          : result;
+      });
+      await expect(
+        verifyRevocation(t.manager, p, {
+          transactionHash: hash,
+          status: 'success',
+          blockNumber: 16n,
+          blockHash,
+        }),
+      ).rejects.toThrow('Noncanonical');
+      t.manager.close();
+    }
+  });
+  it('discards preparation if its account and allowance snapshot is reorganized', async () => {
+    const t = setup();
+    const request = t.manager.request.bind(t.manager);
+    vi.spyOn(t.manager, 'request').mockImplementation(async (...args) => {
+      const result = await request(...args);
+      if (args[1] === 'eth_estimateGas') t.state.headHeaderHash = hash;
+      return result;
+    });
+    await expect(
+      prepareRevocation(t.manager, t.provider, record),
+    ).rejects.toThrow('Reorg');
+    expect(
+      t.provider.request.mock.calls.some(
+        (c) => c[0].method === 'eth_sendTransaction',
+      ),
+    ).toBe(false);
+    t.manager.close();
+  });
+  it('does not verify zero from a reorganized state block even when the receipt block survives', async () => {
+    const t = setup();
+    const p = await prepareRevocation(t.manager, t.provider, record);
+    t.state.amount = 0n;
+    const request = t.manager.request.bind(t.manager);
+    vi.spyOn(t.manager, 'request').mockImplementation(async (...args) => {
+      const result = await request(...args);
+      if (args[1] === 'eth_call') t.state.headHeaderHash = hash;
+      return result;
+    });
+    await expect(
+      verifyRevocation(t.manager, p, {
+        transactionHash: hash,
+        status: 'success',
+        blockNumber: 16n,
+        blockHash,
+      }),
+    ).rejects.toThrow('Reorg');
+    t.manager.close();
+  });
   it('prepares real typed Permit2 lockdown calldata and verifies only its selected stored grant', async () => {
     const t = setup();
     t.state.permit = true;
