@@ -109,9 +109,7 @@ describe('Module 2 design system', () => {
     const user = userEvent.setup();
     renderPage('/privacy');
     await screen.findByRole('heading', { name: 'Privacy Lab' });
-    expect(
-      screen.getByRole('button', { name: 'Export report' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Export report' })).toBeEnabled();
     await user.click(
       screen.getByRole('button', { name: 'Open transaction activity' }),
     );

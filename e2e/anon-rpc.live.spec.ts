@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 const network = process.env.LIVE_TRANSPORT === 'nox' ? 'Nox' : 'Nym';
 test(`actual ${network} worker returns a Sepolia block and balance without direct wallet RPC`, async ({
@@ -42,6 +43,34 @@ test(`actual ${network} worker returns a Sepolia block and balance without direc
   );
   expect(directRpc).toEqual(['eth_call', 'eth_call']);
   expect(badDirectMethods).toEqual([]);
+  const waiting = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export report' }).click();
+  const download = await waiting;
+  const path = testInfo.outputPath('measured-live-traffic.json');
+  await download.saveAs(path);
+  const report = JSON.parse(await readFile(path, 'utf8')) as {
+    accounting: {
+      anonymousReadShare: string;
+      totals: {
+        read: { completed: number; anonymized: number };
+        bootstrap: { completed: number };
+        wallet: { completed: number };
+      };
+    };
+    requests: { actualTransport: string; category: string }[];
+  };
+  expect(report.accounting.totals.read).toMatchObject({
+    completed: 3,
+    anonymized: 3,
+  });
+  expect(report.accounting.totals.bootstrap.completed).toBe(2);
+  expect(report.accounting.totals.wallet.completed).toBe(0);
+  expect(report.accounting.anonymousReadShare).toBe('100.0%');
+  expect(
+    report.requests
+      .filter((row) => row.category === 'read')
+      .every((row) => row.actualTransport === network.toLowerCase()),
+  ).toBe(true);
   await page.screenshot({
     path: testInfo.outputPath(`real-${network.toLowerCase()}-read.png`),
     fullPage: true,
