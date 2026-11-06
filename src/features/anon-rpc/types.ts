@@ -37,4 +37,5 @@ export type TransportSnapshot = {
   error: string | null;
   metrics: readonly RequestMetric[];
   successfulWorkerReads: number;
+  readState?: 'unproven' | 'successful' | 'failed';
 };

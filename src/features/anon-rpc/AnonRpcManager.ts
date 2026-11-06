@@ -1,6 +1,7 @@
 import { toFunctionSelector } from 'viem';
 import { decodeRpc } from './JsonRpcAdapter';
 import { abortable } from '../../lib/abortable';
+import { bootstrapRetry } from './recovery';
 import {
   READ_NETWORKS,
   WORKERS,
@@ -56,6 +57,7 @@ export class AnonRpcManager {
     error: null,
     metrics: [],
     successfulWorkerReads: 0,
+    readState: 'unproven',
   };
   constructor(
     private readonly factory: WorkerFactory,
@@ -122,6 +124,15 @@ export class AnonRpcManager {
         outcome = 'cancelled';
       throw error;
     } finally {
+      if (
+        category === 'read' &&
+        route.actualTransport === this.transport &&
+        outcome !== 'cancelled' &&
+        this.snapshot.phase === 'ready'
+      )
+        this.update({
+          readState: outcome === 'successful' ? 'successful' : 'failed',
+        });
       this.record({
         id,
         timestamp,
@@ -170,36 +181,47 @@ export class AnonRpcManager {
       Object.keys(call).some((key) => !['to', 'data'].includes(key))
     )
       throw new Error('Bootstrap provider refuses non-specifier requests');
-    return this.measured(
-      method,
-      WORKERS[this.transport].bootstrapChainId,
-      'bootstrap',
-      async (dispatched) => {
-        const id = ++this.sequence;
-        const body = JSON.stringify({ jsonrpc: '2.0', id, method, params });
-        dispatched('direct-bootstrap');
-        const response = await this.bootstrapFetch(
-          READ_NETWORKS[WORKERS[this.transport].bootstrapChainId].rpc,
-          {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body,
-            signal: AbortSignal.any([signal, AbortSignal.timeout(20_000)]),
-            credentials: 'omit',
-            referrerPolicy: 'no-referrer',
+    return bootstrapRetry(
+      () =>
+        this.measured(
+          method,
+          WORKERS[this.transport].bootstrapChainId,
+          'bootstrap',
+          async (dispatched) => {
+            const id = ++this.sequence;
+            const body = JSON.stringify({ jsonrpc: '2.0', id, method, params });
+            const requestSignal = AbortSignal.any([
+              signal,
+              AbortSignal.timeout(20_000),
+            ]);
+            dispatched('direct-bootstrap');
+            const response = await this.bootstrapFetch(
+              READ_NETWORKS[WORKERS[this.transport].bootstrapChainId].rpc,
+              {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body,
+                signal: requestSignal,
+                credentials: 'omit',
+                referrerPolicy: 'no-referrer',
+              },
+            );
+            const result = await decodeRpc(response, id, requestSignal);
+            signal.throwIfAborted();
+            if (
+              typeof result !== 'string' ||
+              !/^0x(?:[0-9a-f]{2})+$/i.test(result)
+            )
+              throw new Error('Invalid worker specifier result');
+            if (call.data === toFunctionSelector('workerHash()')) {
+              if (!/^0x[0-9a-f]{64}$/i.test(result) || /^0x0+$/.test(result))
+                throw new Error('Invalid worker hash');
+              this.update({ verifiedHash: result }); // Bootstrap-reported identity; verified only once ready resolves.
+            }
+            return result;
           },
-        );
-        const result = await decodeRpc(response, id);
-        signal.throwIfAborted();
-        if (typeof result !== 'string' || !/^0x(?:[0-9a-f]{2})+$/i.test(result))
-          throw new Error('Invalid worker specifier result');
-        if (call.data === toFunctionSelector('workerHash()')) {
-          if (!/^0x[0-9a-f]{64}$/i.test(result) || /^0x0+$/.test(result))
-            throw new Error('Invalid worker hash');
-          this.update({ verifiedHash: result }); // Bootstrap-reported identity; verified only once ready resolves.
-        }
-        return result;
-      },
+        ),
+      signal,
     );
   };
   initialize(): Promise<void> {
@@ -226,6 +248,7 @@ export class AnonRpcManager {
       verifiedHash: null,
       error: null,
       successfulWorkerReads: 0,
+      readState: 'unproven',
       bootstrapStatus: '',
     });
     const task = (async () => {
@@ -406,6 +429,10 @@ export class AnonRpcManager {
     this.worker?.close();
     this.worker = undefined;
     this.initialization = undefined;
-    this.update({ phase: 'closed', successfulWorkerReads: 0 });
+    this.update({
+      phase: 'closed',
+      successfulWorkerReads: 0,
+      readState: 'unproven',
+    });
   };
 }

@@ -43,6 +43,7 @@ export function sanitizedReport(
       state: snapshot.phase,
       harnessReady: snapshot.phase === 'ready',
       successfulResponses: snapshot.successfulWorkerReads,
+      readState: snapshot.readState ?? 'unproven',
     },
     accounting: {
       denominator:
