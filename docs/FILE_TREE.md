@@ -38,6 +38,11 @@ GrantScope/
 │   ├── check-local-config.mjs    Tracked/staged/four-commit address guard
 │   ├── capture-public-ui.mjs     Empty production captures with no target data
 │   ├── run-live.mjs              Explicit public worker diagnostic
+│   ├── release-checks.mjs        Bounded HTTPS checks and private input guards
+│   ├── release-checks.test.mjs   Node tests for release/privacy guard behavior
+│   ├── verify-deployment.mjs     Actual hosted route/header/asset verification
+│   ├── run-hosted.mjs            Remote production browser runner, no private demo
+│   ├── verify-local-revocation.mjs  Read-only private proof after owner signing
 │   └── probe-*.mjs               Local real-worker investigation, sanitized output
 └── docs/
     ├── ANON_RPC.md / INSPECTION.md / ALLOWANCES.md / DISCOVERY.md

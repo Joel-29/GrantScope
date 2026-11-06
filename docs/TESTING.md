@@ -1,5 +1,15 @@
 # Testing
 
+## Release handoff checks, 6 November 2026
+
+The release tooling adds a bounded HTTPS route/header/asset verifier, a remote-origin Playwright runner, and a local-only post-revocation verifier. Fresh strict TypeScript and ESLint checks passed. Vitest passed 95 tests across 14 files; Node's release-tool suite passed five tests covering URL credentials/target rejection, response limits, headers/assets, private-input requirements and unsupported transport refusal. The production build and fixture/local-address exclusion passed with the existing upstream warnings.
+
+Fresh desktop/mobile browser runs each passed 26 deterministic tests on development and production, with twelve opt-in live cases skipped in each run. No hosted origin was tested or deployment created. The local verifier's missing-hash guard was exercised separately and exited before browser launch; the first shell assertion needed correction for PowerShell's wrapped stderr formatting. No signed hash was supplied, so the full private verification path remains unexecuted against a real revocation. Its underlying receipt/intent/reorg/state guards retain the application's security-unit coverage. Do not present those mocked cases as live signed evidence.
+
+The latest preceding review commit's GitHub CI run also reported success: [run 42192068037](https://github.com/Joel-29/GrantScope/actions/runs/42192068037), commit `1b033ab`. That result applies to that commit, not unobserved later CI runs. No additional real allowance read or wallet submission was made during release handoff; earlier live successes/failures below remain dated evidence.
+
+Use `npm run test:release` for the Node checks. After the owner deploys, use the commands in [DEPLOYMENT](DEPLOYMENT.md#verify-the-actual-hosted-origin). Hosted tests cannot load the private local demo, even if its opt-in environment flag is accidentally set. `.env.local`, local CLI authentication and private verification artifacts remain ignored and excluded from deployment uploads.
+
 ## Follow-up review, 6 November 2026
 
 Fresh results after the follow-up fixes, using Node 20.20.1, npm 10.8.2 and installed Chrome:
