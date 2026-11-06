@@ -40,7 +40,7 @@ Copy `.env.example` to ignored `.env.local` and set the three optional public va
 
 The development dashboard's **Load configured Sepolia demo** button performs a real anonymous pair scan and displays its returned allowance. It encodes unsigned approve-to-zero calldata; it never requests signing automatically. Open the verified permission detail, connect the owner in Settings, and separately confirm preparation and wallet authorization when ready. Ordinary address inspection and manual pair entry work independently of this configuration.
 
-Settings explains unsupported wallet networks and owner/network mismatches using the selected inspection. The local Sepolia demo requires Ethereum Sepolia (11155111). Guidance does not change networks or authorize a transaction. [Local setup and current handoff](docs/LOCAL_HANDOFF.md).
+Settings explains unsupported wallet networks and owner/network mismatches using the selected inspection. The local Sepolia demo requires Ethereum Sepolia (11155111). An explicit network-switch button requests MetaMask's network change and verifies its reported chain; it never submits a transaction. [Local setup and current handoff](docs/LOCAL_HANDOFF.md).
 
 The local loader and configured values are excluded from production. Do not copy these identities into README files, fixtures, screenshots, videos or commits. Use a separately consented public demonstration wallet for recordings. Production accepts arbitrary addresses through its ordinary forms. [Demo runbook](docs/DEMO.md).
 
