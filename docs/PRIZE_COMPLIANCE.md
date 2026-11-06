@@ -2,6 +2,8 @@
 
 Source: [official ETHGlobal Mumbai EF prizes](https://ethglobal.com/events/mumbai/prizes#ethereum-foundation), reviewed 6 November 2026. Target: **Best Use of Anon-RPC**. This mapping is evidence, not a guarantee of qualification or placement.
 
+**Current operational gap:** the [latest live checks](FINAL_REVIEW.md) failed for Nym and Nox, and the configured allowance could not be reverified. The default worker-only implementation supports the qualification requirement, but this review does not establish a working end-to-end demo. Earlier positive reads in the mapping below are dated evidence only.
+
 The app qualification requirement is:
 
 > Your app routes its RPC reads through Anon-RPC by default.

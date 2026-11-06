@@ -1,5 +1,9 @@
 # Testing
 
+## Latest deployment review, 6 November 2026
+
+The [final review](FINAL_REVIEW.md) supersedes the readiness implications of earlier successful runs below. The latest real Nym diagnostic timed out, the fresh Nox diagnostic failed bootstrap, and the configured scan reached a ready Nox worker but failed its first application read. No real allowance or anonymous diagnostic succeeded in this review. Historical successes remain historical evidence, not current availability proof. Fresh deterministic checks and exact live accounting are recorded in that review and its sanitized export.
+
 ## Release handoff checks, 6 November 2026
 
 The release tooling adds a bounded HTTPS route/header/asset verifier, a remote-origin Playwright runner, and a local-only post-revocation verifier. Fresh strict TypeScript and ESLint checks passed. Vitest passed 95 tests across 14 files; Node's release-tool suite passed five tests covering URL credentials/target rejection, response limits, headers/assets, private-input requirements and unsupported transport refusal. The production build and fixture/local-address exclusion passed with the existing upstream warnings.

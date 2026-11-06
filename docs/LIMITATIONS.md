@@ -1,5 +1,7 @@
 # Known limitations
 
+The [latest review](FINAL_REVIEW.md) returned no successful anonymous blockchain responses. A reliable demo remains blocked even though the production build and deterministic checks pass. Earlier successful reads below do not establish current availability.
+
 - **Connectivity:** Nym has returned real responses and has also timed out. Nox has returned real diagnostics, allowances and Permit2 reads; default tunnel settings later failed. Documented timeout tuning enabled the configured positive scan, but does not guarantee availability. The official Tor demonstration gateway failed; Tor needs an operational authenticated gateway supplied by its operator. No ordinary-RPC/passthrough fallback exists.
 - **Networks:** Ethereum mainnet and Sepolia are configured and chain-checked. Recent executed integration evidence is predominantly Sepolia. Nox is restricted to the tested Sepolia use case. Support is not a claim that every method/provider/range works continuously.
 - **Discovery:** Known pairs, selected manual pairs and bounded historical ranges cannot enumerate all authority. Logs can be missing, capped, nonstandard, removed or provider-truncated. Twelve-block lag and canonical anchors reduce reorg errors; neither establishes finality. ERC-721-shaped approvals are excluded; deceptive/nonstandard emitters can still require state verification or remain unsupported.

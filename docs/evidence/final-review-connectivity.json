@@ -1,0 +1,358 @@
+{
+  "observedAt": "2026-11-06",
+  "mode": "Local Chrome browser; actual official anonymous workers; no wallet connection or submission",
+  "diagnostics": [
+    {
+      "transport": "nym",
+      "elapsedSeconds": 120.2,
+      "readySeconds": null,
+      "success": false,
+      "error": "Diagnostic failed: Anonymous worker initialization timed out. No direct fallback was used.",
+      "proof": {
+        "chain": "Not returned",
+        "block": "Not returned",
+        "balance": "Not returned"
+      },
+      "hosts": {
+        "127.0.0.1:5173": 82,
+        "ethereum-rpc.publicnode.com": 2,
+        "cdn.jsdelivr.net": 1
+      },
+      "directRpc": [
+        {
+          "host": "ethereum-rpc.publicnode.com",
+          "method": "eth_call",
+          "bootstrap": true
+        },
+        {
+          "host": "ethereum-rpc.publicnode.com",
+          "method": "eth_call",
+          "bootstrap": true
+        }
+      ],
+      "report": {
+        "schema": "grantscope-traffic-v1",
+        "exportedAt": "2026-11-06T12:40:26.738Z",
+        "worker": {
+          "transport": "nym",
+          "state": "failed",
+          "harnessReady": false,
+          "successfulResponses": 0,
+          "readState": "unproven"
+        },
+        "accounting": {
+          "denominator": "Completed application read attempts; includes failed and cancelled reads. Bootstrap and wallet activity excluded.",
+          "anonymousReadShare": null,
+          "totals": {
+            "read": {
+              "completed": 0,
+              "successful": 0,
+              "failed": 0,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 0
+            },
+            "bootstrap": {
+              "completed": 2,
+              "successful": 2,
+              "failed": 0,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 2290
+            },
+            "wallet": {
+              "completed": 0,
+              "successful": 0,
+              "failed": 0,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 0
+            },
+            "walletSubmissions": 0,
+            "routes": {
+              "direct-bootstrap": {
+                "completed": 2,
+                "successful": 2,
+                "failed": 0,
+                "cancelled": 0,
+                "anonymized": 0,
+                "successfulDurationMs": 2290
+              }
+            }
+          },
+          "retainedRecords": 2,
+          "recordLimit": 1000
+        },
+        "requests": [
+          {
+            "timestamp": "2026-11-06T12:38:26.545Z",
+            "method": "eth_call",
+            "chainId": 1,
+            "category": "bootstrap",
+            "requestedTransport": "nym",
+            "actualTransport": "direct-bootstrap",
+            "outcome": "successful",
+            "durationMs": 1739,
+            "anonymized": false,
+            "directException": true
+          },
+          {
+            "timestamp": "2026-11-06T12:38:28.316Z",
+            "method": "eth_call",
+            "chainId": 1,
+            "category": "bootstrap",
+            "requestedTransport": "nym",
+            "actualTransport": "direct-bootstrap",
+            "outcome": "successful",
+            "durationMs": 551,
+            "anonymized": false,
+            "directException": true
+          }
+        ],
+        "limitations": [
+          "RPC providers still see query contents.",
+          "Wallet-internal traffic and worker-internal network operations are not fully observable.",
+          "Bootstrap specifier reads are direct exceptions.",
+          "No wallet addresses, query parameters, gateway credentials, transaction hashes or raw error text are exported."
+        ]
+      }
+    },
+    {
+      "transport": "nox",
+      "elapsedSeconds": 21.7,
+      "readySeconds": null,
+      "success": false,
+      "error": "Diagnostic failed: Failed to fetch. No direct fallback was used.",
+      "proof": {
+        "chain": "Not returned",
+        "block": "Not returned",
+        "balance": "Not returned"
+      },
+      "hosts": {
+        "127.0.0.1:5173": 82,
+        "ethereum-sepolia-rpc.publicnode.com": 2
+      },
+      "directRpc": [
+        {
+          "host": "ethereum-sepolia-rpc.publicnode.com",
+          "method": "eth_call",
+          "bootstrap": true
+        },
+        {
+          "host": "ethereum-sepolia-rpc.publicnode.com",
+          "method": "eth_call",
+          "bootstrap": true
+        }
+      ],
+      "report": {
+        "schema": "grantscope-traffic-v1",
+        "exportedAt": "2026-11-06T12:40:50.104Z",
+        "worker": {
+          "transport": "nox",
+          "state": "failed",
+          "harnessReady": false,
+          "successfulResponses": 0,
+          "readState": "unproven"
+        },
+        "accounting": {
+          "denominator": "Completed application read attempts; includes failed and cancelled reads. Bootstrap and wallet activity excluded.",
+          "anonymousReadShare": null,
+          "totals": {
+            "read": {
+              "completed": 0,
+              "successful": 0,
+              "failed": 0,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 0
+            },
+            "bootstrap": {
+              "completed": 2,
+              "successful": 0,
+              "failed": 2,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 0
+            },
+            "wallet": {
+              "completed": 0,
+              "successful": 0,
+              "failed": 0,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 0
+            },
+            "walletSubmissions": 0,
+            "routes": {
+              "direct-bootstrap": {
+                "completed": 2,
+                "successful": 0,
+                "failed": 2,
+                "cancelled": 0,
+                "anonymized": 0,
+                "successfulDurationMs": 0
+              }
+            }
+          },
+          "retainedRecords": 2,
+          "recordLimit": 1000
+        },
+        "requests": [
+          {
+            "timestamp": "2026-11-06T12:40:28.401Z",
+            "method": "eth_call",
+            "chainId": 11155111,
+            "category": "bootstrap",
+            "requestedTransport": "nox",
+            "actualTransport": "direct-bootstrap",
+            "outcome": "failed",
+            "durationMs": 6109,
+            "anonymized": false,
+            "directException": true
+          },
+          {
+            "timestamp": "2026-11-06T12:40:34.846Z",
+            "method": "eth_call",
+            "chainId": 11155111,
+            "category": "bootstrap",
+            "requestedTransport": "nox",
+            "actualTransport": "direct-bootstrap",
+            "outcome": "failed",
+            "durationMs": 15088,
+            "anonymized": false,
+            "directException": true
+          }
+        ],
+        "limitations": [
+          "RPC providers still see query contents.",
+          "Wallet-internal traffic and worker-internal network operations are not fully observable.",
+          "Bootstrap specifier reads are direct exceptions.",
+          "No wallet addresses, query parameters, gateway credentials, transaction hashes or raw error text are exported."
+        ]
+      }
+    }
+  ],
+  "configuredScan": {
+    "success": false,
+    "elapsedSeconds": 82.6,
+    "hosts": {
+      "ethereum-sepolia-rpc.publicnode.com": 2,
+      "raw.githubusercontent.com": 1,
+      "blob:": 3,
+      "127.0.0.1:5173": 2
+    },
+    "forbiddenDirectRequests": 0,
+    "report": {
+      "schema": "grantscope-traffic-v1",
+      "exportedAt": "2026-11-06T12:40:09.254Z",
+      "worker": {
+        "transport": "nox",
+        "state": "ready",
+        "harnessReady": true,
+        "successfulResponses": 0,
+        "readState": "failed"
+      },
+      "accounting": {
+        "denominator": "Completed application read attempts; includes failed and cancelled reads. Bootstrap and wallet activity excluded.",
+        "anonymousReadShare": "0.0%",
+        "totals": {
+          "read": {
+            "completed": 1,
+            "successful": 0,
+            "failed": 1,
+            "cancelled": 0,
+            "anonymized": 0,
+            "successfulDurationMs": 0
+          },
+          "bootstrap": {
+            "completed": 2,
+            "successful": 2,
+            "failed": 0,
+            "cancelled": 0,
+            "anonymized": 0,
+            "successfulDurationMs": 3465
+          },
+          "wallet": {
+            "completed": 0,
+            "successful": 0,
+            "failed": 0,
+            "cancelled": 0,
+            "anonymized": 0,
+            "successfulDurationMs": 0
+          },
+          "walletSubmissions": 0,
+          "routes": {
+            "nox": {
+              "completed": 1,
+              "successful": 0,
+              "failed": 1,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 0
+            },
+            "direct-bootstrap": {
+              "completed": 2,
+              "successful": 2,
+              "failed": 0,
+              "cancelled": 0,
+              "anonymized": 0,
+              "successfulDurationMs": 3465
+            }
+          }
+        },
+        "retainedRecords": 3,
+        "recordLimit": 1000
+      },
+      "requests": [
+        {
+          "timestamp": "2026-11-06T12:38:46.402Z",
+          "method": "eth_call",
+          "chainId": 11155111,
+          "category": "bootstrap",
+          "requestedTransport": "nox",
+          "actualTransport": "direct-bootstrap",
+          "outcome": "successful",
+          "durationMs": 3208,
+          "anonymized": false,
+          "directException": true
+        },
+        {
+          "timestamp": "2026-11-06T12:38:49.630Z",
+          "method": "eth_call",
+          "chainId": 11155111,
+          "category": "bootstrap",
+          "requestedTransport": "nox",
+          "actualTransport": "direct-bootstrap",
+          "outcome": "successful",
+          "durationMs": 257,
+          "anonymized": false,
+          "directException": true
+        },
+        {
+          "timestamp": "2026-11-06T12:39:23.912Z",
+          "method": "eth_chainId",
+          "chainId": 11155111,
+          "category": "read",
+          "requestedTransport": "nox",
+          "actualTransport": "nox",
+          "outcome": "failed",
+          "durationMs": 45017,
+          "anonymized": false,
+          "directException": false
+        }
+      ],
+      "limitations": [
+        "RPC providers still see query contents.",
+        "Wallet-internal traffic and worker-internal network operations are not fully observable.",
+        "Bootstrap specifier reads are direct exceptions.",
+        "No wallet addresses, query parameters, gateway credentials, transaction hashes or raw error text are exported."
+      ]
+    }
+  },
+  "limitations": [
+    "No live positive allowance was reverified in this run.",
+    "Earlier successful reads are historical evidence only.",
+    "A page network listener cannot fully observe worker or extension network operations.",
+    "No local addresses, RPC payloads or transaction hashes are included."
+  ]
+}

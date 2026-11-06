@@ -2,9 +2,9 @@
 
 **See every grant. Understand every risk. Revoke with confidence.**
 
-GrantScope is an MIT-licensed Ethereum permission observatory built for ETHGlobal Mumbai. Inspect a public address without a wallet, read ERC-20 and Permit2 authority through official Anon-RPC workers, understand overlapping permission layers, and request narrowly scoped owner-authorized revocations.
+GrantScope is an MIT-licensed Ethereum permission observatory built for ETHGlobal Mumbai. Inspect a public address without a wallet, read ERC-20 and Permit2 authority through official Anon-RPC workers, understand overlapping permission layers, and request narrowly scoped owner-authorized revocations. Coverage is bounded; the tagline does not mean every permission can be discovered.
 
-**Status:** Modules 1–12 are implemented. Real Nym/Nox reads, ERC-20 allowances, Permit2 state, and a configured positive Sepolia allowance have been verified in browsers. No signed live revocation or public deployment has been claimed. The existing local grant is deliberately preserved for its owner's demonstration. See [test evidence](docs/TESTING.md) and [remaining submission requirements](docs/SUBMISSION_READINESS.md).
+**Status:** Modules 1–12 are implemented and the production build passes. Earlier browser sessions returned real Nym/Nox reads and a positive Sepolia allowance, but the latest live review failed on both transports and could not reverify that allowance. **A reliable end-to-end judging demo is currently blocked by external connectivity.** No owner-signed live revocation, hosted-origin verification or published recording has been completed. The local grant is preserved. See the [latest review](docs/FINAL_REVIEW.md), [test history](docs/TESTING.md) and [remaining submission requirements](docs/SUBMISSION_READINESS.md).
 
 ![Actual production dashboard with no account selected](docs/screenshots/dashboard-final-dark.png)
 
@@ -29,6 +29,8 @@ npm run dev
 ```
 
 Open Vite's printed local URL. Use `npm.cmd` in PowerShell if its script launcher is restricted. Chrome was used for executed browser checks. Anon-RPC requires browser capabilities including WebAssembly, WebRTC, Web Crypto and AbortSignal APIs; use HTTPS or loopback localhost.
+
+On Windows, stop local Vite/test servers before rerunning `npm ci`: a running server can lock native dependency binaries and cause `EPERM`. Restart the server after installation succeeds.
 
 Nym is the default worker. Start it explicitly in **Privacy Lab** or by inspecting an address. If it fails, Nox is an explicit Sepolia alternative. Tor requires an operational authenticated KPS gateway. The app never switches to conventional RPC or passthrough. Bootstrap and target chains are separate concepts. [Transport configuration and real failures](docs/ANON_RPC.md) explain the limits.
 

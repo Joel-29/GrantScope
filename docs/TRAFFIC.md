@@ -12,4 +12,6 @@ Latency is measured with the browser performance clock. The report shows median 
 
 The export constructs a JSON field whitelist for worker state, counters and sanitized records. It omits query bodies, owner addresses, transaction hashes, gateway certificates, raw logs and raw errors. It is generated locally with a temporary Blob URL; no upload occurs. The URL is revoked after download initiation. Exporting an empty ledger accurately reports no percentage.
 
+The worker section also exports `readState` (`unproven`, `successful`, or `failed`), separately from harness readiness. A ready worker with a failed latest read is not presented as connected. A bounded bootstrap retry creates another bootstrap record, never an anonymous read. [Latest failed-session evidence](evidence/final-review-connectivity.json).
+
 Worker code resolution and anonymous-network bootstrap contact external infrastructure. Fixed specifier calls are counted as direct bootstrap exceptions; the report cannot count every SDK, Nym gateway-selection, Tor KPS or wallet-internal network operation. This limitation appears beside the counters. RPC providers still see the queried address, and transactions remain public. Tor requires an operational authenticated gateway; selecting unavailable Tor produces no ordinary-RPC fallback.

@@ -19,6 +19,12 @@ The [official registry](https://ethereum.github.io/anon-rpc/adopters/) publishes
 
 `AnonRpcManager` owns initialization deduplication, timeout, cancellation, generation checks, worker closure, and payload-free request metrics. A stale initialization cannot close a replacement worker. Runtime selection explicitly closes the old worker; a session ledger retains bounded records across changes, including late cancellations. Worker shutdown occurs on pagehide and provider cleanup.
 
+Fixed bootstrap requests receive at most one retry after a transient network/timeout/429/5xx failure, with a 300 ms cancellable backoff. Every dispatched attempt has its own ledger entry. Invalid envelopes, invalid hashes and RPC rejection are not retried. The same selected public bootstrap provider is used; no alternative provider or direct application read is attempted. Application reads still have no implicit retry or fallback.
+
+Worker readiness and the latest application-read outcome are separate. A ready worker whose read failed displays **Read failed** rather than connected; earlier successful-response counts remain historical. The diagnostic retains each actual chain/block/balance response independently if a subsequent read fails. After a Nym failure, **Try Nox anonymously on Sepolia** requires a user click. Closing or leaving the diagnostic cancels its application reads.
+
+The [latest review](FINAL_REVIEW.md) failed on both transports and did not reverify an allowance. Earlier successes below must not be used as current connectivity evidence.
+
 ## Privacy boundaries
 
 - The bootstrap provider is trusted for specifier identity and sees the caller's IP. Hash verification does not eliminate this trust.
