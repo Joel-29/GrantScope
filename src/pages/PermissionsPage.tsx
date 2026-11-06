@@ -1,3 +1,4 @@
+import { Permit2Panel } from '../features/permit2/Permit2Panel';
 import { DiscoveryPanel } from '../features/discovery/DiscoveryPanel';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
@@ -21,6 +22,7 @@ export function PermissionsPage() {
       </Notice>
       <AllowanceInventory />
       <DiscoveryPanel />
+      <Permit2Panel />
       <div className="two-column">
         <Panel title="Know the layers">
           <div className="panel-body">

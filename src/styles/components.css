@@ -591,6 +591,14 @@ select:disabled {
   padding-block: 16px;
   font-size: 13px;
 }
+.permission-record {
+  overflow-wrap: anywhere;
+}
+.permission-record dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
 .disclosure:first-child {
   padding-top: 0;
 }
