@@ -4,7 +4,7 @@ See every grant. Understand every risk. Revoke with confidence.
 
 GrantScope is an MIT-licensed Ethereum permission observatory in development for ETHGlobal Mumbai. It aims to make supported ERC-20 and Permit2 spending authority understandable, with application-owned chain reads routed through Anon-RPC by default.
 
-**Current status: Module 1 — application foundation only.** There are no blockchain reads, wallet connections, scans, allowances, risk scores, or transactions. Anon-RPC is not integrated or verified. The shell deliberately displays unavailable states instead of example wallet data.
+**Current status: Module 2 — design system and application shell.** The responsive interface has dark, light, and system themes, accessible dialogs, dashboard cards, permission inventory layouts, and privacy/settings pages. There are no blockchain reads, wallet connections, scans, allowances, risk scores, or transactions. Anon-RPC is not integrated or verified. Production pages display unavailable states, never design fixtures as wallet data.
 
 ## Problem and intended solution
 
@@ -12,10 +12,12 @@ Token approvals can outlive the interaction that created them. Permit2 adds addi
 
 ## What works now
 
-- Responsive dark application shell with collapsible desktop navigation and an accessible Radix mobile dialog.
-- Landing page, dashboard empty state, permissions and detail boundaries, Privacy Lab, settings, methodology, and 404 routes.
-- Strict TypeScript, Tailwind CSS, Lucide icons, reduced-motion-aware Motion, TanStack Query provider, in-memory Zustand UI state, and Zod environment validation.
-- Vitest/Testing Library setup, Playwright desktop/mobile smoke coverage, ESLint, Prettier, and CI configuration.
+- Semantic design tokens, dark/light/system themes, collapsible desktop navigation, and a Radix mobile dialog.
+- Landing page, dashboard account/summary cards, desktop permissions table and mobile card layouts, Privacy Lab, settings, methodology, and 404 states.
+- Accessible inspection-boundary dialogs and transaction-activity drawer; loading skeletons, empty states, error recovery, and native labeled form controls.
+- Development-only component workshop with explicitly fictional fixtures, search/filter previews, loading and error states. The route and fixture content are excluded from production; the build checks this boundary.
+- Strict TypeScript, Tailwind CSS, Lucide icons, reduced-motion-aware Motion, TanStack Query provider, in-memory Zustand preferences, and Zod environment validation.
+- Vitest/Testing Library tests, Playwright desktop/mobile coverage, ESLint, Prettier, and CI configuration.
 - Static Vercel build and SPA rewrite configuration. No deployment has been created.
 
 ## Setup
@@ -55,6 +57,8 @@ Before the first browser test, run `npx playwright install chromium` (Linux CI u
 
 Unknown routes render a useful 404 page. Secondary pages are lazy-loaded. Permission IDs are not treated as verified allowance records.
 
+During `npm run dev`, visit `/design-system` or use the component workshop link in Settings. It is an isolated UI preview with a persistent fictional-data notice. `npm run build` removes the route, link, and fixture payloads. Production `/design-system` resolves to the regular 404 page. See [DESIGN_SYSTEM](docs/DESIGN_SYSTEM.md).
+
 ## Architecture
 
 ```text
@@ -65,14 +69,16 @@ src/features     Reserved boundaries for later independently tested modules
 src/lib/config   Public environment validation
 src/store        In-memory UI preferences
 src/styles       Local CSS and Tailwind theme
+src/design-system Development-only workshop and isolated fictional fixtures
 src/test         Deterministic shell tests
 e2e              Browser smoke tests
+scripts          Production fixture-isolation check
 docs             Architecture, privacy, limitations, and implementation status
 ```
 
 See [ARCHITECTURE](docs/ARCHITECTURE.md). Blockchain features will stay separate from presentation. viem, wagmi, and the official `@anon-rpc/browser-harness` will be introduced with their integration modules after API and compatibility verification; they are intentionally not imported or initialized by this foundation.
 
-See the [complete Module 1 file tree](docs/FILE_TREE.md) for every source and configuration file.
+See the [complete file tree](docs/FILE_TREE.md) for every source and configuration file.
 
 ## CROPS
 
@@ -89,11 +95,13 @@ No blockchain network is supported operationally yet. Sepolia is the planned fir
 
 ## Screenshots
 
-Actual Module 1 shell, captured in Chrome through Playwright:
+Actual Module 2 shell, captured in Chrome through Playwright:
 
 ![GrantScope desktop overview](docs/screenshots/overview-desktop.png)
 
 [Mobile overview screenshot](docs/screenshots/overview-mobile.png). These images contain no example balances or fabricated scan results. Ongoing browser verification artifacts belong in ignored `test-results/`.
+
+[Dark dashboard](docs/screenshots/dashboard-dark.png) · [Light dashboard](docs/screenshots/dashboard-light.png) · [Light mobile settings](docs/screenshots/settings-mobile-light.png)
 
 ## Deployment and submission
 
@@ -119,8 +127,8 @@ Reviewed while preparing the foundation; re-verify APIs, live addresses, and sup
 
 ## AI usage disclosure
 
-The Module 1 foundation, UI, tests, and documentation were generated with assistance from OpenAI Codex from the project brief. Human review and real integration testing remain necessary. No mock test should be presented as evidence that Anon-RPC or revocation works.
+The Module 1 foundation and Module 2 design system, UI, tests, and documentation were generated with assistance from OpenAI Codex from the project brief. Human review and real integration testing remain necessary. No UI or mock test should be presented as evidence that Anon-RPC or revocation works.
 
 ## Module boundary
 
-Stop after Module 1. Next implementation work requires an explicit module request. Commit and push only with user authorization. The foundation is organized into separate conventional commits for tooling, the application shell, tests and CI, and documentation.
+Stop after Module 2. Next implementation work requires an explicit module request. The user’s standing instruction is to commit and push each completed module in exactly four cohesive conventional commits after validation; this is recorded in [AGENTS.md](AGENTS.md).

@@ -1,6 +1,6 @@
 # Prize compliance status
 
-**Not submission ready. Module 1 only.**
+**Not submission ready. Module 2 interface only.**
 
 Source: [Ethereum Foundation — Best Use of Anon-RPC](https://ethglobal.com/events/mumbai/prizes#ethereum-foundation), reviewed during foundation setup. Qualification requires application RPC reads to use Anon-RPC by default. Judging considers a working end-to-end demo, user experience, anonymous traffic share (with intentional exclusions explained), feasibility of shipping after the event, and technical depth. CROPS is also a project principle and a separate EF prize; it is not listed as an Anon-RPC judging criterion. Re-check the official page before submission.
 

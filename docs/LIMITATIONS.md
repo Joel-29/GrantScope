@@ -2,6 +2,8 @@
 
 ## Current module
 
+Module 2 completes interface components and isolated design previews. Preview records are fictional and development-only; they never represent scanned wallet state. Theme preferences reset on reload. Network selectors, real permission filters, and privacy export are unavailable until real integrations exist.
+
 - The shell cannot inspect or connect wallets, read allowances, discover approvals, calculate exposure, or revoke permissions.
 - No network or anonymizing worker is configured. No live request ledger, worker verification, bootstrap exception tracking, or privacy export exists.
 - Permit2 is explanatory content only, not an integration.

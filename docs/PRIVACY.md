@@ -1,8 +1,10 @@
 # Privacy
 
-Status: foundation only; no Anon-RPC integration or anonymity claim.
+Status: Module 2 interface only; no Anon-RPC integration or anonymity claim.
 
 The current shell makes no application blockchain reads and contains no analytics, third-party fonts, indexers, or wallet connection code. UI state and query cache are in memory. No wallet targets, permission relationships, payloads, or balances are persisted. Hosting providers still observe ordinary page/asset requests. Opening a documentation link contacts its destination.
+
+Theme and sidebar preferences are session-only. The system-theme option reads a browser media preference and subscribes to changes; it does not transmit the value. The development-only design workshop contains labeled fictional records. Those fixtures and the preview route are excluded from production, and a build check guards against accidental inclusion. Privacy Lab has no active ledger or export; its export control stays disabled.
 
 ## Planned threat model
 

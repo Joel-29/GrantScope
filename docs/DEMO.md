@@ -1,10 +1,12 @@
 # Demo
 
-Module 1 can demonstrate the interface only. It is not the prize demo and cannot sign transactions or contact Ethereum.
+Module 2 can demonstrate the interface only. It is not the prize demo and cannot sign transactions or contact Ethereum.
 
 ## Current shell walkthrough
 
 Start `npm run dev`. Open the overview, enter the workspace, and inspect the unavailable dashboard measurements. Open Permissions and its truthful unimplemented state. Visit Privacy Lab to confirm the transport is not initialized. On mobile, open/close navigation with keyboard or touch. Read Methodology for the documented boundaries.
+
+In Settings, switch between dark/light/system themes and open the data-policy dialog. Open the transaction activity drawer to see its real empty state. In development only, visit `/design-system` to inspect clearly labeled fictional rows, mobile cards, and manually selected loading/error states. Those fixtures are not a chain demo and are excluded from the production build.
 
 ## Planned three-minute real demo
 
