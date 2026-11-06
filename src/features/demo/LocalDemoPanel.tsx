@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Panel } from '../../components/ui/Panel';
 import { Button } from '../../components/ui/Button';
@@ -12,17 +12,10 @@ import type { AllowanceScan, AllowanceStage } from '../erc20/types';
 import { PermissionRecord } from '../erc20/AllowanceInventory';
 import { revocationIntent } from '../revocation/engine';
 import { anonRpc, useAnonRpc } from '../anon-rpc/runtime';
-import type { AnonymousTransport } from '../anon-rpc/transportRegistry';
 import { permissionPath } from '../exposure/permissionRoutes';
+import { useTransactions } from '../revocation/store';
 import { boundedDemoRead } from './read';
-
-const stages: Record<AllowanceStage, string> = {
-  initializing: 'Starting the anonymous worker and waiting for its network',
-  'checking-network': 'Verifying the Sepolia network',
-  'pinning-block': 'Selecting and checking the read block',
-  'reading-token': 'Reading token metadata, balance and current allowance',
-  'checking-snapshot': 'Checking that the verified block has not changed',
-};
+import { DemoReadError, demoFailure, demoQueryKey, demoStages } from './status';
 
 function localConfig() {
   const owner = import.meta.env.VITE_DEMO_OWNER,
@@ -42,12 +35,6 @@ function localConfig() {
 export function LocalDemoPanel() {
   const [config] = useState(localConfig),
     [running, setRunning] = useState(false),
-    [result, setResult] = useState<{
-      scan: AllowanceScan;
-      managerId: string;
-      revision: number;
-      transport: AnonymousTransport;
-    } | null>(null),
     [error, setError] = useState(''),
     [stage, setStage] = useState<AllowanceStage>('initializing'),
     [elapsed, setElapsed] = useState(0),
@@ -57,6 +44,19 @@ export function LocalDemoPanel() {
   const cache = useQueryClient();
   const transport = useAnonRpc();
   const session = useInspectionSession();
+  const transactionBusy = useTransactions((state) => state.busy);
+  const manager = anonRpc.current();
+  // Observe only snapshots written by an explicit successful read. Never fetch
+  // on mount, navigation, focus, invalidation or reconnect.
+  const snapshot = useQuery<AllowanceScan>({
+    queryKey: demoQueryKey(
+      config?.owner ?? '',
+      transport.transport,
+      manager.sessionId,
+      session.revision,
+    ),
+    queryFn: skipToken,
+  });
   useEffect(
     () => () => {
       const attempt = controller.current;
@@ -76,19 +76,24 @@ export function LocalDemoPanel() {
   }, [running]);
   if (!config) return null;
   const visible =
-    result &&
-    session.target?.address === result.scan.owner &&
+    !running &&
+    !error &&
+    !cancelled &&
+    snapshot.data &&
+    session.target?.address === config.owner &&
     session.target.chainId === 11155111 &&
-    session.revision === result.revision &&
-    anonRpc.current().sessionId === result.managerId
-      ? result
+    snapshot.data.owner === config.owner &&
+    snapshot.data.chainId === 11155111 &&
+    snapshot.data.rows.length === 1 &&
+    snapshot.data.rows[0]?.token === config.token &&
+    snapshot.data.rows[0]?.spender === config.spender
+      ? snapshot.data
       : null;
   async function load() {
     if (!config || controller.current) return;
     const attempt = new AbortController();
     controller.current = attempt;
     setRunning(true);
-    setResult(null);
     setError('');
     setCancelled(false);
     setStage('initializing');
@@ -96,6 +101,7 @@ export function LocalDemoPanel() {
     setElapsed(0);
     const manager = anonRpc.current();
     const initialRevision = useInspectionSession.getState().revision;
+    let lastStage: AllowanceStage = 'initializing';
     const pair = {
       token: config.token,
       spender: config.spender,
@@ -108,8 +114,10 @@ export function LocalDemoPanel() {
         return scanAllowances(manager, config.owner, 11155111, [pair], {
           signal,
           onStage(next) {
-            if (controller.current === attempt && !signal.aborted)
+            if (controller.current === attempt && !signal.aborted) {
+              lastStage = next;
               setStage(next);
+            }
           },
         });
       }, attempt.signal);
@@ -118,43 +126,35 @@ export function LocalDemoPanel() {
         manager !== anonRpc.current() ||
         initialRevision !== useInspectionSession.getState().revision
       )
-        throw new Error('Changed inspection');
-      if (scan.rows.length !== 1) throw new Error('Unreadable demo token');
+        throw new DemoReadError('context-changed');
+      if (scan.rows.length !== 1 || scan.failures.length)
+        throw new DemoReadError('pair-unverified');
       useInspectionSession.getState().inspect(config.owner, 11155111);
       const revision = useInspectionSession.getState().revision;
       usePairStore.getState().add(11155111, [pair]);
       cache.setQueryData(
-        [
-          'local-demo',
-          11155111,
+        demoQueryKey(
           config.owner,
           manager.transport,
           manager.sessionId,
           revision,
-        ],
+        ),
         scan,
       );
-      setResult({
-        scan,
-        managerId: manager.sessionId,
-        revision,
-        transport: manager.transport,
-      });
     } catch (cause) {
       if (controller.current !== attempt) return;
       if (attempt.signal.aborted) setCancelled(true);
-      else if (
-        cause &&
-        typeof cause === 'object' &&
-        'name' in cause &&
-        cause.name === 'TimeoutError'
-      )
-        setError(
-          'Local demo read timed out. This attempt reached the 4-minute limit; no result was verified. Open Privacy Lab to check the worker or explicitly select another anonymous transport. No direct fallback or transaction was requested.',
-        );
       else
         setError(
-          'Local demo read failed or context changed. The anonymous worker or configured token pair could not be verified. Check Privacy Lab before retrying. This is not a zero allowance. No direct fallback or transaction was requested.',
+          demoFailure(
+            manager !== anonRpc.current() ||
+              initialRevision !== useInspectionSession.getState().revision
+              ? new DemoReadError('context-changed')
+              : cause,
+            lastStage,
+            manager.transport,
+            manager.getSnapshot().phase,
+          ),
         );
     } finally {
       if (controller.current === attempt) {
@@ -170,9 +170,9 @@ export function LocalDemoPanel() {
     >
       <div className="panel-body">
         <p>
-          Nothing loads until you request it. The allowance is preserved.
-          Preparing unsigned calldata does not submit a transaction; full
-          preflight and owner confirmation remain separate.
+          Loading reads state only; it cannot change an allowance. Preparing
+          unsigned calldata does not submit a transaction; full preflight and
+          owner confirmation remain separate.
         </p>
         <p>
           This read uses Sepolia through the selected anonymous worker. MetaMask
@@ -191,7 +191,7 @@ export function LocalDemoPanel() {
         {running && (
           <>
             <p role="status" data-testid="demo-read-stage">
-              {stages[stage]} via {transport.transport}.
+              {demoStages[stage]} via {transport.transport}.
             </p>
             <p data-testid="demo-read-elapsed" aria-live="off">
               {elapsed} seconds elapsed. This attempt stops after 4 minutes.
@@ -209,9 +209,31 @@ export function LocalDemoPanel() {
           </p>
         )}
         {error && <p role="alert">{error}</p>}
+        {!running && transport.transport !== 'tor-js' && (
+          <div>
+            <Button
+              disabled={transactionBusy}
+              onClick={() => {
+                if (useTransactions.getState().busy) return;
+                anonRpc.selectTransport(transport.transport);
+                void load();
+              }}
+            >
+              Restart {transport.transport === 'nox' ? 'Nox' : 'Nym'} and retry
+              anonymously
+            </Button>
+            <p>
+              Restart closes the selected worker and cancels its other reads.
+              Wallet connection is unchanged. Restart is disabled while a
+              transaction workflow is active.
+            </p>
+          </div>
+        )}
         {!running && (error || cancelled) && transport.transport === 'nym' && (
           <Button
+            disabled={transactionBusy}
             onClick={() => {
+              if (useTransactions.getState().busy) return;
               anonRpc.selectTransport('nox');
               void load();
             }}
@@ -226,14 +248,20 @@ export function LocalDemoPanel() {
             </Link>
           </p>
         )}
-        {visible?.scan.rows.map((row) => {
+        {visible?.rows.map((row) => {
           const intent = revocationIntent(row);
           return (
             <div key={row.id}>
               <p role="status" data-testid="configured-demo-live-status">
                 Verified allowance: {tokenAmount(row.amount, row.decimals)}{' '}
                 {row.symbol} · {row.decimals} decimals · Raw units{' '}
-                {row.amount.toString()} · {visible.transport}
+                {row.amount.toString()} · {transport.transport}
+              </p>
+              <p data-testid="demo-snapshot-note">
+                Snapshot verified at block {row.blockNumber.toString()} on{' '}
+                {new Date(row.readAt).toLocaleString()}. Returning to this page
+                reuses this session snapshot; it is not a new read. Revocation
+                requires fresh checks.
               </p>
               <PermissionRecord row={row} />
               <details className="disclosure">
@@ -242,7 +270,10 @@ export function LocalDemoPanel() {
                 <p className="address-value">Calldata: {intent.data}</p>
                 <p>No wallet signing or submission has been requested.</p>
               </details>
-              <Link className="text-link" to={permissionPath(row.id)}>
+              <Link
+                className="button button-primary button-md"
+                to={permissionPath(row.id)}
+              >
                 Review owner-authorized revocation
               </Link>
             </div>
