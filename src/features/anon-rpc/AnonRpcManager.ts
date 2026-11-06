@@ -43,6 +43,9 @@ export class AnonRpcManager {
   private sequence = 0;
   private generation = 0;
   private readonly isolationKey = crypto.randomUUID();
+  get sessionId() {
+    return this.isolationKey;
+  }
   private snapshot: TransportSnapshot = {
     transport: 'nym',
     phase: 'idle',

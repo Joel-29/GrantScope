@@ -45,7 +45,11 @@ export async function decodeRpc(
 }
 
 export function rpcQuantity(value: unknown): bigint {
-  if (typeof value !== 'string' || !/^0x(?:0|[1-9a-f][0-9a-f]*)$/i.test(value))
+  if (
+    typeof value !== 'string' ||
+    value.length > 66 ||
+    !/^0x(?:0|[1-9a-f][0-9a-f]*)$/i.test(value)
+  )
     throw new Error('Invalid RPC quantity');
   return BigInt(value);
 }
