@@ -1,0 +1,138 @@
+{
+  "checkedAt": "2026-11-06T18:36:06.305Z",
+  "steps": [
+    {
+      "name": "real anonymous diagnostic",
+      "status": "PASS",
+      "evidence": "Actual Sepolia chain, block and zero-address balance returned"
+    },
+    {
+      "name": "diagnostic read accounting",
+      "status": "PASS",
+      "evidence": "Three actual responses must be counted through the selected worker"
+    },
+    {
+      "name": "actual configured allowance",
+      "status": "PASS",
+      "evidence": "Configured pair must return real allowance state; failure is never treated as zero"
+    },
+    {
+      "name": "positive demo grant",
+      "status": "PASS",
+      "evidence": "Live allowance must be positive for the revocation demonstration"
+    },
+    {
+      "name": "verified read block",
+      "status": "PASS",
+      "evidence": "Actual permission read block must be displayed"
+    },
+    {
+      "name": "displayed token",
+      "status": "PASS",
+      "evidence": "Actual token and spender addresses must be displayed locally"
+    },
+    {
+      "name": "displayed spender",
+      "status": "PASS",
+      "evidence": "Actual token and spender addresses must be displayed locally"
+    },
+    {
+      "name": "anonymous account inspection",
+      "status": "PASS",
+      "evidence": "Actual ETH balance and bytecode-based account type must be displayed"
+    },
+    {
+      "name": "unsigned zeroing intent",
+      "status": "PASS",
+      "evidence": "Unsigned transaction must encode approve(spender, 0); it is never submitted"
+    },
+    {
+      "name": "same-session demo restoration",
+      "status": "PASS",
+      "evidence": "Returning from Settings restores the labeled verified snapshot and link without another token read"
+    },
+    {
+      "name": "opaque permission URL",
+      "status": "PASS",
+      "evidence": "Permission URLs must not contain inspected addresses"
+    },
+    {
+      "name": "disconnected signing guard",
+      "status": "PASS",
+      "evidence": "Revocation must remain disabled without a connected owner"
+    },
+    {
+      "name": "unverified deep link",
+      "status": "PASS",
+      "evidence": "A new session does not synthesize a verified grant from its URL"
+    },
+    {
+      "name": "no direct target RPC",
+      "status": "PASS",
+      "evidence": "Only fixed selected-worker bootstrap calls may go directly to RPC"
+    },
+    {
+      "name": "no wallet API calls",
+      "status": "PASS",
+      "evidence": "This rehearsal must not connect a wallet, sign or submit"
+    }
+  ],
+  "hosts": {
+    "127.0.0.1:5174": 122,
+    "ethereum-sepolia-rpc.publicnode.com": 2,
+    "raw.githubusercontent.com": 1,
+    "blob:": 3
+  },
+  "directRpc": [
+    {
+      "method": "eth_call",
+      "bootstrap": true
+    },
+    {
+      "method": "eth_call",
+      "bootstrap": true
+    }
+  ],
+  "walletConnected": false,
+  "transactionSubmitted": false,
+  "ownerSigning": "NOT RUN",
+  "hostedDeploymentVerification": "NOT RUN; separate route/header verification required",
+  "transport": "nox",
+  "localConfiguredDemo": true,
+  "diagnosticSeconds": 40.6,
+  "traffic": {
+    "worker": {
+      "transport": "nox",
+      "state": "ready",
+      "successfulResponses": 19,
+      "readState": "successful"
+    },
+    "read": {
+      "completed": 19,
+      "successful": 19,
+      "failed": 0,
+      "cancelled": 0,
+      "anonymized": 19
+    },
+    "bootstrap": {
+      "completed": 2,
+      "successful": 2,
+      "failed": 0,
+      "cancelled": 0,
+      "anonymized": 0
+    },
+    "wallet": {
+      "completed": 0,
+      "successful": 0,
+      "failed": 0,
+      "cancelled": 0,
+      "anonymized": 0
+    },
+    "walletSubmissions": 0,
+    "anonymousReadShare": "100.0%"
+  },
+  "scanSeconds": 27.2,
+  "allowanceUnits": "100000000000000000000",
+  "readBlock": "12078377",
+  "readOnlyRehearsal": "PASS"
+}

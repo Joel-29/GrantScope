@@ -1,5 +1,7 @@
 # Slow local demo reads
 
+For the latest snapshot restoration, explicit worker restart and real-browser follow-up, see [demo recovery](DEMO_RECOVERY.md). The dated session below remains historical evidence.
+
 The configured-pair loader reads Ethereum Sepolia through the selected anonymous worker. MetaMask's selected network does not control these read-only RPC requests. MetaMask ownership/network checks matter separately when preparing a signed revocation. No wallet connection or transaction is required to load the allowance.
 
 ## Recover the current session
@@ -25,4 +27,4 @@ The actual exported ledger recorded **19 successful anonymous reads**, **three f
 
 Fresh TypeScript and ESLint checks passed. Vitest passed **116 tests across 21 files**; nine release-tool tests passed; production build and fixture/local-configuration exclusion passed. Development and production browser suites each passed **28 cases**, with twelve opt-in live skips per run. Prettier, diff whitespace and local-configuration guards passed. Unit regressions include stalled operations that ignore abort, cancellation during shared initialization, the four-minute deadline, explicit-only transport retry, navigation cleanup and ignored late results. Existing build warnings remain two upstream Zod annotations and a 529.48 kB main chunk.
 
-Revocation remains paused at the owner's request. This read-only correction does not authorize MetaMask, submit a transaction, verify post-signing zero state or deploy a site.
+Revocation was paused during this historical session. The owner has since resumed the request to complete verification, but actual MetaMask confirmation and fresh zero-state evidence remain pending. This read-only correction did not sign, submit or deploy a site.

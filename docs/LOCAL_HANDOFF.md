@@ -2,6 +2,8 @@
 
 The application and deployment configuration are implemented. A real read-only rehearsal has returned the configured positive allowance, account state, unsigned revocation intent and measured anonymous traffic. This is not a claim that an owner-signed revocation or a published deployment has occurred.
 
+**Latest follow-up — 7 November:** [demo recovery](DEMO_RECOVERY.md) fixes the disappearing local permission link, adds explicit same-transport restarts and stage-specific errors, and records a fresh real Nox read plus successful navigation restoration. Its checks/evidence supersede the older wallet-switch test counts below. Actual owner-confirmed receipt/zero-state verification remains pending.
+
 ## What to use locally
 
 Keep your current development server open (the interactive session uses `http://127.0.0.1:5174`), or use `npm run dev` on Vite's default port 5173. Use one origin consistently during a session so the wallet connection and in-memory scan stay together. No production hosting account is needed for these local flows.

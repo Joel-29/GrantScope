@@ -42,6 +42,8 @@ The development dashboard's **Load configured Sepolia demo** button performs a r
 
 Settings explains unsupported wallet networks and owner/network mismatches using the selected inspection. The local Sepolia demo requires Ethereum Sepolia (11155111). An explicit network-switch button requests MetaMask's network change and verifies its reported chain; it never submits a transaction. [Local setup and current handoff](docs/LOCAL_HANDOFF.md).
 
+The local demo retains its labeled verified snapshot and permission link when returning from Settings. Failed reads show their stage, with an explicit same-transport restart option; no retry silently changes the route. [Demo recovery and actual read-only evidence](docs/DEMO_RECOVERY.md).
+
 The local loader and configured values are excluded from production. Do not copy these identities into README files, fixtures, screenshots, videos or commits. Use a separately consented public demonstration wallet for recordings. Production accepts arbitrary addresses through its ordinary forms. [Demo runbook](docs/DEMO.md).
 
 ## Commands and validation
