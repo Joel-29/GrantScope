@@ -88,7 +88,7 @@ export async function pagedLogs(
   from: bigint,
   to: bigint,
   options: {
-    signal?: AbortSignal;
+    signal?: AbortSignal | undefined;
     chunk?: bigint;
     maxRequests?: number;
     onProgress?: (through: bigint) => void;
