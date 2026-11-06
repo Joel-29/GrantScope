@@ -25,9 +25,11 @@ export function TransportReadiness() {
           [
             '04',
             'Anonymous network',
-            state.successfulWorkerReads > 0 && state.phase === 'ready'
-              ? 'Worker response received'
-              : 'No response proof',
+            state.readState === 'failed' && state.phase === 'ready'
+              ? 'Latest read failed'
+              : state.successfulWorkerReads > 0 && state.phase === 'ready'
+                ? 'Worker response received'
+                : 'No response proof',
           ],
         ].map(([number, title, status]) => (
           <li key={number}>

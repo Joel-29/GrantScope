@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { anonRpc, useAnonRpc } from './runtime';
 import { rpcQuantity } from './JsonRpcAdapter';
 import { Button } from '../../components/ui/Button';
 import { Panel } from '../../components/ui/Panel';
 import { Badge } from '../../components/ui/Badge';
+import { workerStatus } from './recovery';
 import {
   WORKERS,
   validKpsGateway,
@@ -16,24 +17,55 @@ export function DiagnosticPanel() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [gateway, setGateway] = useState('');
+  const controller = useRef<AbortController | null>(null);
+  const [proof, setProof] = useState<{
+    chainId?: string;
+    block?: string;
+    balance?: string;
+  } | null>(null);
+  useEffect(() => () => controller.current?.abort(), []);
   const run = async () => {
+    if (controller.current) return;
+    const attempt = new AbortController();
+    controller.current = attempt;
     setRunning(true);
     setError(null);
     setResult(null);
+    setProof(null);
     const manager = anonRpc.current();
+    const current = () => {
+      attempt.signal.throwIfAborted();
+      if (manager !== anonRpc.current())
+        throw new DOMException('Worker changed', 'AbortError');
+    };
     try {
       await manager.initialize();
-      const chain = rpcQuantity(await manager.request(11155111, 'eth_chainId'));
+      current();
+      const chain = rpcQuantity(
+        await manager.request(11155111, 'eth_chainId', [], attempt.signal),
+      );
       if (chain !== 11155111n) throw new Error('Wrong destination network');
+      current();
+      setProof({ chainId: chain.toString() });
       const block = rpcQuantity(
-        await manager.request(11155111, 'eth_blockNumber'),
+        await manager.request(11155111, 'eth_blockNumber', [], attempt.signal),
       );
+      current();
+      setProof({ chainId: chain.toString(), block: block.toString() });
       const balance = rpcQuantity(
-        await manager.request(11155111, 'eth_getBalance', [
-          '0x0000000000000000000000000000000000000000',
-          'latest',
-        ]),
+        await manager.request(
+          11155111,
+          'eth_getBalance',
+          ['0x0000000000000000000000000000000000000000', 'latest'],
+          attempt.signal,
+        ),
       );
+      current();
+      setProof({
+        chainId: chain.toString(),
+        block: block.toString(),
+        balance: balance.toString(),
+      });
       setResult(
         `Sepolia block ${block}; zero-address balance ${balance} wei. Responses received via the hash-verified ${WORKERS[manager.transport].label} worker.`,
       );
@@ -49,18 +81,17 @@ export function DiagnosticPanel() {
         }. No direct fallback was used.`,
       );
     } finally {
-      setRunning(false);
+      if (controller.current === attempt) {
+        controller.current = null;
+        setRunning(false);
+      }
     }
   };
   return (
     <Panel
       title="Live anonymous RPC diagnostic"
       description="Explicitly starts the selected official worker. Bootstrap hash/resolver reads are direct; the destination provider still sees query contents."
-      action={
-        <Badge>
-          {transport.phase === 'ready' ? 'connected' : transport.phase}
-        </Badge>
-      }
+      action={<Badge>{workerStatus(transport)}</Badge>}
     >
       <div className="panel-body prose-copy">
         <p>
@@ -78,6 +109,7 @@ export function DiagnosticPanel() {
             onChange={(event) => {
               setResult(null);
               setError(null);
+              setProof(null);
               anonRpc.selectTransport(event.target.value as AnonymousTransport);
             }}
           >
@@ -121,7 +153,14 @@ export function DiagnosticPanel() {
           >
             Run live anonymous diagnostic
           </Button>
-          <Button onClick={anonRpc.close}>Close worker</Button>
+          <Button
+            onClick={() => {
+              controller.current?.abort();
+              anonRpc.close();
+            }}
+          >
+            Close worker
+          </Button>
         </div>
         {running && (
           <p role="status">
@@ -130,6 +169,43 @@ export function DiagnosticPanel() {
           </p>
         )}
         {error && <p role="alert">{error}</p>}
+        {error && transport.transport === 'nym' && !running && (
+          <Button
+            onClick={() => {
+              anonRpc.selectTransport('nox');
+              void run();
+            }}
+          >
+            Try Nox anonymously on Sepolia
+          </Button>
+        )}
+        {proof && (
+          <dl
+            className="compact-definitions"
+            aria-label="Actual diagnostic responses"
+          >
+            <div>
+              <dt>Chain ID returned</dt>
+              <dd data-testid="diagnostic-chain">
+                {proof.chainId ?? 'Not returned'}
+              </dd>
+            </div>
+            <div>
+              <dt>Block returned</dt>
+              <dd data-testid="diagnostic-block">
+                {proof.block ?? 'Not returned'}
+              </dd>
+            </div>
+            <div>
+              <dt>Zero-address balance returned</dt>
+              <dd data-testid="diagnostic-balance">
+                {proof.balance === undefined
+                  ? 'Not returned'
+                  : `${proof.balance} wei`}
+              </dd>
+            </div>
+          </dl>
+        )}
         {transport.error && <p>{transport.error}</p>}
         {transport.bootstrapStatus && (
           <p data-testid="bootstrap-detail">{transport.bootstrapStatus}</p>

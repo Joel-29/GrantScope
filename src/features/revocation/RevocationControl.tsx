@@ -278,6 +278,16 @@ export function RevocationControl({ record }: { record: Permission }) {
                   gas
                 </dd>
               </div>
+              <div>
+                <dt>Calldata</dt>
+                <dd className="address-value" data-testid="revocation-calldata">
+                  {prepared.intent.data}
+                </dd>
+              </div>
+              <div>
+                <dt>Transaction value</dt>
+                <dd>0 ETH</dd>
+              </div>
             </dl>
             <p>
               Network fees are paid in ETH. The wallet may show different fees;

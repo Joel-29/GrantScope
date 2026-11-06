@@ -62,7 +62,8 @@ export function LandingPage() {
           <p className="hero-description">
             Your wallet’s permissions deserve a closer look. A privacy-first
             workspace for understanding who can spend your tokens, and the
-            authority behind every approval.
+            authority behind supported ERC-20 and Permit2 approvals. Scans are
+            bounded and may miss other permissions.
           </p>
           <div className="hero-actions">
             <Link to="/dashboard" className="button button-primary">

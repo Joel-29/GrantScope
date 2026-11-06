@@ -54,9 +54,11 @@ export function Header({ mobileNavigation }: { mobileNavigation: ReactNode }) {
       : transport.phase === 'failed'
         ? `${workerName} failed · No fallback`
         : transport.phase === 'ready'
-          ? transport.successfulWorkerReads > 0
-            ? `${workerName} worker responses`
-            : 'Worker ready · Unproven'
+          ? transport.readState === 'failed'
+            ? `${workerName} latest read failed`
+            : transport.successfulWorkerReads > 0
+              ? `${workerName} worker responses`
+              : 'Worker ready · Unproven'
           : 'Transport not initialized';
   const segment = location.pathname.split('/')[1] ?? '';
   return (

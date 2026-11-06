@@ -9,6 +9,7 @@ import { MetricCard } from '../components/dashboard/MetricCard';
 import { TransportReadiness } from '../components/privacy/TransportReadiness';
 import { DiagnosticPanel } from '../features/anon-rpc/DiagnosticPanel';
 import { anonRpc, useAnonRpc } from '../features/anon-rpc/runtime';
+import { workerStatus } from '../features/anon-rpc/recovery';
 import { WORKERS } from '../features/anon-rpc/transportRegistry';
 import {
   retainedMedian,
@@ -65,9 +66,7 @@ export function PrivacyPage() {
           <Fingerprint size={30} aria-hidden="true" />
         </div>
         <div>
-          <Badge tone="violet">
-            {transport.phase === 'ready' ? 'connected' : transport.phase}
-          </Badge>
+          <Badge tone="violet">{workerStatus(transport)}</Badge>
           <h2>
             {transport.phase === 'ready'
               ? `Hash-verified ${WORKERS[transport.transport].label} worker ready`
@@ -118,7 +117,7 @@ export function PrivacyPage() {
                 <span>
                   {name === transport.transport
                     ? transport.phase === 'ready'
-                      ? 'Connected; response proof is separate'
+                      ? `${workerStatus(transport)}; harness readiness is separate`
                       : transport.phase
                     : 'Not selected; no active worker'}
                 </span>

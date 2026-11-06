@@ -3,14 +3,13 @@ import { Panel } from '../../components/ui/Panel';
 import { Badge } from '../../components/ui/Badge';
 import { useAnonRpc } from '../anon-rpc/runtime';
 import { WORKERS } from '../anon-rpc/transportRegistry';
+import { workerStatus } from '../anon-rpc/recovery';
 export function TransportSummary() {
   const state = useAnonRpc();
   return (
     <Panel
       title="Privacy transport"
-      action={
-        <Badge>{state.phase === 'ready' ? 'Connected' : state.phase}</Badge>
-      }
+      action={<Badge>{workerStatus(state)}</Badge>}
     >
       <div className="transport-summary">
         <h3>
