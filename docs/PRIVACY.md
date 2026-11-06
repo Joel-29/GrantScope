@@ -22,6 +22,8 @@ The optional injected wallet reveals locally authorized accounts/network through
 
 ## Local state and export
 
+An optional development-only `.env.local` can contain public demo identities supplied with the user's explicit consent. This ignored local configuration is distinct from runtime scan persistence and is excluded from production. Clearing inspection data does not delete that file, revoke wallet permissions or erase worker-internal storage. Its values must not enter public screenshots, fixtures or commits.
+
 There is no application backend, analytics, tracking pixel, remote font or third-party address indexer. Theme preferences, bounded address history and query caches remain local in memory. Static hosting still sees asset/page requests, and navigating an external documentation/explorer link contacts its destination. The development workshop contains labeled fictional fixtures; the production build excludes its route and payloads.
 
 Privacy Lab uses actual centrally measured outcomes. Anonymous-read share is successful worker RPC responses divided by all completed application read attempts, including failures/cancellations. Bootstrap and wallet activity have separate counts. The latest 1,000 settled records are retained; full-session counters continue beyond that window. Export explicitly selects safe fields and omits target addresses, parameters, transaction hashes, gateway credentials, raw worker logs and raw errors. It is generated locally, not uploaded. Reload clears application memory; export is the user's local file.

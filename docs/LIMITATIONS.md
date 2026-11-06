@@ -1,21 +1,17 @@
-# Limitations
+# Known limitations
 
-## Current module
+- **Connectivity:** Nym has returned real responses and has also timed out. Nox has returned real diagnostics, allowances and Permit2 reads; default tunnel settings later failed. Documented timeout tuning enabled the configured positive scan, but does not guarantee availability. The official Tor demonstration gateway failed; Tor needs an operational authenticated gateway supplied by its operator. No ordinary-RPC/passthrough fallback exists.
+- **Networks:** Ethereum mainnet and Sepolia are configured and chain-checked. Recent executed integration evidence is predominantly Sepolia. Nox is restricted to the tested Sepolia use case. Support is not a claim that every method/provider/range works continuously.
+- **Discovery:** Known pairs, selected manual pairs and bounded historical ranges cannot enumerate all authority. Logs can be missing, capped, nonstandard, removed or provider-truncated. Twelve-block lag and canonical anchors reduce reorg errors; neither establishes finality. ERC-721-shaped approvals are excluded; deceptive/nonstandard emitters can still require state verification or remain unsupported.
+- **Token behavior:** Mandatory metadata and numeric results must decode correctly. Missing/nonstandard metadata is unreadable, not guessed. Tokens without a canonical true approve simulation are non-executable. A current bytecode check and simulation cannot audit an upgradeable implementation or guarantee inclusion-time behavior.
+- **Permit2:** Only onchain AllowanceTransfer state is inspected. Offchain SignatureTransfer signatures and unused signed permits cannot be universally listed. Lockdown clears the selected stored amount; it does not invalidate every signature/nonce, other spender or underlying token approval. Expired/dependency-blocked authority can become relevant again after later state changes.
+- **Smart accounts:** Code-present owners, including delegation cases, are read-only. There is no ERC-4337, multisig, session-key or generic smart-account execution adapter.
+- **Analysis:** Bounds describe verified snapshots, not malicious intent or expected loss. Registry membership is not a safety guarantee. Unknown spenders are unclassified. Grant age is unknown unless an event was actually observed, and even that timestamp is not necessarily original creation. Mixed block snapshots and failed refreshes remain visible. No USD pricing or aggregate loss estimate is provided.
+- **Revocation:** Only supported owner-authorized zero approvals/lockdown are encoded. Wallet rejection, revert, different replacement, missing original transaction, timeout, nonzero post-state or lost worker leaves revocation unverified. Two confirmations are required but are not finality. Later approvals/signatures can restore authority. No live signed revocation has been performed by this automated session; the configured grant was deliberately left intact.
+- **Provider trust:** The RPC provider sees query contents and can lie or censor. Bootstrap data and worker publication governance are trusted; a verified code hash is not an independent anonymity audit or authenticated Ethereum state proof.
+- **Privacy:** Hosting, bootstrap metadata, timing/correlation, browser/OS compromise, extension activity and public onchain transactions remain observable. Worker-internal retries, registry reads and network bootstrap are not fully counted. SDK public-resource caches may outlive the page; application records are memory-only.
+- **Operational limits:** JSON RPC bodies are capped at 8 MiB, contract return data at a smaller bound, historical requests/pairs/events are bounded, and receipt polling times out. Large requests may be refused safely. No mobile hardware/network anonymity claim or complete test-coverage percentage is made.
+- **Release evidence:** The repository is public and MIT-licensed. No published Vercel application, completed judging video, hosted-origin worker check or owner-signed transaction hash has been verified. CI is configured; local results are not a claim that remote CI ran.
+- **Build warnings:** Two upstream Zod annotation warnings are stripped by Rollup. A main bundle above 500 kB still produces a size warning. The build succeeds; these warnings are not hidden as clean deployment evidence.
 
-Module 2 completes interface components and isolated design previews. Preview records are fictional and development-only; they never represent scanned wallet state. Theme preferences reset on reload. Network selectors, real permission filters, and privacy export are unavailable until real integrations exist.
-
-- The shell cannot inspect or connect wallets, read allowances, discover approvals, calculate exposure, or revoke permissions.
-- Official Nym/Nox workers and bootstrap exception tracking are integrated. Nym has demonstrated transient request timeouts; Tor's demo gateway failed KPS dialing. No automatic fallback is provided. A detailed privacy export remains pending.
-- Permit2 is explanatory content only, not an integration.
-- No test token deployment, real test transactions, production deployment, or hackathon submission has been made.
-- The security and privacy properties of later integrations are unverified. This project has not been audited.
-
-## Constraints future modules must retain
-
-- Bounded history and nonstandard tokens prevent universal approval discovery.
-- Smart-account modules and delegation schemes are not universally discoverable; bytecode does not fully classify an account.
-- Offchain SignatureTransfer signatures cannot be universally listed before use.
-- Overlapping permissions are not independent sums of funds at risk.
-- Unknown spenders and old approvals are not proof of malicious behavior.
-- Endpoint restrictions and transport failures must be visible without automatic direct fallback.
-- RPC query contents remain visible to the destination provider; transactions remain public onchain.
+See [TESTING](TESTING.md) for executed results and [SUBMISSION_READINESS](SUBMISSION_READINESS.md) for outstanding release work.
