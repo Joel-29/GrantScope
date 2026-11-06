@@ -1,5 +1,9 @@
 # Testing
 
+## Live rehearsal follow-up, 6 November 2026
+
+The [latest follow-up](DEMO_CHECK.md) records real successful Nym/Nox probes, positive configured-allowance UI reads and additional failed sessions. It also documents the new read-only rehearsal command, private session URLs, corrected bootstrap URL normalization and isolated browser artifacts. Fresh checks passed 106 unit/UI tests, nine release-tool tests, the production build and 26 browser checks in each mode, with twelve opt-in live skips per regular suite. Signing and hosted deployment remain owner-run steps. The preceding failed review below remains historical evidence.
+
 ## Latest deployment review, 6 November 2026
 
 The [final review](FINAL_REVIEW.md) supersedes the readiness implications of earlier successful runs below. The latest real Nym diagnostic timed out, the fresh Nox diagnostic failed bootstrap, and the configured scan reached a ready Nox worker but failed its first application read. No real allowance or anonymous diagnostic succeeded in this review. Historical successes remain historical evidence, not current availability proof. Fresh deterministic checks and exact live accounting are recorded in that review and its sanitized export.

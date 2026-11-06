@@ -4,6 +4,8 @@ This is a reproducible script to execute, not a claim that a signed demonstratio
 
 ## Preparation, before the recording clock
 
+Run the [read-only rehearsal](DEMO_CHECK.md) before recording. It tests real reads and unsigned behavior, not wallet authorization. Its browser closes afterward, so warm the worker again in the browser being recorded. The owner must still explicitly authorize any live transaction.
+
 1. Use a dedicated funded Sepolia wallet and standard ERC-20 token with a legitimate positive allowance to a controlled spender. Confirm the deployment/chain and record actual transaction evidence privately. Keep keys in MetaMask. Do not capture the private local configuration identities; use a separately consented public demonstration identity for any recording or published screenshot.
 2. Install and run the app. Configure only public owner/token/spender values in ignored `.env.local` for the development-only loader, or enter arbitrary owner and manual pair through ordinary production forms. The committed example contains no identities.
 3. Initialize Nym explicitly. If it fails, show the failure and explicitly select the tested Nox Sepolia alternative. Do not silently switch routes, choose passthrough, or improvise a Tor gateway. Nox uses documented bounded tunnel settings with TLS required. Keep the worker warm before the timed demonstration.

@@ -23,7 +23,7 @@ Fixed bootstrap requests receive at most one retry after a transient network/tim
 
 Worker readiness and the latest application-read outcome are separate. A ready worker whose read failed displays **Read failed** rather than connected; earlier successful-response counts remain historical. The diagnostic retains each actual chain/block/balance response independently if a subsequent read fails. After a Nym failure, **Try Nox anonymously on Sepolia** requires a user click. Closing or leaving the diagnostic cancels its application reads.
 
-The [latest review](FINAL_REVIEW.md) failed on both transports and did not reverify an allowance. Earlier successes below must not be used as current connectivity evidence.
+The [latest follow-up](DEMO_CHECK.md) returned actual Nym/Nox responses and displayed a positive configured allowance. Separate timeouts remain failures. The preceding [failed review](FINAL_REVIEW.md) is retained as historical evidence; no success guarantees later availability.
 
 ## Privacy boundaries
 

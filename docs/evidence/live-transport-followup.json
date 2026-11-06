@@ -1,0 +1,213 @@
+{
+  "observedAt": "2026-11-06",
+  "kind": "Real official SDK/manager probes; not a signed revocation or hosted deployment",
+  "probes": [
+    {
+      "transport": "nym",
+      "readySeconds": 19.8,
+      "totalSeconds": 39.5,
+      "reads": [
+        {
+          "method": "eth_chainId",
+          "result": "0xaa36a7",
+          "durationMs": 16111
+        },
+        {
+          "method": "eth_blockNumber",
+          "result": "0xb846c3",
+          "durationMs": 1518
+        },
+        {
+          "method": "eth_getBalance",
+          "result": "0x1c5c4f3ec5ef68ac2962",
+          "durationMs": 756
+        }
+      ],
+      "phase": "ready",
+      "readState": "successful",
+      "metrics": [
+        {
+          "id": 1,
+          "timestamp": "2026-11-06T13:04:06.408Z",
+          "method": "eth_call",
+          "chainId": 1,
+          "category": "bootstrap",
+          "requestedTransport": "nym",
+          "actualTransport": "direct-bootstrap",
+          "outcome": "successful",
+          "durationMs": 511,
+          "anonymized": false,
+          "directException": true,
+          "reason": "Official worker specifier bootstrap; no wallet query"
+        },
+        {
+          "id": 2,
+          "timestamp": "2026-11-06T13:04:06.919Z",
+          "method": "eth_call",
+          "chainId": 1,
+          "category": "bootstrap",
+          "requestedTransport": "nym",
+          "actualTransport": "direct-bootstrap",
+          "outcome": "successful",
+          "durationMs": 202,
+          "anonymized": false,
+          "directException": true,
+          "reason": "Official worker specifier bootstrap; no wallet query"
+        },
+        {
+          "id": 3,
+          "timestamp": "2026-11-06T13:04:26.249Z",
+          "method": "eth_chainId",
+          "chainId": 11155111,
+          "category": "read",
+          "requestedTransport": "nym",
+          "actualTransport": "nym",
+          "outcome": "successful",
+          "durationMs": 16110,
+          "anonymized": true,
+          "directException": false,
+          "reason": null
+        },
+        {
+          "id": 4,
+          "timestamp": "2026-11-06T13:04:42.359Z",
+          "method": "eth_blockNumber",
+          "chainId": 11155111,
+          "category": "read",
+          "requestedTransport": "nym",
+          "actualTransport": "nym",
+          "outcome": "successful",
+          "durationMs": 1518,
+          "anonymized": true,
+          "directException": false,
+          "reason": null
+        },
+        {
+          "id": 5,
+          "timestamp": "2026-11-06T13:04:43.877Z",
+          "method": "eth_getBalance",
+          "chainId": 11155111,
+          "category": "read",
+          "requestedTransport": "nym",
+          "actualTransport": "nym",
+          "outcome": "successful",
+          "durationMs": 756,
+          "anonymized": true,
+          "directException": false,
+          "reason": null
+        }
+      ],
+      "requestHosts": {
+        "ethereum-rpc.publicnode.com": 2,
+        "cdn.jsdelivr.net": 1,
+        "blob:": 4,
+        "validator.nymtech.net": 7
+      },
+      "browserRequestFailures": []
+    },
+    {
+      "transport": "nox",
+      "readySeconds": 15.2,
+      "totalSeconds": 26,
+      "reads": [
+        {
+          "method": "eth_chainId",
+          "result": "0xaa36a7",
+          "durationMs": 6370
+        },
+        {
+          "method": "eth_blockNumber",
+          "result": "0xb846c5",
+          "durationMs": 2048
+        },
+        {
+          "method": "eth_getBalance",
+          "result": "0x1c5c4f3ec5ef68ac2962",
+          "durationMs": 1751
+        }
+      ],
+      "phase": "ready",
+      "readState": "successful",
+      "metrics": [
+        {
+          "id": 1,
+          "timestamp": "2026-11-06T13:04:45.672Z",
+          "method": "eth_call",
+          "chainId": 11155111,
+          "category": "bootstrap",
+          "requestedTransport": "nox",
+          "actualTransport": "direct-bootstrap",
+          "outcome": "successful",
+          "durationMs": 511,
+          "anonymized": false,
+          "directException": true,
+          "reason": "Official worker specifier bootstrap; no wallet query"
+        },
+        {
+          "id": 2,
+          "timestamp": "2026-11-06T13:04:46.183Z",
+          "method": "eth_call",
+          "chainId": 11155111,
+          "category": "bootstrap",
+          "requestedTransport": "nox",
+          "actualTransport": "direct-bootstrap",
+          "outcome": "successful",
+          "durationMs": 214,
+          "anonymized": false,
+          "directException": true,
+          "reason": "Official worker specifier bootstrap; no wallet query"
+        },
+        {
+          "id": 3,
+          "timestamp": "2026-11-06T13:05:00.847Z",
+          "method": "eth_chainId",
+          "chainId": 11155111,
+          "category": "read",
+          "requestedTransport": "nox",
+          "actualTransport": "nox",
+          "outcome": "successful",
+          "durationMs": 6370,
+          "anonymized": true,
+          "directException": false,
+          "reason": null
+        },
+        {
+          "id": 4,
+          "timestamp": "2026-11-06T13:05:07.217Z",
+          "method": "eth_blockNumber",
+          "chainId": 11155111,
+          "category": "read",
+          "requestedTransport": "nox",
+          "actualTransport": "nox",
+          "outcome": "successful",
+          "durationMs": 2048,
+          "anonymized": true,
+          "directException": false,
+          "reason": null
+        },
+        {
+          "id": 5,
+          "timestamp": "2026-11-06T13:05:09.265Z",
+          "method": "eth_getBalance",
+          "chainId": 11155111,
+          "category": "read",
+          "requestedTransport": "nox",
+          "actualTransport": "nox",
+          "outcome": "successful",
+          "durationMs": 1751,
+          "anonymized": true,
+          "directException": false,
+          "reason": null
+        }
+      ],
+      "requestHosts": {
+        "ethereum-sepolia-rpc.publicnode.com": 2,
+        "raw.githubusercontent.com": 1,
+        "blob:": 3
+      },
+      "browserRequestFailures": []
+    }
+  ],
+  "qualification": "Actual successful responses through the official hash-verifying worker. Infrastructure and bootstrap are intentional exclusions. Availability is not guaranteed.",
+  "failuresRetained": "docs/evidence/final-review-connectivity.json"
+}

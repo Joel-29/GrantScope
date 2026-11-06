@@ -1,0 +1,80 @@
+{
+  "checkedAt": "2026-11-06T13:33:12.595Z",
+  "steps": [
+    {
+      "name": "real anonymous diagnostic",
+      "status": "PASS",
+      "evidence": "Actual Sepolia chain, block and zero-address balance returned"
+    },
+    {
+      "name": "diagnostic read accounting",
+      "status": "PASS",
+      "evidence": "Three actual responses must be counted through the selected worker"
+    },
+    {
+      "name": "no direct target RPC",
+      "status": "PASS",
+      "evidence": "Only fixed selected-worker bootstrap calls may go directly to RPC"
+    },
+    {
+      "name": "no wallet API calls",
+      "status": "PASS",
+      "evidence": "This rehearsal must not connect a wallet, sign or submit"
+    }
+  ],
+  "hosts": {
+    "127.0.0.1:4173": 11,
+    "ethereum-sepolia-rpc.publicnode.com": 2,
+    "raw.githubusercontent.com": 1,
+    "blob:": 3
+  },
+  "directRpc": [
+    {
+      "method": "eth_call",
+      "bootstrap": true
+    },
+    {
+      "method": "eth_call",
+      "bootstrap": true
+    }
+  ],
+  "walletConnected": false,
+  "transactionSubmitted": false,
+  "ownerSigning": "NOT RUN",
+  "hostedDeploymentVerification": "NOT RUN; separate route/header verification required",
+  "transport": "nox",
+  "localConfiguredDemo": false,
+  "diagnosticSeconds": 54.1,
+  "traffic": {
+    "worker": {
+      "transport": "nox",
+      "state": "ready",
+      "successfulResponses": 3,
+      "readState": "successful"
+    },
+    "read": {
+      "completed": 3,
+      "successful": 3,
+      "failed": 0,
+      "cancelled": 0,
+      "anonymized": 3
+    },
+    "bootstrap": {
+      "completed": 2,
+      "successful": 2,
+      "failed": 0,
+      "cancelled": 0,
+      "anonymized": 0
+    },
+    "wallet": {
+      "completed": 0,
+      "successful": 0,
+      "failed": 0,
+      "cancelled": 0,
+      "anonymized": 0
+    },
+    "walletSubmissions": 0,
+    "anonymousReadShare": "100.0%"
+  },
+  "readOnlyRehearsal": "PASS"
+}

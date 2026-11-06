@@ -22,6 +22,8 @@ The optional injected wallet reveals locally authorized accounts/network through
 
 ## Local state and export
 
+Permission-detail URLs use opaque identifiers derived with a random in-memory session salt. Raw owner/token/spender IDs stay inside the application; they are not embedded in generated detail paths. Clearing inspection rotates the salt, and a fresh tab cannot recover verified records from a URL. Hosting still sees the path, timing and network identity, and an explicit explorer link discloses its destination. Opaque links do not encrypt browser memory or public chain state.
+
 An optional development-only `.env.local` can contain public demo identities supplied with the user's explicit consent. This ignored local configuration is distinct from runtime scan persistence and is excluded from production. Clearing inspection data does not delete that file, revoke wallet permissions or erase worker-internal storage. Its values must not enter public screenshots, fixtures or commits.
 
 There is no application backend, analytics, tracking pixel, remote font or third-party address indexer. Theme preferences, bounded address history and query caches remain local in memory. Static hosting still sees asset/page requests, and navigating an external documentation/explorer link contacts its destination. The development workshop contains labeled fictional fixtures; the production build excludes its route and payloads.

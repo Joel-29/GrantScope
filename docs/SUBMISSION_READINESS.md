@@ -2,7 +2,7 @@
 
 **Engineering implementation is available; full submission acceptance remains pending.** Do not describe the project as a completed live end-to-end revocation demo yet.
 
-**Latest review:** the production build and deterministic checks pass, but neither fresh anonymous diagnostic succeeded. The local allowance could not be reverified. External connectivity currently blocks a reliable judging demo; deployment alone does not resolve it. The [final review](FINAL_REVIEW.md) and [actual failed-session ledgers](evidence/final-review-connectivity.json) supersede earlier successful-session readiness claims below. No signed revocation or deployment was performed during this review.
+**Latest follow-up:** [real Nym/Nox probes and UI reads](DEMO_CHECK.md) succeeded, including the configured 100 GST allowance. Separate attempts failed and remain documented. A read-only rehearsal command and private permission URLs are implemented. Owner-signed zero verification, the actual deployed origin and the judging recording remain pending; no signing or deployment occurred during this follow-up.
 
 The follow-up review fixed reproduced transport accounting, ABI validation, reorg, cancellation and stale-state defects. Fresh checks passed 95 unit/UI tests and 26 browser checks in each build mode. Nox returned real diagnostic responses and the configured positive allowance; Nym initialization timed out. See [latest test evidence](TESTING.md#follow-up-review-6-november-2026) and [audit findings](AUDIT.md#follow-up-review-6-november-2026). These fixes do not complete the pending owner-signed, deployed-origin and recording evidence below.
 

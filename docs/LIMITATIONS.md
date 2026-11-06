@@ -1,6 +1,6 @@
 # Known limitations
 
-The [latest review](FINAL_REVIEW.md) returned no successful anonymous blockchain responses. A reliable demo remains blocked even though the production build and deterministic checks pass. Earlier successful reads below do not establish current availability.
+The [latest follow-up](DEMO_CHECK.md) returned successful Nym/Nox reads and a positive configured allowance; separate attempts still failed. Availability is intermittent, so a passing session is not a guarantee for a later recording. Owner-signed and deployed-origin evidence remain pending.
 
 - **Connectivity:** Nym has returned real responses and has also timed out. Nox has returned real diagnostics, allowances and Permit2 reads; default tunnel settings later failed. Documented timeout tuning enabled the configured positive scan, but does not guarantee availability. The official Tor demonstration gateway failed; Tor needs an operational authenticated gateway supplied by its operator. No ordinary-RPC/passthrough fallback exists.
 - **Networks:** Ethereum mainnet and Sepolia are configured and chain-checked. Recent executed integration evidence is predominantly Sepolia. Nox is restricted to the tested Sepolia use case. Support is not a claim that every method/provider/range works continuously.

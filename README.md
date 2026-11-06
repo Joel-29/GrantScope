@@ -4,7 +4,7 @@
 
 GrantScope is an MIT-licensed Ethereum permission observatory built for ETHGlobal Mumbai. Inspect a public address without a wallet, read ERC-20 and Permit2 authority through official Anon-RPC workers, understand overlapping permission layers, and request narrowly scoped owner-authorized revocations. Coverage is bounded; the tagline does not mean every permission can be discovered.
 
-**Status:** Modules 1–12 are implemented and the production build passes. Earlier browser sessions returned real Nym/Nox reads and a positive Sepolia allowance, but the latest live review failed on both transports and could not reverify that allowance. **A reliable end-to-end judging demo is currently blocked by external connectivity.** No owner-signed live revocation, hosted-origin verification or published recording has been completed. The local grant is preserved. See the [latest review](docs/FINAL_REVIEW.md), [test history](docs/TESTING.md) and [remaining submission requirements](docs/SUBMISSION_READINESS.md).
+**Status:** The application builds and passes deterministic checks. The latest follow-up returned real Nym and Nox responses and displayed the configured 100 GST allowance through the actual UI. Availability remains intermittent; failed sessions are recorded alongside successes. Owner-signed revocation, deployed-origin verification and a published judging recording remain unperformed. The local grant is preserved. Use the [read-only demo check](docs/DEMO_CHECK.md), [test history](docs/TESTING.md) and [submission checklist](docs/SUBMISSION_READINESS.md).
 
 ![Actual production dashboard with no account selected](docs/screenshots/dashboard-final-dark.png)
 
@@ -52,11 +52,14 @@ npm test
 npm run test:release
 npm run build
 npm run check:local-config
+npm run demo:check -- --local
 npx playwright install chromium
 npm run test:e2e
 ```
 
 To use installed Chrome, set `PLAYWRIGHT_CHANNEL=chrome`. Build first and set `PLAYWRIGHT_PRODUCTION=1` for production browser checks. `PLAYWRIGHT_PORT` selects a local test server port. Ordinary suites skip opt-in external tests; a skip is not live evidence.
+
+Keep the development server running on port 5173 for `demo:check -- --local`. It makes real anonymous reads and verifies the unsigned local workflow without connecting a wallet. If primary Nym fails, explicitly add `--transport nox` for Sepolia. Reports are sanitized and saved only under ignored `.npm-cache/demo-rehearsals/`. [Rehearsal instructions and actual results](docs/DEMO_CHECK.md).
 
 `npm run test:live` performs the real public Sepolia diagnostic. Explicitly set `LIVE_TRANSPORT=nox` for the alternative. For the ignored local configuration, run the development server on port 4174 and opt in with `LIVE_LOCAL_DEMO=1`, then run `npx playwright test e2e/local-demo.live.spec.ts --project desktop-chromium --workers=1`. That case disables screenshots, tracing and video. It makes no wallet submission. [Executed checks, failures and reproduction details](docs/TESTING.md).
 

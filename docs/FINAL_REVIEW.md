@@ -1,5 +1,7 @@
 # Final deployment review — 6 November 2026
 
+**Historical failed session.** A later [live rehearsal follow-up](DEMO_CHECK.md) returned real Nym/Nox responses and the configured positive allowance. The failures below remain valid for these recorded sessions; they are not the complete current evidence. Owner-signed and deployed-origin evidence remain pending.
+
 **Buildable for a Vercel preview; not verified ready for a reliable end-to-end judging demo.** The official Nym and Nox routes failed in fresh real browser sessions. No direct fallback, wallet connection, signature or transaction was performed. Existing local demo identities remain private and the allowance was left untouched.
 
 ## Corrected defects
