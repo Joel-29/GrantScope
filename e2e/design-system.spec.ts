@@ -131,7 +131,10 @@ test('design workshop is isolated from production routes', async ({
   isMobile,
 }, testInfo) => {
   await page.goto('/design-system');
-  if (process.env.PLAYWRIGHT_PRODUCTION === '1') {
+  if (
+    process.env.PLAYWRIGHT_PRODUCTION === '1' ||
+    process.env.PLAYWRIGHT_BASE_URL
+  ) {
     await expect(
       page.getByRole('heading', { name: 'This page isn’t here' }),
     ).toBeVisible();

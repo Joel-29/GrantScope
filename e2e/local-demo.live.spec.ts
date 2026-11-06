@@ -9,7 +9,8 @@ test('local configured Sepolia pair returns real state without wallet submission
   page,
 }, testInfo) => {
   test.skip(
-    process.env.LIVE_LOCAL_DEMO !== '1',
+    process.env.LIVE_LOCAL_DEMO !== '1' ||
+      Boolean(process.env.PLAYWRIGHT_BASE_URL),
     'Explicit ignored local demo configuration required',
   );
   test.setTimeout(300000);
