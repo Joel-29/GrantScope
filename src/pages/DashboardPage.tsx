@@ -1,11 +1,9 @@
+import { TransportSummary } from '../features/privacy-report/TransportSummary';
 import { ActivityList } from '../features/revocation/ActivityList';
 import { ExposurePanel } from '../features/exposure/ExposurePanel';
-import { Fingerprint } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Notice } from '../components/ui/Notice';
 import { Panel } from '../components/ui/Panel';
-import { Badge } from '../components/ui/Badge';
 import { StatePanel } from '../components/ui/StatePanel';
 import { SummaryCards } from '../features/exposure/SummaryCards';
 import { AccountCard } from '../components/dashboard/AccountCard';
@@ -43,22 +41,7 @@ export function DashboardPage() {
             description="Run a permission scan to populate Authority analysis. Bounds are per permission, overlap across layers, and are not estimates of loss."
           />
         </Panel>
-        <Panel
-          title="Privacy transport"
-          action={<Badge>Not initialized</Badge>}
-        >
-          <div className="transport-summary">
-            <Fingerprint size={34} aria-hidden="true" />
-            <h3>No active anonymous route</h3>
-            <p>
-              There are no recorded application RPC reads, measured latencies,
-              or routing percentages.
-            </p>
-            <Link to="/privacy" className="text-link">
-              Inspect the privacy model →
-            </Link>
-          </div>
-        </Panel>
+        <TransportSummary />
       </div>
       <Panel
         title="Recent revocations"

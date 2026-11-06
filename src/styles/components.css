@@ -548,6 +548,9 @@ select:disabled {
 .mobile-inventory {
   display: none;
 }
+.mobile-inventory.permission-cards {
+  display: none;
+}
 .permission-cards {
   list-style: none;
   margin: 0;
@@ -1120,6 +1123,9 @@ select:disabled {
   }
   .mobile-inventory {
     display: block;
+  }
+  .mobile-inventory.permission-cards {
+    display: grid;
   }
   .state-panel {
     padding: 36px 20px;
