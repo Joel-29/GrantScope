@@ -3,7 +3,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { Notice } from '../components/ui/Notice';
 import { Panel } from '../components/ui/Panel';
 import { StatePanel } from '../components/ui/StatePanel';
-import { PermissionInventory } from '../components/permissions/PermissionInventory';
+import { AllowanceInventory } from '../features/erc20/AllowanceInventory';
 
 export function PermissionsPage() {
   return (
@@ -13,11 +13,11 @@ export function PermissionsPage() {
         title="Permissions"
         description="A focused inventory of supported permissions and the conditions behind them."
       />
-      <Notice title="Permission discovery is not active">
-        The table is ready for future verified results. No approvals, balances,
-        or classifications have been loaded.
+      <Notice title="Bounded allowance inspection">
+        Scan known or explicitly added token/spender pairs through the selected
+        anonymous worker. Historical discovery is not yet available.
       </Notice>
-      <PermissionInventory />
+      <AllowanceInventory />
       <div className="two-column">
         <Panel title="Know the layers">
           <div className="panel-body">

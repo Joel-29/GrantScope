@@ -14,7 +14,7 @@ import { StatePanel } from '../components/ui/StatePanel';
 import { MetricCard } from '../components/dashboard/MetricCard';
 import { AccountCard } from '../components/dashboard/AccountCard';
 import { InspectionDialog } from '../components/layout/Header';
-import { PermissionInventory } from '../components/permissions/PermissionInventory';
+import { AllowanceInventory } from '../features/erc20/AllowanceInventory';
 import { InspectionPanel } from '../features/wallet/InspectionForm';
 
 export function DashboardPage() {
@@ -27,9 +27,9 @@ export function DashboardPage() {
         action={<InspectionDialog />}
       />
       <Notice title="Read-only account inspection">
-        ETH balance and bytecode can be read anonymously. Permission scanning
-        and transaction execution have not been implemented yet. No wallet
-        connection is required.
+        ETH balance and bytecode can be read anonymously. Selected ERC-20 pairs
+        can be scanned on demand. Transaction execution is not available yet. No
+        wallet connection is required.
       </Notice>
       <InspectionPanel />
       <AccountCard />
@@ -59,7 +59,7 @@ export function DashboardPage() {
           <MetricCard key={item.title} {...item} />
         ))}
       </div>
-      <PermissionInventory />
+      <AllowanceInventory />
       <div className="two-column">
         <Panel
           title="Token exposure"
