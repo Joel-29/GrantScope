@@ -25,12 +25,6 @@ test(`actual ${network} worker returns a Sepolia block and balance without direc
   ).toBeVisible({
     timeout: 300_000,
   });
-  await expect(page.getByTestId('live-rpc-result')).toContainText(
-    `Responses received via the hash-verified ${network} worker`,
-  );
-  expect(directRpc.length).toBeGreaterThanOrEqual(2);
-  expect(directRpc.length).toBeLessThanOrEqual(4);
-  expect(directRpc.every((call) => call.bootstrap)).toBe(true);
   const waiting = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export report' }).click();
   const download = await waiting;
@@ -47,6 +41,19 @@ test(`actual ${network} worker returns a Sepolia block and balance without direc
     };
     requests: { actualTransport: string; category: string }[];
   };
+  const failure = (await page.getByRole('alert').allTextContents())
+    .join(' ')
+    .replace(/0x[a-f0-9]{40,}/gi, '[redacted]');
+  expect(
+    await page.getByTestId('live-rpc-result').count(),
+    failure || 'A successful actual diagnostic response is required',
+  ).toBe(1);
+  await expect(page.getByTestId('live-rpc-result')).toContainText(
+    `Responses received via the hash-verified ${network} worker`,
+  );
+  expect(directRpc.length).toBeGreaterThanOrEqual(2);
+  expect(directRpc.length).toBeLessThanOrEqual(4);
+  expect(directRpc.every((call) => call.bootstrap)).toBe(true);
   expect(report.accounting.totals.read).toMatchObject({
     completed: 3,
     anonymized: 3,

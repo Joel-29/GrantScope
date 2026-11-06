@@ -1,4 +1,6 @@
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
+import { join } from 'node:path';
 const child = spawn(
   process.execPath,
   [
@@ -7,6 +9,8 @@ const child = spawn(
     'e2e/anon-rpc.live.spec.ts',
     '--project=desktop-chromium',
     '--workers=1',
+    '--output',
+    join('.npm-cache', 'live-diagnostics', randomUUID()),
   ],
   { stdio: 'inherit', env: { ...process.env, LIVE_ANON_RPC: '1' } },
 );

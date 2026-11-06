@@ -6,6 +6,11 @@ test.use({
   screenshot: 'off',
   video: 'off',
 });
+// Playwright can otherwise save an accessibility snapshot on failure even with
+// screenshots/traces disabled. Close private pages before artifact teardown.
+test.afterEach(async ({ page }) => {
+  await page.close();
+});
 test('local configured Sepolia pair returns real state without wallet submission', async ({
   page,
 }, testInfo) => {
@@ -67,6 +72,7 @@ test('local configured Sepolia pair returns real state without wallet submission
   await page
     .getByRole('link', { name: 'Review owner-authorized revocation' })
     .click();
+  await expect(page).toHaveURL(/\/permissions\/[0-9a-f]{64}$/);
   await expect(
     page.getByRole('button', { name: 'Prepare revocation' }),
   ).toBeDisabled();
