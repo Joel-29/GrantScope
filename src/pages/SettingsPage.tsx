@@ -103,10 +103,11 @@ export function SettingsPage() {
             <div className="form-field">
               <label htmlFor="transport">Read transport</label>
               <select id="transport" disabled aria-describedby="transport-help">
-                <option>Anon-RPC · Planned default</option>
+                <option>Anon-RPC · Nym primary</option>
               </select>
               <small id="transport-help">
-                No harness or worker has been initialized.
+                Official anonymous harness integrated. Start and verify the
+                worker in Privacy Lab.
               </small>
             </div>
           </div>
@@ -115,7 +116,8 @@ export function SettingsPage() {
           <div>
             <strong>Direct RPC fallback</strong>
             <p>
-              No automatic fallback will be permitted. No RPC route exists yet.
+              No automatic direct fallback exists. Application reads require the
+              anonymous worker.
             </p>
           </div>
           <Badge>Unavailable</Badge>
@@ -135,14 +137,16 @@ export function SettingsPage() {
           </div>
           <InfoDialog
             title="What stays in your browser?"
-            description="Only interface preferences and an in-memory query cache exist in Module 2."
+            description="Application preferences and query cache are in memory. The official worker has a separate storage namespace."
             trigger={<Button>View data policy</Button>}
           >
             <p className="prose-copy">
-              No local storage, cookies, wallet targets, balances, or permission
-              records are written by the application. Theme preference resets
-              when the page reloads. Hosting providers still see normal page
-              requests.
+              The application does not persist wallet targets, balances, or
+              permission records. Theme preference resets on reload. The
+              official harness grants its worker IndexedDB storage scoped to the
+              worker specifier; worker caches may persist across reloads.
+              Hosting providers see page requests, and direct bootstrap calls
+              expose network identity to the bootstrap provider.
             </p>
           </InfoDialog>
         </div>

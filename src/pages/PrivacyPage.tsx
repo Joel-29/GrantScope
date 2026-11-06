@@ -6,8 +6,12 @@ import { Panel } from '../components/ui/Panel';
 import { StatePanel } from '../components/ui/StatePanel';
 import { MetricCard } from '../components/dashboard/MetricCard';
 import { TransportReadiness } from '../components/privacy/TransportReadiness';
+import { DiagnosticPanel } from '../features/anon-rpc/DiagnosticPanel';
+import { useAnonRpc } from '../features/anon-rpc/runtime';
+import { WORKERS } from '../features/anon-rpc/transportRegistry';
 
 export function PrivacyPage() {
+  const transport = useAnonRpc();
   return (
     <div className="page">
       <PageHeader
@@ -26,12 +30,17 @@ export function PrivacyPage() {
           <Fingerprint size={30} aria-hidden="true" />
         </div>
         <div>
-          <Badge tone="violet">Not initialized</Badge>
-          <h2>No active anonymizing transport</h2>
+          <Badge tone="violet">{transport.phase}</Badge>
+          <h2>
+            {transport.phase === 'ready'
+              ? `Hash-verified ${WORKERS[transport.transport].label} worker ready`
+              : 'No active anonymizing transport'}
+          </h2>
           <p>
-            The official browser harness and anonymous worker have not been
-            integrated. No request ledger is active, and no routing percentage
-            has been measured.
+            The official harness verifies worker bytes and preserves sandbox
+            isolation. Routing is only recorded successful after a worker
+            response. No silent direct RPC fallback exists. The diagnostic is
+            opt-in.
           </p>
         </div>
       </section>
@@ -40,27 +49,28 @@ export function PrivacyPage() {
           {
             title: 'Application reads',
             icon: Network,
-            detail: 'Request instrumentation not active',
+            detail: `${transport.metrics.filter((item) => item.category === 'read').length} recorded attempts in retained ledger`,
           },
           {
             title: 'Anonymous routing',
             icon: Fingerprint,
-            detail: 'No successful worker requests',
+            detail: `${transport.metrics.filter((item) => item.anonymized).length} successful responses in retained ledger`,
           },
           {
             title: 'Direct exceptions',
             icon: Route,
-            detail: 'Bootstrap accounting not active',
+            detail: `${transport.metrics.filter((item) => item.category === 'bootstrap').length} disclosed bootstrap attempts`,
           },
           {
             title: 'Median latency',
             icon: Gauge,
-            detail: 'No request durations recorded',
+            detail: 'See per-request durations below',
           },
         ].map((item) => (
           <MetricCard key={item.title} {...item} />
         ))}
       </div>
+      <DiagnosticPanel />
       <div className="two-column">
         <TransportReadiness />
         <Panel title="Accounting boundaries">
@@ -91,7 +101,7 @@ export function PrivacyPage() {
       <Panel
         title="Request ledger"
         description="Only instrumented application requests belong here."
-        action={<Badge>No request instrumentation</Badge>}
+        action={<Badge>{transport.metrics.length} retained records</Badge>}
       >
         <div className="ledger-head" aria-hidden="true">
           <span>RPC method</span>
@@ -99,13 +109,31 @@ export function PrivacyPage() {
           <span>Outcome</span>
           <span>Latency</span>
         </div>
-        <StatePanel
-          title="No request ledger yet"
-          description="There is no traffic to classify or export. This page makes no RPC requests and does not infer worker health from the interface."
-        />
+        {transport.metrics.length === 0 ? (
+          <StatePanel
+            title="No request ledger yet"
+            description="No requests have been recorded. Explicitly run the diagnostic to initialize Tor. Loading this page alone makes no RPC requests."
+          />
+        ) : (
+          <div className="panel-body">
+            <ul className="readiness-list">
+              {transport.metrics.map((item) => (
+                <li key={item.id}>
+                  <strong>{item.method}</strong>
+                  <span>
+                    {item.actualTransport} · {item.outcome} · {item.durationMs}{' '}
+                    ms
+                  </span>
+                  <Badge>{item.category}</Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         <p id="export-help" className="panel-footnote">
-          Export is unavailable until sanitized, instrumented request metrics
-          exist.
+          Detailed export is planned for Module 10. Ledger is bounded to the
+          latest 1,000 application requests; it does not contain addresses or
+          payloads.
         </p>
       </Panel>
       <div className="privacy-boundary">

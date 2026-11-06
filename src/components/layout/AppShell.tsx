@@ -92,8 +92,8 @@ export function AppShell() {
             Your permissions. Your perspective.
           </span>
           <span>
-            Module 2<span className="footer-divider">/</span>No blockchain
-            requests
+            Anonymous reads only<span className="footer-divider">/</span>
+            Bootstrap exceptions disclosed
           </span>
         </footer>
       </div>

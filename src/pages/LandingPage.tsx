@@ -40,7 +40,7 @@ export function LandingPage() {
     <div className="page landing-page">
       <div className="intro-meta">
         <span className="eyebrow">ETHEREUM PERMISSION OBSERVATORY</span>
-        <span className="tag">Interface release · v0.2</span>
+        <span className="tag">Anonymous transport · v0.3</span>
       </div>
       <section className="hero">
         <motion.div

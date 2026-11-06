@@ -49,8 +49,8 @@ export function Navigation({
           <div className="build-note">
             <Activity size={16} aria-hidden="true" />
             <span>
-              Interface release
-              <span className="muted">Module 2 · No live integrations</span>
+              Anonymous read transport
+              <span className="muted">Nym primary · Explicit routing</span>
             </span>
           </div>
           <a

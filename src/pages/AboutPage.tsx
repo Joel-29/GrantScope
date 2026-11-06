@@ -12,11 +12,11 @@ export function AboutPage() {
       <section className="panel prose-panel">
         <h2>Current implementation</h2>
         <p>
-          Module 2 provides the responsive application shell, dark and light
-          themes, accessible dialogs, permission inventory layouts, and
-          development tooling. There is no wallet connection, RPC transport,
-          scanner, exposure assessment, Permit2 integration, or transaction
-          execution.
+          Module 3 adds the official Anon-RPC Tor harness, a fail-closed read
+          adapter, and an opt-in live diagnostic to the responsive application
+          shell. Worker readiness and response evidence are reported in Privacy
+          Lab. There is no wallet connection, scanner, exposure assessment,
+          Permit2 integration, or transaction execution.
         </p>
         <h2>The permission model</h2>
         <p>

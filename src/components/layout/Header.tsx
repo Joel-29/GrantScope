@@ -7,6 +7,8 @@ import { InfoDialog } from '../ui/InfoDialog';
 import { Badge } from '../ui/Badge';
 import { StatePanel } from '../ui/StatePanel';
 import { env } from '../../lib/config/env';
+import { useAnonRpc } from '../../features/anon-rpc/runtime';
+import { WORKERS } from '../../features/anon-rpc/transportRegistry';
 
 const names: Record<string, string> = {
   dashboard: 'Dashboard',
@@ -21,7 +23,7 @@ export function InspectionDialog({ compact = false }: { compact?: boolean }) {
   return (
     <InfoDialog
       title="Wallet inspection is not available yet"
-      description="This release builds the interface. It does not connect a wallet, validate an account, or make blockchain requests."
+      description="Address inspection is not implemented yet. The Privacy Lab diagnostic can explicitly start the anonymous worker."
       trigger={
         <Button
           className={compact ? 'header-inspect' : ''}
@@ -47,6 +49,18 @@ export function InspectionDialog({ compact = false }: { compact?: boolean }) {
 export function Header({ mobileNavigation }: { mobileNavigation: ReactNode }) {
   const location = useLocation();
   const navigation = useNavigation();
+  const transport = useAnonRpc();
+  const workerName = WORKERS[transport.transport].label;
+  const transportLabel =
+    transport.phase === 'initializing'
+      ? `${workerName} initializing`
+      : transport.phase === 'failed'
+        ? `${workerName} failed · No fallback`
+        : transport.phase === 'ready'
+          ? transport.successfulWorkerReads > 0
+            ? `${workerName} worker responses`
+            : 'Worker ready · Unproven'
+          : 'Transport not initialized';
   const segment = location.pathname.split('/')[1] ?? '';
   return (
     <header className="topbar">
@@ -60,12 +74,12 @@ export function Header({ mobileNavigation }: { mobileNavigation: ReactNode }) {
       <div className="header-network">
         <span className="environment-label">{env.VITE_APP_ENV}</span>
         <InfoDialog
-          title="Transport is not initialized"
-          description="No anonymous worker or RPC connection has been initialized in Module 2."
+          title="Anonymous transport"
+          description="The selected official anonymous worker must return a response before successful anonymous routing is reported. Bootstrap reads are direct exceptions."
           trigger={
             <button type="button" className="transport-pill">
               <span className="status-dot" />
-              Transport not initialized
+              {transportLabel}
               <ArrowRight size={12} aria-hidden="true" />
             </button>
           }
@@ -73,7 +87,10 @@ export function Header({ mobileNavigation }: { mobileNavigation: ReactNode }) {
           <dl className="definition-list">
             <div>
               <dt>Active route</dt>
-              <dd>None. No application blockchain requests.</dd>
+              <dd>
+                {transportLabel}. {transport.successfulWorkerReads} successful
+                worker responses in this active session.
+              </dd>
             </div>
             <div>
               <dt>Privacy accounting</dt>
