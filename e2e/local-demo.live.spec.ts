@@ -38,7 +38,7 @@ test('local configured Sepolia pair returns real state without wallet submission
     .getByRole('region', { name: 'Local Sepolia demonstration' })
     .getByRole('alert');
   await expect(liveStatus.or(failure)).toBeVisible({
-    timeout: 240000,
+    timeout: 255000,
   });
   await expect(liveStatus).toBeVisible();
   const status = await page

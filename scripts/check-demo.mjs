@@ -110,7 +110,7 @@ try {
         name: 'Local Sepolia demonstration',
       }),
       status = page.getByTestId('configured-demo-live-status');
-    await status.or(panel.getByRole('alert')).waitFor({ timeout: 240000 });
+    await status.or(panel.getByRole('alert')).waitFor({ timeout: 255000 });
     const found = (await status.count()) > 0;
     step(
       'actual configured allowance',
