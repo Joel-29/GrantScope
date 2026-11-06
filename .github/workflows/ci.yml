@@ -17,3 +17,7 @@ jobs:
       - run: npm run check
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Test production interface and fixture exclusion
+        run: npm run test:e2e
+        env:
+          PLAYWRIGHT_PRODUCTION: '1'

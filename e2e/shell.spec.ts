@@ -17,7 +17,9 @@ test('workspace navigation and truthful transport state', async ({
   await expect(
     page.getByRole('heading', { name: 'Wallet overview' }),
   ).toBeVisible();
-  await expect(page.getByText('No wallet has been inspected')).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'No account selected' }),
+  ).toBeVisible();
   if (isMobile) {
     await page.getByRole('button', { name: 'Open navigation' }).click();
     await page

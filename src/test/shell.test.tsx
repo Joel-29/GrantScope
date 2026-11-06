@@ -28,7 +28,7 @@ describe('application foundation', () => {
       await screen.findByRole('heading', { name: 'Wallet overview' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText('No wallet has been inspected'),
+      screen.getByRole('heading', { name: 'No account selected' }),
     ).toBeInTheDocument();
     expect(screen.getAllByLabelText('Not measured')).toHaveLength(4);
     await waitFor(() => expect(screen.getByRole('main')).toHaveFocus());
