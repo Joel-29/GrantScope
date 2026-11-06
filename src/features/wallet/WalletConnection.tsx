@@ -1,6 +1,8 @@
 import { Button } from '../../components/ui/Button';
 import { Panel } from '../../components/ui/Panel';
 import { useWallet } from './provider';
+import { walletNetworkLabel } from './networkLabel';
+import { WalletReadiness } from './WalletReadiness';
 
 export function WalletConnection() {
   const wallet = useWallet();
@@ -14,10 +16,14 @@ export function WalletConnection() {
           <>
             <p className="address-value">{wallet.address}</p>
             <p>
-              Wallet network: {wallet.chainId}. Connection alone grants no
-              transaction authority to this application.
+              Wallet network: {walletNetworkLabel(wallet.chainId)}. Connection
+              alone grants no transaction authority to this application.
             </p>
             <Button onClick={wallet.disconnect}>Disconnect locally</Button>
+            <WalletReadiness
+              address={wallet.address}
+              chainId={wallet.chainId}
+            />
           </>
         ) : (
           <Button
