@@ -21,6 +21,9 @@ vi.mock('../erc20/engine', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../erc20/engine')>()),
   scanAllowances: vi.fn(),
 }));
+vi.mock('../wallet/useInspection', () => ({
+  useInspection: () => ({ data: { kind: 'eoa' } }),
+}));
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllEnvs();
@@ -105,6 +108,12 @@ it('restores the same-session verified snapshot and permission link after naviga
   expect(screen.getByTestId('configured-demo-live-status')).toHaveTextContent(
     '100 MOCK',
   );
+  expect(
+    screen.getByRole('button', { name: 'Connect signing wallet' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Prepare revocation' }),
+  ).toBeDisabled();
   t.unmount();
   t.remount();
   expect(
@@ -315,6 +324,9 @@ it('disables worker restarts and transport changes while a transaction workflow 
   });
   expect(restart).toBeDisabled();
   expect(alternative).toBeDisabled();
+  expect(
+    screen.getByRole('button', { name: 'Load configured Sepolia demo' }),
+  ).toBeDisabled();
   fireEvent.click(restart);
   fireEvent.click(alternative);
   expect(t.select).not.toHaveBeenCalled();

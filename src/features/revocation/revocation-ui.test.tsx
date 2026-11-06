@@ -10,6 +10,7 @@ import type { Erc20Permission } from '../erc20/types';
 import { useInspectionSession } from '../wallet/session';
 import { revocationIntent, type Prepared } from './engine';
 import * as engine from './engine';
+import { JsonRpcError } from '../anon-rpc/JsonRpcAdapter';
 const inspection = vi.hoisted(() => ({ kind: 'code-present' }));
 vi.mock('../wallet/useInspection', () => ({
   useInspection: () => ({ data: inspection }),
@@ -43,6 +44,58 @@ afterEach(() => {
   Reflect.deleteProperty(window, 'ethereum');
 });
 describe('revocation UI security boundaries', () => {
+  it('shows the current anonymous preparation stage and a safe failure without opening signing confirmation', async () => {
+    inspection.kind = 'eoa';
+    useWallet.setState({ address, chainId: 11155111 });
+    useInspectionSession.getState().inspect(address, 11155111);
+    const request = vi.fn();
+    Object.defineProperty(window, 'ethereum', {
+      configurable: true,
+      value: { request },
+    });
+    let reject!: (error: Error) => void;
+    vi.spyOn(engine, 'prepareRevocation').mockImplementation(
+      async (_manager, _provider, _record, _signal, onStage) => {
+        onStage?.('estimating-gas');
+        return new Promise((_resolve, fail) => {
+          reject = fail;
+        });
+      },
+    );
+    const user = userEvent.setup();
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <RevocationControl record={record} />
+      </QueryClientProvider>,
+    );
+    await user.click(
+      screen.getByRole('button', { name: 'Prepare revocation' }),
+    );
+    expect(
+      screen.getByTestId('revocation-preparation-stage'),
+    ).toHaveTextContent('Estimating transaction gas');
+    expect(
+      screen.getByTestId('revocation-preparation-stage'),
+    ).toHaveTextContent('anonymous worker');
+    await act(async () =>
+      reject(
+        new engine.RevocationPreparationError(
+          'estimating-gas',
+          new JsonRpcError('PRIVATE_PAYLOAD', -32000),
+        ),
+      ),
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Estimating transaction gas',
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('code -32000');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('PRIVATE_PAYLOAD');
+    expect(
+      screen.queryByRole('button', { name: 'Confirm in wallet' }),
+    ).not.toBeInTheDocument();
+    expect(request).not.toHaveBeenCalled();
+    expect(useTransactions.getState().activity).toHaveLength(0);
+  });
   it('cancels the final preflight on unmount before any wallet submission', async () => {
     inspection.kind = 'eoa';
     useWallet.setState({ address, chainId: 11155111 });

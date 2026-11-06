@@ -18,7 +18,9 @@ import {
   sameIntent,
   verifyRevocation,
   followRevocation,
+  RevocationPreparationError,
 } from './engine';
+import { JsonRpcError } from '../anon-rpc/JsonRpcAdapter';
 
 const wait = vi.hoisted(() => vi.fn());
 vi.mock('../wallet/inspection', () => ({
@@ -138,6 +140,102 @@ function setup() {
   return { ...rpc, state, provider: { request } };
 }
 describe('owner-authorized revocation security', () => {
+  it('identifies a rejected anonymous gas estimate without leaking provider payloads or requesting signing', async () => {
+    const t = setup();
+    const original = t.manager.request.bind(t.manager);
+    vi.spyOn(t.manager, 'request').mockImplementation(
+      (chain, method, params, signal) =>
+        method === 'eth_estimateGas'
+          ? Promise.reject(new JsonRpcError('PRIVATE_PROVIDER_PAYLOAD', -32000))
+          : original(chain, method, params, signal),
+    );
+    const failure = await prepareRevocation(
+      t.manager,
+      t.provider,
+      record,
+    ).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(RevocationPreparationError);
+    expect(failure).toMatchObject({ stage: 'estimating-gas' });
+    expect((failure as Error).message).toContain('code -32000');
+    expect((failure as Error).message).not.toContain(
+      'PRIVATE_PROVIDER_PAYLOAD',
+    );
+    expect(
+      t.provider.request.mock.calls.every(
+        ([call]) => call.method !== 'eth_sendTransaction',
+      ),
+    ).toBe(true);
+    t.manager.close();
+  });
+  it('identifies wallet metadata failure before sending any application RPC', async () => {
+    const t = setup();
+    t.provider.request.mockRejectedValueOnce({
+      code: 4100,
+      message: 'PRIVATE_WALLET_DETAIL',
+    });
+    const request = vi.spyOn(t.manager, 'request');
+    const failure = await prepareRevocation(
+      t.manager,
+      t.provider,
+      record,
+    ).catch((error: unknown) => error);
+    expect(failure).toMatchObject({ stage: 'checking-wallet' });
+    expect((failure as Error).message).toContain('not authorized');
+    expect((failure as Error).message).not.toContain('PRIVATE_WALLET_DETAIL');
+    expect(request).not.toHaveBeenCalled();
+    expect(t.provider.request).toHaveBeenCalledTimes(1);
+    t.manager.close();
+  });
+  it('cancels a stalled wallet metadata read and sends no late chain query', async () => {
+    const t = setup(),
+      controller = new AbortController();
+    let finish!: (value: string[]) => void;
+    t.provider.request.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const pending = prepareRevocation(
+      t.manager,
+      t.provider,
+      record,
+      controller.signal,
+    );
+    await Promise.resolve();
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ stage: 'checking-wallet' });
+    finish([owner]);
+    await Promise.resolve();
+    expect(t.provider.request).toHaveBeenCalledTimes(1);
+    expect(t.calls).toHaveLength(0);
+    t.manager.close();
+  });
+  it('cancels shared initialization without allowing late blockchain reads', async () => {
+    const t = setup(),
+      controller = new AbortController();
+    let ready!: () => void;
+    const initialization = new Promise<void>((resolve) => {
+      ready = resolve;
+    });
+    const initialize = vi
+      .spyOn(t.manager, 'initialize')
+      .mockReturnValue(initialization);
+    const request = vi.spyOn(t.manager, 'request');
+    const pending = prepareRevocation(
+      t.manager,
+      t.provider,
+      record,
+      controller.signal,
+    );
+    await vi.waitFor(() => expect(initialize).toHaveBeenCalledOnce());
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ stage: 'starting-worker' });
+    ready();
+    await Promise.resolve();
+    expect(request).not.toHaveBeenCalled();
+    t.manager.close();
+  });
   it('rejects noncanonical zero responses during post-confirmation verification', async () => {
     for (const permit of [false, true]) {
       const t = setup();
