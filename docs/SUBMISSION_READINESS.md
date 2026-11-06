@@ -2,6 +2,8 @@
 
 **Engineering implementation is available; full submission acceptance remains pending.** Do not describe the project as a completed live end-to-end revocation demo yet.
 
+The follow-up review fixed reproduced transport accounting, ABI validation, reorg, cancellation and stale-state defects. Fresh checks passed 95 unit/UI tests and 26 browser checks in each build mode. Nox returned real diagnostic responses and the configured positive allowance; Nym initialization timed out. See [latest test evidence](TESTING.md#follow-up-review-6-november-2026) and [audit findings](AUDIT.md#follow-up-review-6-november-2026). These fixes do not complete the pending owner-signed, deployed-origin and recording evidence below.
+
 | Acceptance item                         | Evidence/status                                                                                                                                                                           |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Public source and license               | GitHub API verified public visibility, MIT and main branch. Four commits per module; local environment excluded.                                                                          |

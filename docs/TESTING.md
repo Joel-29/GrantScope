@@ -1,5 +1,30 @@
 # Testing
 
+## Follow-up review, 6 November 2026
+
+Fresh results after the follow-up fixes, using Node 20.20.1, npm 10.8.2 and installed Chrome:
+
+| Check                                                           | Actual result                                                                                                                                                                                          |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Strict TypeScript, ESLint, Prettier and diff whitespace         | Passed                                                                                                                                                                                                 |
+| Vitest / Testing Library                                        | 95 passed across 14 files                                                                                                                                                                              |
+| Development browser suite                                       | 26 passed; 12 opt-in live cases skipped                                                                                                                                                                |
+| Production browser suite                                        | 26 passed; 12 opt-in live cases skipped                                                                                                                                                                |
+| Production build and development-fixture/local-config exclusion | Passed                                                                                                                                                                                                 |
+| npm advisory audit, including development dependencies          | Zero known vulnerabilities reported at review time                                                                                                                                                     |
+| Tracked/staged local configuration guard                        | Passed; `.env.local` remains ignored                                                                                                                                                                   |
+| Real primary Nym diagnostic                                     | Failed: initialization deadline reached at 120 seconds; two successful direct bootstrap calls, zero application read attempts and zero anonymous successes                                             |
+| Explicit real Nox Sepolia diagnostic                            | Passed in 31.5 seconds (34.1 seconds total): actual `eth_chainId`, `eth_blockNumber` and `eth_getBalance` through the worker; three anonymous successes, two direct bootstrap calls, zero wallet calls |
+| Configured local Sepolia ERC-20 browser scan via Nox            | Passed in approximately 1.7 minutes: returned 100 GST, 18 decimals, displayed real state/unsigned zeroing intent and required owner authorization; no wallet submission                                |
+
+The [fresh sanitized traffic export](evidence/review-nox-traffic.json) contains route/method/outcome/timing only. Its 100.0% share describes three successful anonymous responses divided by three completed application reads; bootstrap and wallet activity are separate. Local demo addresses never enter this report or committed evidence. Screenshot, trace and video capture were disabled for the configured scan; its existing allowance was preserved.
+
+Regression tests cover pre-dispatch route accounting, reorgs affecting preparation or only the later zero-state block, noncanonical allowance results, preflight cancellation on leaving the view, cache removal, lower canonical heads, later positive grants and Permit2 dependency supersession. They are mocked security/state evidence, not live signed-transaction evidence. Initial new-test assertions and TypeScript issues were corrected. Concurrent transform load exposed a lazy-route timeout; four bounded Vitest workers resolved it without relaxing assertions. A development browser run was interrupted by a Vite configuration restart; the complete stable-server rerun passed. No failed Nym attempt was relabeled successful.
+
+Reproduce deterministic checks with the commands below. For these Windows browser runs, separate existing servers were used on development port 4174 and production preview port 4173, `PLAYWRIGHT_CHANNEL=chrome`, and one Playwright worker. Live commands targeted `e2e/anon-rpc.live.spec.ts` with `LIVE_ANON_RPC=1` and explicit `LIVE_TRANSPORT=nym` then `nox`. The private-config case targeted only `e2e/local-demo.live.spec.ts` with `LIVE_LOCAL_DEMO=1` and `LIVE_TRANSPORT=nox` on port 4174. External live cases remain opt-in.
+
+Owner-signed revocation and fresh post-signing zero evidence, positive Permit2 lockdown, a deployed HTTPS-origin check and a completed judging recording remain unperformed. Build warnings remain two upstream Zod comment annotations and a 528.27 kB main JavaScript chunk. No complete coverage percentage, remote CI success or independent security audit is claimed.
+
 ## Module 12 final release checks
 
 TypeScript, ESLint, Prettier, 82 unit/Testing Library tests across thirteen files, production build, fixture/local-demo exclusion and tracked/staged configuration guards passed. The final production Playwright suite passed 24 deterministic desktop/mobile tests with twelve opt-in live cases skipped. Four focused route/navigation tests passed again after final copy cleanup. Development browser checks in Module 11 passed 24 tests with twelve live skips; those are separate from the real configured-pair success.
