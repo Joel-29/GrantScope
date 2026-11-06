@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button';
 import { InfoDialog } from '../components/ui/InfoDialog';
 import { useTheme } from '../hooks/useTheme';
 import { useUiStore, type ThemePreference } from '../store/useUiStore';
+import { WalletConnection } from '../features/wallet/WalletConnection';
 
 const themes = [
   {
@@ -165,6 +166,7 @@ export function SettingsPage() {
           </Link>
         </div>
       )}
+      <WalletConnection />
     </div>
   );
 }

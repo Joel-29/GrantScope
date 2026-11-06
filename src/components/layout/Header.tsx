@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Activity, ArrowRight, Search, Shield } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { Activity, ArrowRight, Search } from 'lucide-react';
 import { useLocation, useNavigation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import { Button } from '../ui/Button';
@@ -9,6 +9,7 @@ import { StatePanel } from '../ui/StatePanel';
 import { env } from '../../lib/config/env';
 import { useAnonRpc } from '../../features/anon-rpc/runtime';
 import { WORKERS } from '../../features/anon-rpc/transportRegistry';
+import { InspectionForm } from '../../features/wallet/InspectionForm';
 
 const names: Record<string, string> = {
   dashboard: 'Dashboard',
@@ -20,10 +21,13 @@ const names: Record<string, string> = {
 };
 
 export function InspectionDialog({ compact = false }: { compact?: boolean }) {
+  const [open, setOpen] = useState(false);
   return (
     <InfoDialog
-      title="Wallet inspection is not available yet"
-      description="Address inspection is not implemented yet. The Privacy Lab diagnostic can explicitly start the anonymous worker."
+      title="Inspect a public address"
+      description="No wallet connection is required. Every account read uses the selected anonymous worker. Direct specifier bootstrap reads are disclosed separately."
+      open={open}
+      onOpenChange={setOpen}
       trigger={
         <Button
           className={compact ? 'header-inspect' : ''}
@@ -35,13 +39,7 @@ export function InspectionDialog({ compact = false }: { compact?: boolean }) {
         </Button>
       }
     >
-      <div className="dialog-callout">
-        <Shield size={20} aria-hidden="true" />
-        <p>
-          Read-only inspection will be enabled after the anonymous transport is
-          implemented and verified. Signing will be a separate, explicit step.
-        </p>
-      </div>
+      <InspectionForm onInspect={() => setOpen(false)} />
     </InfoDialog>
   );
 }

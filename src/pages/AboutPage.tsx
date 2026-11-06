@@ -12,11 +12,13 @@ export function AboutPage() {
       <section className="panel prose-panel">
         <h2>Current implementation</h2>
         <p>
-          Module 3 adds the official Anon-RPC Tor harness, a fail-closed read
-          adapter, and an opt-in live diagnostic to the responsive application
-          shell. Worker readiness and response evidence are reported in Privacy
-          Lab. There is no wallet connection, scanner, exposure assessment,
-          Permit2 integration, or transaction execution.
+          Module 4 adds validated read-only account inspection and optional
+          injected wallet connection over the official fail-closed anonymous
+          read adapter. Nym is primary; Nox is an explicit Sepolia alternative,
+          and Tor requires an operational authenticated gateway. Worker
+          readiness and response evidence are reported in Privacy Lab. There is
+          no allowance scanner, exposure assessment, Permit2 integration, or
+          transaction execution.
         </p>
         <h2>The permission model</h2>
         <p>

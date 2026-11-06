@@ -15,6 +15,7 @@ import { MetricCard } from '../components/dashboard/MetricCard';
 import { AccountCard } from '../components/dashboard/AccountCard';
 import { InspectionDialog } from '../components/layout/Header';
 import { PermissionInventory } from '../components/permissions/PermissionInventory';
+import { InspectionPanel } from '../features/wallet/InspectionForm';
 
 export function DashboardPage() {
   return (
@@ -25,10 +26,12 @@ export function DashboardPage() {
         description="Understand spending authority, one verified permission at a time."
         action={<InspectionDialog />}
       />
-      <Notice title="Interface release · Live inspection unavailable">
-        No wallet has been inspected. The privacy transport, scanner, and
-        transaction modules have not been implemented.
+      <Notice title="Read-only account inspection">
+        ETH balance and bytecode can be read anonymously. Permission scanning
+        and transaction execution have not been implemented yet. No wallet
+        connection is required.
       </Notice>
+      <InspectionPanel />
       <AccountCard />
       <div className="summary-grid">
         {[

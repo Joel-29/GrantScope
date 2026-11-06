@@ -9,14 +9,21 @@ export function InfoDialog({
   description,
   children,
   drawer = false,
+  open,
+  onOpenChange,
 }: PropsWithChildren<{
   trigger: ReactElement;
   title: string;
   description: string;
   drawer?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }>) {
   return (
-    <Dialog.Root>
+    <Dialog.Root
+      {...(open !== undefined ? { open } : {})}
+      {...(onOpenChange ? { onOpenChange } : {})}
+    >
       <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />

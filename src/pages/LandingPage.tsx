@@ -40,7 +40,7 @@ export function LandingPage() {
     <div className="page landing-page">
       <div className="intro-meta">
         <span className="eyebrow">ETHEREUM PERMISSION OBSERVATORY</span>
-        <span className="tag">Anonymous transport · v0.3</span>
+        <span className="tag">Anonymous inspection · v0.4</span>
       </div>
       <section className="hero">
         <motion.div
@@ -76,7 +76,7 @@ export function LandingPage() {
           </div>
           <p className="hero-disclaimer">
             <LockKeyhole size={14} aria-hidden="true" />
-            Interface release. Live wallet inspection is not available yet.
+            Read-only anonymous inspection. Wallet connection is optional.
           </p>
         </motion.div>
         <div
