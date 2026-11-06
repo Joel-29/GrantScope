@@ -1,3 +1,4 @@
+import { walletRequest } from './requests';
 import { create } from 'zustand';
 import type { Address } from 'viem';
 import { parseAddress } from './address';
@@ -55,11 +56,11 @@ export const useWallet = create<WalletState>((set) => ({
     detach();
     set({ address: null, chainId: null, connecting: true, error: null });
     try {
-      const accounts = await provider.request({
+      const accounts = await walletRequest(provider, {
         method: 'eth_requestAccounts',
       });
       const chainId = walletChain(
-        await provider.request({ method: 'eth_chainId' }),
+        await walletRequest(provider, { method: 'eth_chainId' }),
       );
       if (!Array.isArray(accounts) || typeof accounts[0] !== 'string')
         throw new Error('No wallet account');

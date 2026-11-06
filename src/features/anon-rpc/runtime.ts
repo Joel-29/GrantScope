@@ -3,13 +3,14 @@ import { AnonRpcWorker } from '@anon-rpc/browser-harness';
 import { AnonRpcManager } from './AnonRpcManager';
 import { validKpsGateway, type AnonymousTransport } from './transportRegistry';
 import type { RequestMetric } from './types';
+import { TrafficLedger } from '../privacy-report/ledger';
 
 const factory = (init: ConstructorParameters<typeof AnonRpcWorker>[0]) =>
   new AnonRpcWorker(init);
 const listeners = new Set<() => void>();
-let ledger: RequestMetric[] = [];
+const ledger = new TrafficLedger();
 const record = (metric: RequestMetric) => {
-  ledger = [...ledger.slice(-999), metric];
+  ledger.record(metric);
   notify();
 };
 const createManager = (
@@ -26,13 +27,22 @@ const createManager = (
     record,
   );
 let active = createManager();
-let snapshot = active.getSnapshot();
+let snapshot = {
+  ...active.getSnapshot(),
+  metrics: ledger.rows,
+  totals: ledger.totals,
+};
 const notify = () => {
-  snapshot = { ...active.getSnapshot(), metrics: ledger };
+  snapshot = {
+    ...active.getSnapshot(),
+    metrics: ledger.rows,
+    totals: ledger.totals,
+  };
   listeners.forEach((listener) => listener());
 };
 let unsubscribe = active.subscribe(notify);
 export const anonRpc = {
+  recordWallet: record,
   current: () => active,
   getSnapshot: () => snapshot,
   subscribe: (listener: () => void) => {

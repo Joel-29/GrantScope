@@ -1,3 +1,4 @@
+import { walletRequest } from '../wallet/requests';
 import {
   decodeFunctionResult,
   encodeFunctionData,
@@ -69,8 +70,16 @@ export async function assertWallet(
   provider: InjectedProvider,
   record: Permission,
 ) {
-  const accounts = await provider.request({ method: 'eth_accounts' }),
-    chain = await provider.request({ method: 'eth_chainId' });
+  const accounts = await walletRequest(
+      provider,
+      { method: 'eth_accounts' },
+      record.chainId,
+    ),
+    chain = await walletRequest(
+      provider,
+      { method: 'eth_chainId' },
+      record.chainId,
+    );
   if (
     !Array.isArray(accounts) ||
     typeof accounts[0] !== 'string' ||
@@ -303,18 +312,22 @@ export async function submitRevocation(
   guard();
   const hex = (value: bigint) => `0x${value.toString(16)}`;
   onWallet?.();
-  const value = await provider.request({
-    method: 'eth_sendTransaction',
-    params: [
-      {
-        ...fresh.intent,
-        chainId: hex(BigInt(fresh.record.chainId)),
-        nonce: hex(fresh.nonce),
-        gas: hex(fresh.gas),
-        gasPrice: hex(fresh.gasPrice),
-      },
-    ],
-  });
+  const value = await walletRequest(
+    provider,
+    {
+      method: 'eth_sendTransaction',
+      params: [
+        {
+          ...fresh.intent,
+          chainId: hex(BigInt(fresh.record.chainId)),
+          nonce: hex(fresh.nonce),
+          gas: hex(fresh.gas),
+          gasPrice: hex(fresh.gasPrice),
+        },
+      ],
+    },
+    prepared.record.chainId,
+  );
   return { hash: hash32(value), prepared: fresh };
 }
 export async function verifyRevocation(
