@@ -1,3 +1,4 @@
+import { DiscoveryPanel } from '../features/discovery/DiscoveryPanel';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Notice } from '../components/ui/Notice';
@@ -15,9 +16,11 @@ export function PermissionsPage() {
       />
       <Notice title="Bounded allowance inspection">
         Scan known or explicitly added token/spender pairs through the selected
-        anonymous worker. Historical discovery is not yet available.
+        anonymous worker. Bounded owner-filtered event discovery is available
+        below.
       </Notice>
       <AllowanceInventory />
+      <DiscoveryPanel />
       <div className="two-column">
         <Panel title="Know the layers">
           <div className="panel-body">
