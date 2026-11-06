@@ -1,5 +1,11 @@
 # Testing
 
+## Module 10 evidence
+
+72 unit/Testing Library tests passed across twelve files, including full-session counters after 1,100 records, separate read/bootstrap/wallet denominators, failed-worker no-fallback behavior, wallet-read refusal and export field exclusion. TypeScript, ESLint, formatting and production build passed. The production browser suite passed 24 tests with ten live cases skipped, including unavailable Tor and accurate empty export.
+
+The fresh primary Nym worker initialized but its first chain-ID request timed out after 24,037 ms: zero anonymous successes, one failed read, two direct bootstrap calls, and 0.0% anonymous-read share. This live test failed and is retained as failure evidence. An explicitly selected Nox run then passed in 16.0 seconds (17.2 seconds total). Its real exported report recorded exactly three successful anonymous Sepolia reads, two fixed direct bootstrap calls and zero wallet API calls; anonymous-read share was 100.0% of those completed application reads, not overall network traffic. No automated fallback occurred. The sanitized report is preserved in `docs/evidence/module10-nox-traffic.json`.
+
 ## Module 9 evidence
 
 67 unit/Testing Library tests passed across eleven files. Security cases cover exact approve-to-zero and canonical lockdown calldata, ownership/network mismatch, code-present accounts, missing contract, already-zero state, false-return simulation, insufficient ETH, unsafe nonce precision, changed allowance/gas/context, wallet rejection, canonical receipt and transaction identity, nonzero post-state, reorg, replacement intent and timeout. UI tests disable smart-account signing, serialize submissions and distinguish receipt confirmation from verified zero. TypeScript, ESLint and production fixture isolation/build passed. The build currently reports the inherited Zod annotation warnings and a larger viem-containing chunk warning. The production browser suite passed 22 tests with ten live cases skipped; wallet rejection remains rejected on desktop and mobile. No signed live transaction or positive allowance revocation has been run: a funded owner-controlled wallet is unavailable in the automated environment. Mocked security cases are not live transaction evidence.

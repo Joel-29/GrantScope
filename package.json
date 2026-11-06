@@ -1,7 +1,7 @@
 {
   "name": "grantscope",
   "private": true,
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Privacy-first Ethereum permission observatory with real anonymous RPC transport.",
   "type": "module",
   "license": "MIT",

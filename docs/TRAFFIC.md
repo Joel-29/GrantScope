@@ -1,0 +1,15 @@
+# Measured traffic report (Module 10)
+
+`AnonRpcManager.measured` records admitted application read and fixed bootstrap calls centrally, after each promise settles. Records contain method, timestamp, chain, requested/actual route, outcome, duration, anonymous-response flag and exception category. No request parameters, scanned addresses, calldata, transaction hash or raw response/error are recorded. An unsuccessful worker dispatch remains an attempt, never an anonymous success. A worker-ready state is separate from successful RPC response proof.
+
+The runtime's `TrafficLedger` retains the latest 1,000 settled records and separate full-session counters. Switching or closing workers does not erase counters or late cancellation outcomes. Reload clears application metrics. No storage or analytics service receives them. The official SDK has a separate public-resource cache; see the threat model.
+
+The anonymous-read percentage is `successful anonymous worker RPC responses / completed application read attempts`. Failed and cancelled reads remain in the denominator; in-flight operations join it only when they settle. No reads means no percentage. Direct specifier bootstrap and wallet activity are excluded and independently counted. Successful transport responses are not proof that provider data is truthful or that every method-specific result passed application validation.
+
+Latency is measured with the browser performance clock. The report shows median successful-read latency for the retained window, and mean successful-read latency for the full page session. Failure rate is failed reads divided by completed application attempts; cancelled reads are separately visible. Route counts cover all settled categories and retain their categories in the ledger.
+
+`walletRequest` is the single application wallet-API wrapper. It allows only account authorization, local account/network metadata and transaction submission; it refuses application blockchain reads. User rejection is a cancelled wallet request. Transaction-submission request counts include rejected or failed requests and do not imply a broadcast or receipt. Wallet extension internals, unsolicited events, external signing tools and internal retries are unobservable. No claim is made about their anonymous share.
+
+The export constructs a JSON field whitelist for worker state, counters and sanitized records. It omits query bodies, owner addresses, transaction hashes, gateway certificates, raw logs and raw errors. It is generated locally with a temporary Blob URL; no upload occurs. The URL is revoked after download initiation. Exporting an empty ledger accurately reports no percentage.
+
+Worker code resolution and anonymous-network bootstrap contact external infrastructure. Fixed specifier calls are counted as direct bootstrap exceptions; the report cannot count every SDK, Nym gateway-selection, Tor KPS or wallet-internal network operation. This limitation appears beside the counters. RPC providers still see the queried address, and transactions remain public. Tor requires an operational authenticated gateway; selecting unavailable Tor produces no ordinary-RPC fallback.

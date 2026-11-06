@@ -1,23 +1,33 @@
-# Privacy
+# Privacy threat model
 
-Status: Module 3 anonymous transport. Nym primary; explicitly selected Nox for Sepolia; optional Tor requires an operational authenticated gateway. See [ANON_RPC](ANON_RPC.md) for observed successes, failures and trust boundaries.
+GrantScope runs blockchain inspection in the browser. Every application-controlled account, allowance, discovery, simulation, gas, nonce, receipt and verification read uses the selected official Anon-RPC worker. Nym is primary; Nox is an explicitly selected Sepolia alternative after failure. Optional Tor requires an operational authenticated KPS gateway. There is no ordinary-RPC or passthrough fallback. Loading the application alone starts no worker.
 
-The application contains no analytics, third-party fonts or indexers. UI state, bounded address history and query cache are in memory. No wallet targets, permission relationships, payloads or balances are persisted by the application. Explicit diagnostics and account inspection use anonymous workers plus fixed direct specifier bootstrap reads. Optional injected-wallet connection only requests local wallet authorization/account state; extension traffic is outside anonymous-read guarantees. The official harness grants worker-scoped IndexedDB storage; worker caches can persist. Hosting providers observe page/asset requests. Opening a documentation link contacts its destination.
+## What anonymous routing protects
 
-Theme and sidebar preferences are session-only. The system-theme option reads a browser media preference and subscribes to changes; it does not transmit the value. The development-only design workshop contains labeled fictional records. Those fixtures and the preview route are excluded from production, and a build check guards against accidental inclusion. Privacy Lab has no active ledger or export; its export control stays disabled.
+The worker aims to reduce linkage between the user's network identity and destination RPC requests. The RPC provider still sees the queried address, calldata and other request contents. Public transactions, balances and relationships remain public. Timing, traffic volume, browser fingerprinting, a compromised wallet/browser/OS and colluding observers can defeat privacy. GrantScope is not a light client and cannot prove an RPC provider's data is truthful. A successful anonymous response is route evidence, not a universal anonymity guarantee.
 
-## Planned threat model
+## Bootstrap and worker trust
 
-Anonymous transport should reduce linkage between a user’s network identity and RPC requests. The destination provider still sees the requested chain data, including addresses. Public transactions and timing correlations remain observable. Anonymous transport does not prove provider integrity or eliminate browser compromise.
+The official `@anon-rpc/browser-harness` resolves a fixed official worker specifier, fetches its bytes, checks the reported code hash and preserves the SDK sandbox. GrantScope does not patch verification, accept arbitrary worker-code URLs, or use passthrough. Initial specifier `eth_call` reads are direct to the bootstrap chain's configured RPC; the adapter restricts their target, selector, parameters and category so they cannot carry a scanned owner.
 
-## Future trust boundaries
+Hash integrity depends on the specifier/provider response and worker publication chain. It is not an independent audit of worker behavior, an authenticated Ethereum state proof, or a defense against a compromised bootstrap provider substituting both metadata and source. The worker and SDK, their dependencies, RPC services and anonymous-network infrastructure remain trust assumptions. Official specifiers may resolve updated worker code over time; the active reported hash is visible in Privacy Lab and verification must complete before readiness.
 
-- Use the official browser harness without disabling original worker hash verification or sandbox isolation.
-- Resolve configured official specifiers; do not load arbitrary unverified JavaScript.
-- Disclose specifier bootstrap chain reads as direct exceptions.
-- Report actual route success before showing anonymity. Passthrough is direct traffic.
-- Never silently switch to direct RPC. Direct comparison requires explicit opt-in.
-- Wallet submissions and extension traffic are outside anonymous-read guarantees; the application cannot observe all internal extension operations.
-- Do not send addresses to an indexer or analytics service. Sanitize any future local metrics export so it excludes target addresses, payloads, URLs containing credentials, and permission relationships.
+Worker code resources and network bootstrap may contact additional infrastructure. Nym gateway discovery and Tor KPS dialing can expose connection metadata. The report counts the application's fixed direct specifier calls, not every internal SDK or transport operation. KPS certificate pinning authenticates the configured peer; syntactically valid gateway input does not establish reachability or reliability. The failed Tor demonstration gateway is not automatically reused. A self-hosted gateway can be configured explicitly.
 
-Worker isolation, WebAssembly, CSP, cross-origin requirements, and endpoint compatibility must be independently tested in the transport module. No live worker test has run in Module 1.
+The SDK grants worker-scoped IndexedDB storage for public-resource caches, which can outlive a page session. Application targets, balances, grants and metrics use in-memory state/query caches only. These are separate storage boundaries. Clearing application state does not claim to erase wallet or worker-internal storage.
+
+## Wallet and onchain exposure
+
+The optional injected wallet reveals locally authorized accounts/network through EIP-1193 and sends explicitly confirmed transactions. Those API requests are counted separately from anonymous reads. The application cannot observe the wallet's internal RPC connections, retries, analytics or broadcast path. Wallet submissions are not anonymous, and the public sender, target, calldata and transaction remain observable. No seed phrase or private key is requested or stored. Code-present accounts are read-only unless a dedicated execution adapter is added.
+
+## Local state and export
+
+There is no application backend, analytics, tracking pixel, remote font or third-party address indexer. Theme preferences, bounded address history and query caches remain local in memory. Static hosting still sees asset/page requests, and navigating an external documentation/explorer link contacts its destination. The development workshop contains labeled fictional fixtures; the production build excludes its route and payloads.
+
+Privacy Lab uses actual centrally measured outcomes. Anonymous-read share is successful worker RPC responses divided by all completed application read attempts, including failures/cancellations. Bootstrap and wallet activity have separate counts. The latest 1,000 settled records are retained; full-session counters continue beyond that window. Export explicitly selects safe fields and omits target addresses, parameters, transaction hashes, gateway credentials, raw worker logs and raw errors. It is generated locally, not uploaded. Reload clears application memory; export is the user's local file.
+
+## Failure behavior
+
+Initialization, worker loss, provider refusal and malformed results are visible failures. Failed or cancelled reads do not become anonymous successes, zero allowances, exhaustive discovery or verified revocations. Retry and transport selection are explicit. Worker-ready and real-response proof are separate states. A confirmed transaction is marked verified zero only after the canonical receipt and fresh allowance checks described in [REVOCATION](REVOCATION.md). Two confirmations reduce risk but do not establish finality or prevent later grants.
+
+See [live transport evidence](ANON_RPC.md), [traffic accounting](TRAFFIC.md), and [known limitations](LIMITATIONS.md). This is a code-level privacy model, not an independent anonymity audit.
