@@ -1,139 +1,53 @@
-# Module 2 file tree
+# File map
 
-Generated dependencies, build output, caches and transient test artifacts are excluded. Feature boundaries containing only .gitkeep are reserved for later integrations.
+Generated dependencies, caches, build output, dotenv values and transient test artifacts are excluded from Git.
 
 ```text
 GrantScope/
-|-- .github/
-|   `-- workflows/
-|       `-- ci.yml
-|-- docs/
-|   |-- screenshots/
-|   |   |-- dashboard-dark.png
-|   |   |-- dashboard-light.png
-|   |   |-- overview-desktop.png
-|   |   |-- overview-mobile.png
-|   |   `-- settings-mobile-light.png
-|   |-- ARCHITECTURE.md
-|   |-- CROPS.md
-|   |-- DEMO.md
-|   |-- DESIGN_SYSTEM.md
-|   |-- FILE_TREE.md
-|   |-- LIMITATIONS.md
-|   |-- PRIVACY.md
-|   |-- PRIZE_COMPLIANCE.md
-|   `-- TESTING.md
-|-- e2e/
-|   |-- design-system.spec.ts
-|   `-- shell.spec.ts
-|-- public/
-|   |-- icons/
-|   |   `-- grantscope.svg
-|   `-- illustrations/
-|       `-- .gitkeep
-|-- scripts/
-|   `-- check-production.mjs
-|-- src/
-|   |-- app/
-|   |   |-- App.tsx
-|   |   |-- providers.tsx
-|   |   |-- router.tsx
-|   |   `-- ThemeProvider.tsx
-|   |-- components/
-|   |   |-- dashboard/
-|   |   |   |-- AccountCard.tsx
-|   |   |   `-- MetricCard.tsx
-|   |   |-- layout/
-|   |   |   |-- AppShell.tsx
-|   |   |   |-- Brand.tsx
-|   |   |   |-- Header.tsx
-|   |   |   |-- Navigation.tsx
-|   |   |   `-- ThemeToggle.tsx
-|   |   |-- permissions/
-|   |   |   `-- PermissionInventory.tsx
-|   |   |-- privacy/
-|   |   |   `-- TransportReadiness.tsx
-|   |   `-- ui/
-|   |       |-- Badge.tsx
-|   |       |-- Button.tsx
-|   |       |-- EmptyState.tsx
-|   |       |-- ErrorBoundary.tsx
-|   |       |-- InfoDialog.tsx
-|   |       |-- Notice.tsx
-|   |       |-- PageHeader.tsx
-|   |       |-- Panel.tsx
-|   |       |-- RouteError.tsx
-|   |       |-- Skeleton.tsx
-|   |       `-- StatePanel.tsx
-|   |-- data/
-|   |   `-- .gitkeep
-|   |-- design-system/
-|   |   |-- DesignPreviewPage.tsx
-|   |   `-- fixtures.ts
-|   |-- features/
-|   |   |-- anon-rpc/
-|   |   |   `-- .gitkeep
-|   |   |-- discovery/
-|   |   |   `-- .gitkeep
-|   |   |-- erc20/
-|   |   |   `-- .gitkeep
-|   |   |-- exposure/
-|   |   |   `-- .gitkeep
-|   |   |-- permit2/
-|   |   |   `-- .gitkeep
-|   |   |-- privacy-report/
-|   |   |   `-- .gitkeep
-|   |   |-- revocation/
-|   |   |   `-- .gitkeep
-|   |   `-- wallet/
-|   |       `-- .gitkeep
-|   |-- hooks/
-|   |   `-- useTheme.ts
-|   |-- lib/
-|   |   |-- abi/
-|   |   |   `-- .gitkeep
-|   |   |-- config/
-|   |   |   `-- env.ts
-|   |   |-- ethereum/
-|   |   |   `-- .gitkeep
-|   |   `-- utils/
-|   |       `-- .gitkeep
-|   |-- pages/
-|   |   |-- AboutPage.tsx
-|   |   |-- DashboardPage.tsx
-|   |   |-- LandingPage.tsx
-|   |   |-- NotFoundPage.tsx
-|   |   |-- PermissionsPage.tsx
-|   |   |-- PrivacyPage.tsx
-|   |   `-- SettingsPage.tsx
-|   |-- store/
-|   |   `-- useUiStore.ts
-|   |-- styles/
-|   |   |-- components.css
-|   |   |-- globals.css
-|   |   `-- tokens.css
-|   |-- test/
-|   |   |-- design-system.test.tsx
-|   |   |-- setup.ts
-|   |   `-- shell.test.tsx
-|   `-- main.tsx
-|-- .editorconfig
-|-- .env.example
-|-- .gitignore
-|-- .nvmrc
-|-- .prettierignore
-|-- .prettierrc.json
-|-- AGENTS.md
-|-- eslint.config.js
-|-- index.html
-|-- LICENSE
-|-- package-lock.json
-|-- package.json
-|-- playwright.config.ts
-|-- README.md
-|-- tsconfig.app.json
-|-- tsconfig.json
-|-- tsconfig.node.json
-|-- vercel.json
-`-- vite.config.ts
+├── .github/workflows/ci.yml       Deterministic checks and dev/production browsers
+├── .env.example                  Empty public demo configuration template
+├── .gitignore / .vercelignore     Local configuration and artifact exclusions
+├── AGENTS.md                     Four-commit module and privacy workflow
+├── LICENSE                       MIT
+├── README.md                     Setup, CROPS, architecture, status and disclosure
+├── package.json / package-lock.json
+├── vercel.json                   Static Vite build, SPA routes and headers
+├── src/
+│   ├── app/                      Routing, providers and appearance lifecycle
+│   ├── components/               Layout, accessible UI, account cards and previews
+│   ├── data/                     Official-source token/spender registries
+│   ├── design-system/            Development-only fictional component workshop
+│   ├── features/
+│   │   ├── anon-rpc/             Worker lifecycle, strict adapter, diagnostics
+│   │   ├── wallet/               Address/account inspection, wallet metadata, clearing
+│   │   ├── erc20/                Typed state reads, bounded scan and inventory
+│   │   ├── discovery/            Chunked owner-filtered logs and canonical coverage
+│   │   ├── permit2/              Official ABI state/events and approval dependencies
+│   │   ├── exposure/             Pure authority analysis, summaries and details
+│   │   ├── revocation/           Preflight, explicit wallet request, receipt/zero proof
+│   │   ├── privacy-report/       Counters, bounded ledger and sanitized export
+│   │   └── demo/                 Development-only ignored-config real read loader
+│   ├── lib/                      Typed ABIs, public configuration and abort utility
+│   ├── pages/                    Landing, dashboard, permissions, privacy and settings
+│   ├── store/ / hooks/           In-memory UI state
+│   ├── styles/                   Responsive tokens and component CSS
+│   └── test/                     Testing Library, mocked RPC and audit regressions
+├── e2e/                          Deterministic browsers and explicit opt-in live tests
+├── scripts/
+│   ├── check-production.mjs      Fixture/demo/configured-address exclusion
+│   ├── check-local-config.mjs    Tracked/staged/four-commit address guard
+│   ├── capture-public-ui.mjs     Empty production captures with no target data
+│   ├── run-live.mjs              Explicit public worker diagnostic
+│   └── probe-*.mjs               Local real-worker investigation, sanitized output
+└── docs/
+    ├── ANON_RPC.md / INSPECTION.md / ALLOWANCES.md / DISCOVERY.md
+    ├── PERMIT2.md / EXPOSURE.md / REVOCATION.md / TRAFFIC.md
+    ├── ARCHITECTURE.md / PRIVACY.md / CROPS.md / AUDIT.md
+    ├── LIMITATIONS.md / PRIZE_COMPLIANCE.md / TESTING.md
+    ├── DEMO.md / DEPLOYMENT.md / SCREENSHOTS.md / SUBMISSION_READINESS.md
+    ├── DESIGN_SYSTEM.md / FILE_TREE.md
+    ├── evidence/                 Sanitized real public diagnostic traffic
+    └── screenshots/              Actual public UI/worker captures, no local targets
 ```
+
+The optional `.env.local` is deliberately absent: it is local-only and ignored, and its values must not appear in public source, captures or fixtures.

@@ -1,21 +1,43 @@
 # Architecture
 
-Status: Module 3 anonymous transport on the Module 2 design system.
+GrantScope is a client-side Vite/React application. Presentation, account/wallet state, ERC-20 inspection, historical discovery, Permit2, deterministic analysis, revocation and traffic reporting have separate feature boundaries. There is no application database, address indexer, analytics backend or signing key service.
 
-`main.tsx` mounts the strict-mode React application. `app/providers.tsx` owns an in-memory TanStack Query client, a render error boundary, and Motion’s reduced-motion policy. `app/router.tsx` owns route composition and lazy secondary pages. `components/layout` handles navigation and route-change focus. Pages contain presentation, not blockchain logic.
+```mermaid
+flowchart TD
+  Address[Validated checksummed address + supported chain] --> Session[Session target/history and query context]
+  Session --> Native[ETH balance and bytecode snapshot]
+  Session --> Known[Known/manual ERC-20 pairs]
+  Session --> Logs[Owner-filtered bounded Approval logs]
+  Logs --> Candidates[Candidates; canonical hashes; coverage gaps]
+  Candidates --> Current[Fresh typed allowance and metadata calls]
+  Known --> Current
+  Session --> Permit[Permit2 Permit/Approval candidates + stored grants]
+  Permit --> Dependency[ERC-20 approval to canonical Permit2]
+  Current --> Analysis[Pure BigInt authority explanations]
+  Dependency --> Analysis
+  Native & Current & Logs & Permit --> Adapter[AnonRpcManager / strict JSON-RPC / viem transport]
+  Adapter --> Harness[Official browser harness]
+  Harness -. fixed direct exception .-> Bootstrap[Specifier bootstrap RPC]
+  Harness --> Integrity[Resolve bytes; verify hash; isolated worker]
+  Integrity --> Network[Selected Nym / Nox / configured Tor network]
+  Network --> RPC[Target-chain RPC; sees query contents]
+  Analysis --> Review[Verified-record detail and explicit owner confirmation]
+  Review --> Preflight[Fresh authorization, target, simulation and gas checks]
+  Preflight --> Adapter
+  Preflight --> Wallet[Injected wallet signing/submission]
+  Wallet --> Receipt[Receipt / replacement / current zero-state verification]
+  Receipt --> Adapter
+  Adapter & Wallet --> Metrics[Local metadata-only ledger and sanitized export]
+```
 
-`store/useUiStore.ts` contains sidebar and theme preferences and has no persistence middleware. Query retries are disabled by default until feature-specific retry and cancellation policies exist. There is no query persistence adapter or service worker.
+`AnonRpcManager` owns one long-lived selected worker and its lifecycle, code identity, strict direct-bootstrap capability, read method/chain admission, abort/deadline bound and centrally measured outcomes. `JsonRpcAdapter` validates envelopes and bounded response bodies, and exposes a viem custom transport with no ordinary provider or implicit transport fallback. Nym is primary. Nox is constrained to the tested Sepolia use case and keeps TLS required. Tor needs a reachable authenticated KPS gateway.
 
-Module 2 adds session-only theme preference to that store. `ThemeProvider` applies document theme tokens, and `hooks/useTheme.ts` follows device theme changes when requested. `components/ui` owns shared primitives; dashboard, permissions, and privacy subfolders own presentation only. The development-only `design-system` route has isolated, labeled fixture records and is removed from production builds. See [DESIGN_SYSTEM](DESIGN_SYSTEM.md).
+The bootstrap chain resolves worker identity; the target chain supplies account state. They need not match. The original SDK code verification and null-origin sandbox remain intact. Hash integrity relies on bootstrap data and worker publication trust; this is not a light-client state proof.
 
-Reserved feature directories: anon-rpc, wallet, erc20, discovery, permit2, exposure, revocation, privacy-report. They contain no pretend implementations. Future services must use a single explicit transport boundary; chain reads must never be embedded in UI components or silently fall back to ordinary fetch.
+Reads verify chain identity and use explicit block snapshots. Account/ERC-20/Permit2 readers recheck canonical anchors; discovery checks event block hashes and range anchors. In-memory query keys isolate chain, owner, manager context and explicit inspection revision. Metadata reuse is limited to a single scan, owner and block. Failed reads stay unknown. Failed refreshes retain clearly older snapshots; a verified zero result supersedes earlier positive assessments.
 
-Future ownership:
+Permit2 stored grants and the token approval to Permit2 are dependent layers, not additive exposure. Pure analysis computes per-permission bounds and explains classifications without predicting theft or inventing USD losses. SignatureTransfer signatures remain outside enumerable inventory.
 
-- AnonRpcManager: official harness lifecycle, hash-pinned worker verification, route readiness and shutdown.
-- JSON-RPC adapter: typed validated requests/results, cancellation and local route instrumentation.
-- Scanning: known-pair reads and bounded event discovery with coverage.
-- Exposure: deterministic BigInt analysis, explicit evidence, overlapping permissions.
-- Revocation: account/chain authorization, simulation, wallet submission, receipt and fresh allowance verification.
+The wallet wrapper permits account/network metadata and explicit submission only. All application preflight, gas/nonce, receipt and verification reads remain anonymous. Final revoked status requires a matching successful canonical transaction and a fresh zero allowance; wallet confirmation or a receipt alone is insufficient.
 
-Module 3 implements the official harness lifecycle, restricted specifier bootstrap provider, validated JSON-RPC adapter, viem custom transport, worker metrics and live diagnostic in `features/anon-rpc`. All application reads require a ready selected worker. Nym is primary; Nox is an explicit Sepolia alternative; Tor requires an authenticated configured gateway. The scanner, exposure and revocation services remain unimplemented. No smart-account execution adapter is included.
+Traffic records omit parameters, addresses and raw results/errors. A bounded record window and full-session counters have separate accounting. Worker and wallet internals are not completely observable. The local demo loader and fictional design workshop are separate development-only imports excluded by the production build guard.

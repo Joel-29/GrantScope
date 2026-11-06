@@ -1,136 +1,107 @@
 # GrantScope
 
-See every grant. Understand every risk. Revoke with confidence.
+**See every grant. Understand every risk. Revoke with confidence.**
 
-GrantScope is an MIT-licensed Ethereum permission observatory in development for ETHGlobal Mumbai. It aims to make supported ERC-20 and Permit2 spending authority understandable, with application-owned chain reads routed through Anon-RPC by default.
+GrantScope is an MIT-licensed Ethereum permission observatory built for ETHGlobal Mumbai. Inspect a public address without a wallet, read ERC-20 and Permit2 authority through official Anon-RPC workers, understand overlapping permission layers, and request narrowly scoped owner-authorized revocations.
 
-**Current status: Module 11 ? engineering audit and regression fixes.** Anonymous inspection, ERC-20/Permit2 state, bounded discovery, authority explanations, guarded revocation and measured traffic are implemented. Audited fixes cover wallet event races, cancellation/deadlines, strict RPC parsing, reorg-aware snapshots, session clearing and stale claims. Optional local Sepolia demo configuration stays in ignored .env.local and is excluded from production. A signed live revocation and deployment remain unverified. See [audit](docs/AUDIT.md), [traffic evidence](docs/TESTING.md), and [privacy boundaries](docs/PRIVACY.md).
+**Status:** Modules 1–12 are implemented. Real Nym/Nox reads, ERC-20 allowances, Permit2 state, and a configured positive Sepolia allowance have been verified in browsers. No signed live revocation or public deployment has been claimed. The existing local grant is deliberately preserved for its owner's demonstration. See [test evidence](docs/TESTING.md) and [remaining submission requirements](docs/SUBMISSION_READINESS.md).
 
-## Problem and intended solution
+![Actual production dashboard with no account selected](docs/screenshots/dashboard-final-dark.png)
 
-Token approvals can outlive the interaction that created them. Permit2 adds additional authorization layers. GrantScope will bring supported permissions into one workspace, explain their bounds and overlap, and verify owner-authorized revocations with fresh chain reads. Coverage and privacy exclusions must remain visible.
+## What it does
 
-## What works now
-
-- Semantic design tokens, dark/light/system themes, collapsible desktop navigation, and a Radix mobile dialog.
-- Landing page, dashboard account/summary cards, desktop permissions table and mobile card layouts, Privacy Lab, settings, methodology, and 404 states.
-- Accessible inspection-boundary dialogs and transaction-activity drawer; loading skeletons, empty states, error recovery, and native labeled form controls.
-- Development-only component workshop with explicitly fictional fixtures, search/filter previews, loading and error states. The route and fixture content are excluded from production; the build checks this boundary.
-- Strict TypeScript, Tailwind CSS, Lucide icons, reduced-motion-aware Motion, TanStack Query provider, in-memory Zustand preferences, and Zod environment validation.
-- Vitest/Testing Library tests, Playwright desktop/mobile coverage, ESLint, Prettier, and CI configuration.
-- Static Vercel build and SPA rewrite configuration. No deployment has been created.
+- Checksummed arbitrary-address inspection on Ethereum mainnet and Sepolia; native balance, bytecode detection and bounded in-memory history. Code-present owners remain read-only for signing.
+- Known/manual ERC-20 pair scans with live metadata, exact BigInt amounts, zero/limited/maximum sizes, progress and failed-read disclosure.
+- Bounded owner-filtered Approval discovery with adaptive chunks, duplicate/NFT ambiguity handling, canonical anchors, coverage gaps and fresh allowance verification.
+- Canonical Permit2 AllowanceTransfer amounts, expiration and nonce, linked to the actual underlying token approval. Offchain SignatureTransfer signatures are not enumerable.
+- Deterministic authority explanations, token groups, filters and session-backed detail pages. Unknown does not mean malicious; overlapping amounts are never summed as loss.
+- Owner/network/contract checks, simulation, gas conditions, explicit wallet confirmation, receipt/replacement handling, and fresh anonymous zero-state verification.
+- Privacy Lab with actual routes, success/failure/cancellation counts, latency, separate bootstrap/wallet accounting and a locally generated sanitized export.
+- Responsive dark/light/system themes, keyboard-accessible Radix dialogs, mobile navigation/cards and honest loading/error/empty states.
 
 ## Setup
 
-Use Node **20.19+ in the 20.x line, or 22.12+**, and npm 10+. Node 22 LTS is used in CI. Install dependencies once, then use the lockfile for repeatable installs:
+Use Node 20.19+ in the 20.x line or 22.12+, and npm 10+. CI uses Node 22. No application server, database, API key, private key or seed phrase is required.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite (normally `http://127.0.0.1:5173`). If no lockfile is present in a source copy, run `npm install` first to generate it. On Windows where PowerShell blocks `npm.ps1`, use `npm.cmd` for these commands. No execution-policy change is necessary.
+Open Vite's printed local URL. Use `npm.cmd` in PowerShell if its script launcher is restricted. Chrome was used for executed browser checks. Anon-RPC requires browser capabilities including WebAssembly, WebRTC, Web Crypto and AbortSignal APIs; use HTTPS or loopback localhost.
 
-The optional `.env.example` can be copied to `.env.local`; the app runs without it. `VITE_APP_ENV` accepts `development`, `test`, or `production` and only controls the UI label. **Every `VITE_` value is public browser configuration. Never put a private key, seed phrase, or secret there.** No RPC URLs or worker addresses are configured in Module 1.
+Nym is the default worker. Start it explicitly in **Privacy Lab** or by inspecting an address. If it fails, Nox is an explicit Sepolia alternative. Tor requires an operational authenticated KPS gateway. The app never switches to conventional RPC or passthrough. Bootstrap and target chains are separate concepts. [Transport configuration and real failures](docs/ANON_RPC.md) explain the limits.
 
-## Commands
+## Local demonstration configuration
 
-| Command                | Purpose                                          |
-| ---------------------- | ------------------------------------------------ |
-| `npm run dev`          | Local development server                         |
-| `npm run typecheck`    | Strict application and tooling TypeScript checks |
-| `npm run lint`         | ESLint, hooks, and accessibility rules           |
-| `npm run format:check` | Verify Prettier formatting                       |
-| `npm run format`       | Apply formatting                                 |
-| `npm test`             | Deterministic foundation tests                   |
-| `npm run test:watch`   | Interactive Vitest                               |
-| `npm run build`        | Typecheck and build static `dist/` output        |
-| `npm run preview`      | Serve the production build locally               |
-| `npm run check`        | Typecheck, lint, formatting, unit tests, build   |
-| `npm run test:e2e`     | Playwright shell smoke tests                     |
+Copy `.env.example` to ignored `.env.local` and set the three optional public variables `VITE_DEMO_OWNER`, `VITE_DEMO_TOKEN`, and `VITE_DEMO_SPENDER`. Leave the committed example empty. No credentials belong in any `VITE_` variable: frontend values are public browser configuration.
 
-Before the first browser test, run `npx playwright install chromium` (Linux CI uses `--with-deps`). Browser tests start and stop their own Vite server. These tests validate the foundation; they are **not** evidence of functioning anonymous RPC or real transaction behavior.
+The development dashboard's **Load configured Sepolia demo** button performs a real anonymous pair scan and displays its returned allowance. It encodes unsigned approve-to-zero calldata; it never requests signing automatically. Open the verified permission detail, connect the owner in Settings, and separately confirm preparation and wallet authorization when ready. Ordinary address inspection and manual pair entry work independently of this configuration.
 
-## Routes
+The local loader and configured values are excluded from production. Do not copy these identities into README files, fixtures, screenshots, videos or commits. Use a separately consented public demonstration wallet for recordings. Production accepts arbitrary addresses through its ordinary forms. [Demo runbook](docs/DEMO.md).
 
-`/` · `/dashboard` · `/permissions` · `/permissions/:id` · `/privacy` · `/settings` · `/about`
+## Commands and validation
 
-Unknown routes render a useful 404 page. Secondary pages are lazy-loaded. Permission IDs are not treated as verified allowance records.
+```sh
+npm run typecheck
+npm run lint
+npm run format:check
+npm test
+npm run build
+npm run check:local-config
+npx playwright install chromium
+npm run test:e2e
+```
 
-During `npm run dev`, visit `/design-system` or use the component workshop link in Settings. It is an isolated UI preview with a persistent fictional-data notice. `npm run build` removes the route, link, and fixture payloads. Production `/design-system` resolves to the regular 404 page. See [DESIGN_SYSTEM](docs/DESIGN_SYSTEM.md).
+To use installed Chrome, set `PLAYWRIGHT_CHANNEL=chrome`. Build first and set `PLAYWRIGHT_PRODUCTION=1` for production browser checks. `PLAYWRIGHT_PORT` selects a local test server port. Ordinary suites skip opt-in external tests; a skip is not live evidence.
+
+`npm run test:live` performs the real public Sepolia diagnostic. Explicitly set `LIVE_TRANSPORT=nox` for the alternative. For the ignored local configuration, run the development server on port 4174 and opt in with `LIVE_LOCAL_DEMO=1`, then run `npx playwright test e2e/local-demo.live.spec.ts --project desktop-chromium --workers=1`. That case disables screenshots, tracing and video. It makes no wallet submission. [Executed checks, failures and reproduction details](docs/TESTING.md).
+
+Before pushing, inspect `git status` and `git diff --cached`, then run `npm run check:local-config`. The guard rejects tracked dotenv files and configured addresses in tracked/staged content. Every module has four cohesive commits.
 
 ## Architecture
 
-```text
-src/app          Routing, providers, application composition
-src/components   Layout and reusable accessible UI
-src/pages        Route-level presentation
-src/features     Reserved boundaries for later independently tested modules
-src/lib/config   Public environment validation
-src/store        In-memory UI preferences
-src/styles       Local CSS and Tailwind theme
-src/design-system Development-only workshop and isolated fictional fixtures
-src/test         Deterministic shell tests
-e2e              Browser smoke tests
-scripts          Production fixture-isolation check
-docs             Architecture, privacy, limitations, and implementation status
+```mermaid
+flowchart LR
+  UI[React UI and in-memory state] --> Reads[Account / ERC-20 / discovery / Permit2]
+  Reads --> Manager[AnonRpcManager and strict JSON-RPC adapter]
+  Manager --> Harness[Official hash-verifying browser harness]
+  Harness --> Worker[Selected Nym / Nox / configured Tor worker]
+  Worker --> Mix[Anonymous network]
+  Mix --> RPC[Ethereum or Sepolia RPC]
+  Harness -. fixed direct specifier bootstrap .-> Bootstrap[Bootstrap RPC]
+  UI --> Guards[Revocation preflight and explicit confirmation]
+  Guards --> Manager
+  Guards --> Wallet[Owner's wallet: signing and submission]
+  Manager --> Ledger[Local metadata-only traffic ledger]
+  Wallet -. instrumented API calls; internals unobserved .-> Ledger
 ```
 
-See [ARCHITECTURE](docs/ARCHITECTURE.md). Blockchain services stay separate from presentation. Module 3 integrates viem and the official `@anon-rpc/browser-harness`; a wallet signing adapter will be introduced separately. Workers are not initialized until explicitly requested.
-
-Module 3 now uses viem and the official harness through a fail-closed adapter. Read-only wallet inspection and signing are still pending. Use `npm run test:live` only when intentionally running the real external worker diagnostic; ordinary unit/browser tests do not establish anonymity.
-
-See the [complete file tree](docs/FILE_TREE.md) for every source and configuration file.
+See [architecture](docs/ARCHITECTURE.md), [file map](docs/FILE_TREE.md), [audit](docs/AUDIT.md), [privacy threat model](docs/PRIVACY.md), [revocation safeguards](docs/REVOCATION.md) and [known limitations](docs/LIMITATIONS.md).
 
 ## CROPS
 
-- **Censorship resistance:** planned interchangeable anonymous RPC routes; no operational transport yet.
-- **Open source:** MIT license and reproducible source setup. Source is maintained in [Joel-29/GrantScope](https://github.com/Joel-29/GrantScope).
-- **Privacy:** no analytics, remote fonts, indexers, or persisted wallet records. Chain reads use anonymous workers; fixed specifier bootstrap exceptions are direct and disclosed. The official worker has a separate IndexedDB namespace. Wallet-provider traffic remains outside these guarantees.
-- **Security:** truthful unavailable states, strict types, no signing or permission-changing code, and automated shell checks. No security audit has been performed.
+- **C — Censorship resistance:** The frontend can be built and rehosted without our server. It still depends on bootstrap/RPC services and an operational anonymous network; refusal stops reads visibly, with explicit alternative selection and no direct fallback.
+- **O — Open source:** MIT-licensed source and lockfile let users build and run the app from this repository. No private application backend or credentials are needed for inspection.
+- **P — Privacy:** Hosting sees asset requests; bootstrap services see direct specifier reads; destination RPCs see query contents. No analytics or indexers receive targets. Wallet-internal traffic and public transactions remain outside anonymous-read guarantees.
+- **S — Security:** Keys stay in the wallet; application data stays in memory. Narrow actions require owner/network checks, simulation, explicit signing and fresh state verification. The browser, wallet, worker, bootstrap/provider data and dependencies remain trust assumptions; there is no independent audit.
 
-See [CROPS](docs/CROPS.md), [PRIVACY](docs/PRIVACY.md), and [LIMITATIONS](docs/LIMITATIONS.md).
+The [official EF prize page](https://ethglobal.com/events/mumbai/prizes#ethereum-foundation) is mapped to actual code/evidence in [PRIZE_COMPLIANCE](docs/PRIZE_COMPLIANCE.md). CROPS has its own published criteria; it is not a claim of guaranteed privacy or universal censorship resistance.
 
-## Networks and demo
+## Deployment and screenshots
 
-Sepolia anonymous reads have returned real responses through Nym and Nox. Nym also experienced transient request timeouts; Tor's demonstration gateway is unavailable and optional Tor needs an operational KPS gateway. Mainnet is a configured target, not yet independently verified through this diagnostic. The specifier chain and queried chain are separate concepts. No deployed test token or revocation transaction evidence exists yet. See [ANON_RPC](docs/ANON_RPC.md), [DEMO](docs/DEMO.md), and [TESTING](docs/TESTING.md).
+`vercel.json` supplies the Vite build, static output, SPA deep links and basic privacy/security headers. `.vercelignore` excludes local environment and test artifacts. Import this repository into Vercel with `npm ci`, `npm run build`, and output `dist`; do not upload local demo variables. [Deployment checks](docs/DEPLOYMENT.md) must be run against the actual HTTPS origin before publishing a demo URL. No deployed URL exists in this repository's evidence.
 
-## Screenshots
-
-Actual Module 2 shell, captured in Chrome through Playwright:
-
-![GrantScope desktop overview](docs/screenshots/overview-desktop.png)
-
-[Mobile overview screenshot](docs/screenshots/overview-mobile.png). These images contain no example balances or fabricated scan results. Ongoing browser verification artifacts belong in ignored `test-results/`.
-
-[Dark dashboard](docs/screenshots/dashboard-dark.png) · [Light dashboard](docs/screenshots/dashboard-light.png) · [Light mobile settings](docs/screenshots/settings-mobile-light.png)
-
-## Deployment and submission
-
-For a later authorized Vercel deployment, import the repository, choose Vite, use `npm run build`, and serve `dist/`. `vercel.json` contains SPA routing and baseline response headers. No backend, production credentials, hosting account, or submission URL is provisioned here. Revisit worker/CSP isolation requirements before deploying the transport integration.
-
-- [ETHGlobal Mumbai prize requirements](https://ethglobal.com/events/mumbai/prizes#ethereum-foundation)
-- [Prize compliance status and known gaps](docs/PRIZE_COMPLIANCE.md)
-- Source repository: [Joel-29/GrantScope](https://github.com/Joel-29/GrantScope)
-- Deployment: not created
-- ETHGlobal submission: not submitted
-
-## Required integration references
-
-Reviewed while preparing the foundation; re-verify APIs, live addresses, and supported chains immediately before integration. Documentation is not proof of an operational local transport.
-
-- [Anon-RPC overview](https://ethereum.github.io/anon-rpc/)
-- [Wallet/application guide](https://ethereum.github.io/anon-rpc/wallets/)
-- [Official adopters and worker specifiers](https://ethereum.github.io/anon-rpc/adopters/)
-- [Anon-RPC source](https://github.com/ethereum/anon-rpc)
-- [Permit2 overview](https://developers.uniswap.org/docs/protocols/permit2/overview)
-- [AllowanceTransfer concepts](https://developers.uniswap.org/docs/protocols/permit2/concepts/allowance-transfer)
-- [Permit2 source](https://github.com/Uniswap/permit2)
+[Screenshot instructions](docs/SCREENSHOTS.md) distinguish actual UI captures, historical worker evidence, and excluded local target data. The component workshop is development-only and its fictional fixtures never enter production.
 
 ## AI usage disclosure
 
-The Module 1 foundation and Module 2 design system, UI, tests, and documentation were generated with assistance from OpenAI Codex from the project brief. Human review and real integration testing remain necessary. No UI or mock test should be presented as evidence that Anon-RPC or revocation works.
+OpenAI Codex assisted implementation, testing, debugging and documentation. Automated tests use clearly isolated mocks; live integration claims come from executed worker/browser responses. AI does not manage keys, authorize wallet transactions, establish maliciousness or certify anonymity. Human review and wallet confirmation remain required.
 
-## Module boundary
+## Submission links
 
-The user explicitly requested Modules 3–12 in sequence. Each module is validated and pushed in exactly four cohesive conventional commits before the next requested module; this standing instruction is recorded in [AGENTS.md](AGENTS.md). Unexecuted or failed live checks are never reported as passing.
+- [Public source repository](https://github.com/Joel-29/GrantScope)
+- [ETHGlobal Mumbai prize requirements](https://ethglobal.com/events/mumbai/prizes#ethereum-foundation)
+- Hosted application, judging video and project submission URL: **not published or verified yet**.
+
+Licensed under [MIT](LICENSE).
