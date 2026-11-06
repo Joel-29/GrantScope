@@ -4,7 +4,7 @@ See every grant. Understand every risk. Revoke with confidence.
 
 GrantScope is an MIT-licensed Ethereum permission observatory in development for ETHGlobal Mumbai. It aims to make supported ERC-20 and Permit2 spending authority understandable, with application-owned chain reads routed through Anon-RPC by default.
 
-**Current status: Module 5 ? ERC-20 allowance inventory.** Read-only account inspection and bounded known/manual pair scanning are available. Metadata, balances and allowances are read at one block through the official anonymous worker adapter. Nym is primary; Nox is an explicit Sepolia alternative after Nym failure. Optional Tor needs an operational authenticated gateway. Failed reads remain unknown, never zero. Historical discovery, Permit2 grants, exposure analysis and signing are subsequent modules. See [allowances](docs/ALLOWANCES.md), [inspection](docs/INSPECTION.md) and [real transport evidence](docs/ANON_RPC.md). Production pages contain no design fixtures.
+**Current status: Module 6 ? bounded Approval discovery.** Known/manual ERC-20 scanning and owner-filtered historical candidate discovery run through Anon-RPC. Coverage, gaps, canonical block checks and fresh allowance verification are explicit. Nym is primary; Nox is an explicit Sepolia alternative after Nym failure. Tor needs an operational authenticated gateway. Permit2 grants, exposure and signing are subsequent modules. See [discovery](docs/DISCOVERY.md), [allowances](docs/ALLOWANCES.md) and [transport evidence](docs/ANON_RPC.md). No fixture data is shown as live chain state.
 
 ## Problem and intended solution
 
