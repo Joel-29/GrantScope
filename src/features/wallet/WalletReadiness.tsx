@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom';
 import { Notice } from '../../components/ui/Notice';
 import { useInspectionSession } from './session';
 import { supportedWalletChain, walletNetworkLabel } from './networkLabel';
+import { WalletNetworkControl } from './WalletNetworkControl';
 
-// Metadata guidance only. Never connect, switch networks, read the chain or sign
-// while rendering this panel; authorization remains in the revocation engine.
+// Rendering never requests wallet access. The network control requires a click;
+// transaction authorization remains in the revocation engine.
 export function WalletReadiness({
   address,
   chainId,
@@ -18,6 +19,7 @@ export function WalletReadiness({
   const sameNetwork = target?.chainId === chainId;
   return (
     <section aria-label="Signing prerequisites" aria-live="polite">
+      <WalletNetworkControl />
       {!supported && (
         <Notice title="Choose a supported wallet network">
           {chainId === null
