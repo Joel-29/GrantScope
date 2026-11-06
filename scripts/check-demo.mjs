@@ -173,6 +173,38 @@ try {
       !!calldata && /^0x095ea7b3[0-9a-f]{64}0{64}$/i.test(calldata),
       'Unsigned transaction must encode approve(spender, 0); it is never submitted',
     );
+    const callsBeforeNavigation = await page.evaluate(async () => {
+      const { anonRpc } = await import('/src/features/anon-rpc/runtime.ts');
+      return anonRpc
+        .getSnapshot()
+        .metrics.filter(
+          (row) => row.category === 'read' && row.method === 'eth_call',
+        ).length;
+    });
+    const snapshotBeforeNavigation = await status.innerText();
+    await page.getByRole('link', { name: 'Settings', exact: true }).click();
+    await page
+      .getByRole('heading', { name: 'Signing wallet', exact: true })
+      .waitFor();
+    await page.getByRole('link', { name: 'Dashboard', exact: true }).click();
+    await status.waitFor();
+    const callsAfterNavigation = await page.evaluate(async () => {
+      const { anonRpc } = await import('/src/features/anon-rpc/runtime.ts');
+      return anonRpc
+        .getSnapshot()
+        .metrics.filter(
+          (row) => row.category === 'read' && row.method === 'eth_call',
+        ).length;
+    });
+    step(
+      'same-session demo restoration',
+      snapshotBeforeNavigation === (await status.innerText()) &&
+        callsBeforeNavigation === callsAfterNavigation &&
+        (await page.getByTestId('demo-snapshot-note').innerText()).includes(
+          'not a new read',
+        ),
+      'Returning from Settings restores the labeled verified snapshot and link without another token read',
+    );
     await page
       .getByRole('link', { name: 'Review owner-authorized revocation' })
       .click();

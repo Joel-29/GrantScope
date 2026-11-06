@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { boundedDemoRead, DEMO_READ_TIMEOUT_MS } from './read';
+import {
+  boundedDemoRead,
+  DEMO_READ_TIMEOUT_MS,
+  DemoDeadlineError,
+} from './read';
 
 describe('bounded anonymous demo attempts (mock operations)', () => {
   it('settles at the total deadline even when an operation ignores cancellation', async () => {
@@ -17,6 +21,7 @@ describe('bounded anonymous demo attempts (mock operations)', () => {
       expect(settled).toBe(false);
       await vi.advanceTimersByTimeAsync(1);
       expect(await result).toMatchObject({ name: 'TimeoutError' });
+      expect(await result).toBeInstanceOf(DemoDeadlineError);
       expect(vi.getTimerCount()).toBe(0);
     } finally {
       vi.useRealTimers();
