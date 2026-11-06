@@ -46,6 +46,23 @@ describe('application foundation', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
+  it('shows measured traffic accounting in the header transport dialog', async () => {
+    const user = userEvent.setup();
+    renderRoute('/privacy');
+    await screen.findByRole('heading', {
+      name: 'No active anonymizing transport',
+    });
+    await user.click(
+      screen.getByRole('button', { name: 'Transport not initialized' }),
+    );
+    const dialog = screen.getByRole('dialog', { name: 'Anonymous transport' });
+    expect(
+      within(dialog).getByText(
+        /0 completed read attempts; 0 successful anonymous responses/,
+      ),
+    ).toBeInTheDocument();
+    expect(within(dialog).queryByText(/Not measured/)).not.toBeInTheDocument();
+  });
   it('supports keyboard dismissal and focus restoration in mobile navigation', async () => {
     const user = userEvent.setup();
     renderRoute();

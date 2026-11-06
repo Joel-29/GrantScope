@@ -73,7 +73,7 @@ describe('anonymous transport (mock responses are not live evidence)', () => {
     expect(factory).not.toHaveBeenCalled();
     expect(direct).not.toHaveBeenCalled();
   });
-  it('cancels in-flight requests, preserves actual selected route, and never records payloads', async () => {
+  it('records no dispatched route when cancellation precedes worker fetch', async () => {
     const handle = worker();
     handle.fetch.mockImplementationOnce(
       async (_url, init) =>
@@ -99,13 +99,51 @@ describe('anonymous transport (mock responses are not live evidence)', () => {
     controller.abort();
     expect(await pending).toMatchObject({ name: 'AbortError' });
     expect(manager.getSnapshot().metrics[0]).toMatchObject({
+      actualTransport: 'none',
+      outcome: 'cancelled',
+      anonymized: false,
+    });
+    expect(handle.fetch).not.toHaveBeenCalled();
+    expect(JSON.stringify(manager.getSnapshot().metrics)).not.toContain(
+      'never-retain-this',
+    );
+    manager.close();
+  });
+  it('retains the actual worker route for a request cancelled after dispatch', async () => {
+    const handle = worker();
+    handle.fetch.mockImplementationOnce(() => new Promise(() => {}));
+    const manager = new AnonRpcManager(() => handle);
+    await manager.initialize();
+    const controller = new AbortController();
+    const pending = manager.request(
+      11155111,
+      'eth_blockNumber',
+      [],
+      controller.signal,
+    );
+    await Promise.resolve();
+    expect(handle.fetch).toHaveBeenCalledOnce();
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    expect(manager.getSnapshot().metrics[0]).toMatchObject({
+      requestedTransport: 'nym',
       actualTransport: 'nym',
       outcome: 'cancelled',
       anonymized: false,
     });
-    expect(JSON.stringify(manager.getSnapshot().metrics)).not.toContain(
-      'never-retain-this',
-    );
+    manager.close();
+  });
+  it('does not claim a worker route when request serialization fails locally', async () => {
+    const handle = worker();
+    const manager = new AnonRpcManager(() => handle);
+    await manager.initialize();
+    await expect(manager.request(11155111, 'eth_call', [1n])).rejects.toThrow();
+    expect(handle.fetch).not.toHaveBeenCalled();
+    expect(manager.getSnapshot().metrics[0]).toMatchObject({
+      actualTransport: 'none',
+      outcome: 'failed',
+      anonymized: false,
+    });
     manager.close();
   });
   it('reuses a long-lived worker and supports viem without ordinary fetch', async () => {

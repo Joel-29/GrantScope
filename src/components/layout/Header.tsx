@@ -92,8 +92,12 @@ export function Header({ mobileNavigation }: { mobileNavigation: ReactNode }) {
             <div>
               <dt>Privacy accounting</dt>
               <dd>
-                Not measured. Worker bootstrap reads and wallet submissions will
-                be disclosed separately.
+                {transport.totals.read.completed} completed read attempts;{' '}
+                {transport.totals.read.anonymized} successful anonymous
+                responses. Bootstrap requests:{' '}
+                {transport.totals.bootstrap.completed}. Wallet requests:{' '}
+                {transport.totals.wallet.completed}. Bootstrap and wallet
+                activity are excluded from anonymous-read counts.
               </dd>
             </div>
           </dl>

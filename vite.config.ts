@@ -15,6 +15,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Bound concurrent jsdom/transform work on development and CI hosts.
+    maxWorkers: 4,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],

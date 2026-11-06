@@ -95,20 +95,21 @@ export class AnonRpcManager {
     method: string,
     chainId: number,
     category: 'read' | 'bootstrap',
-    operation: () => Promise<T>,
+    operation: (
+      dispatched: (route: RequestMetric['actualTransport']) => void,
+    ) => Promise<T>,
   ): Promise<T> {
     const id = ++AnonRpcManager.metricSequence,
       start = performance.now(),
       timestamp = new Date().toISOString();
     let outcome: RequestMetric['outcome'] = 'failed';
-    const actualTransport =
-      category === 'bootstrap'
-        ? 'direct-bootstrap'
-        : this.snapshot.phase === 'ready' && this.worker
-          ? this.transport
-          : 'none';
+    const route: { actualTransport: RequestMetric['actualTransport'] } = {
+      actualTransport: 'none',
+    };
     try {
-      const result = await operation();
+      const result = await operation((actualTransport) => {
+        route.actualTransport = actualTransport;
+      });
       outcome = 'successful';
       return result;
     } catch (error) {
@@ -128,12 +129,12 @@ export class AnonRpcManager {
         chainId,
         category,
         requestedTransport: this.transport,
-        actualTransport,
+        actualTransport: route.actualTransport,
         outcome,
         durationMs: Math.round(performance.now() - start),
         anonymized:
           category === 'read' &&
-          actualTransport === this.transport &&
+          route.actualTransport === this.transport &&
           outcome === 'successful',
         directException: category === 'bootstrap',
         reason:
@@ -173,14 +174,16 @@ export class AnonRpcManager {
       method,
       WORKERS[this.transport].bootstrapChainId,
       'bootstrap',
-      async () => {
+      async (dispatched) => {
         const id = ++this.sequence;
+        const body = JSON.stringify({ jsonrpc: '2.0', id, method, params });
+        dispatched('direct-bootstrap');
         const response = await this.bootstrapFetch(
           READ_NETWORKS[WORKERS[this.transport].bootstrapChainId].rpc,
           {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
+            body,
             signal: AbortSignal.any([signal, AbortSignal.timeout(20_000)]),
             credentials: 'omit',
             referrerPolicy: 'no-referrer',
@@ -223,6 +226,7 @@ export class AnonRpcManager {
       verifiedHash: null,
       error: null,
       successfulWorkerReads: 0,
+      bootstrapStatus: '',
     });
     const task = (async () => {
       let timer: ReturnType<typeof setTimeout> | undefined;
@@ -363,7 +367,7 @@ export class AnonRpcManager {
       return Promise.reject(new Error('Nox is verified for Sepolia only'));
     if (!readMethods.has(method))
       return Promise.reject(new Error('Unsupported read-only RPC method'));
-    return this.measured(method, chainId, 'read', async () => {
+    return this.measured(method, chainId, 'read', async (dispatched) => {
       if (this.snapshot.phase !== 'ready' || !this.worker)
         throw new Error('Anonymous transport is not ready; no direct fallback');
       const worker = this.worker;
@@ -374,10 +378,12 @@ export class AnonRpcManager {
         ...(signal ? [signal] : []),
       ]);
       const result = await abortable(async () => {
+        const body = JSON.stringify({ jsonrpc: '2.0', id, method, params });
+        dispatched(this.transport);
         const response = await worker.fetch(READ_NETWORKS[chainId].rpc, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
+          body,
           signal: requestSignal,
           ...(this.transport === 'tor-js'
             ? { anonOptions: { isolationKey: this.isolationKey } }

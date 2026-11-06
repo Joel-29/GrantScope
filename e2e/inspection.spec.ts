@@ -21,6 +21,49 @@ test('invalid addresses are rejected without any RPC or wallet connection', asyn
   expect(rpc).toEqual([]);
 });
 
+test('failed worker bootstrap never sends the inspected address to direct RPC', async ({
+  page,
+}) => {
+  const target = '0x0000000000000000000000000000000000000001';
+  const direct: { method: string; params: unknown[] }[] = [];
+  await page.route('https://ethereum-rpc.publicnode.com/**', async (route) => {
+    direct.push(
+      route.request().postDataJSON() as { method: string; params: unknown[] },
+    );
+    await route.fulfill({ status: 503, body: 'Test bootstrap unavailable' });
+  });
+  // Any accidental Sepolia fallback is intercepted as well, so this test sends no real reads.
+  await page.route(
+    'https://ethereum-sepolia-rpc.publicnode.com/**',
+    async (route) => {
+      direct.push(
+        route.request().postDataJSON() as { method: string; params: unknown[] },
+      );
+      await route.fulfill({ status: 503, body: 'Direct fallback forbidden' });
+    },
+  );
+  await page.goto('/dashboard');
+  await page.getByLabel('Ethereum address', { exact: true }).fill(target);
+  await page
+    .getByRole('button', { name: 'Inspect anonymously', exact: true })
+    .click();
+  await expect(page.getByRole('alert')).toContainText(
+    'Anonymous account inspection failed',
+    {
+      timeout: 15000,
+    },
+  );
+  expect(direct.length).toBeGreaterThan(0);
+  for (const call of direct) {
+    expect(call.method).toBe('eth_call');
+    expect(['0x3898587d', '0x1c67ff29']).toContain(
+      (call.params[0] as { data: string }).data,
+    );
+    expect(JSON.stringify(call)).not.toContain(target);
+  }
+  await expect(page.getByTestId('native-balance')).toHaveCount(0);
+});
+
 test('live anonymous account inspection without a wallet', async ({ page }) => {
   test.skip(process.env.LIVE_ANON_RPC !== '1', 'Real network opt-in required');
   test.setTimeout(360000);
