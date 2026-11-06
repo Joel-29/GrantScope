@@ -1,21 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { ChevronLeft, Menu, Shield, X } from 'lucide-react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useUiStore } from '../../store/useUiStore';
 import { Navigation } from './Navigation';
-import { env } from '../../lib/config/env';
-
-function Brand() {
-  return (
-    <Link to="/" className="brand" aria-label="GrantScope home">
-      <img src="/icons/grantscope.svg" alt="" width="36" height="36" />
-      <span>
-        GrantScope<span className="brand-subtitle">PERMISSION OBSERVATORY</span>
-      </span>
-    </Link>
-  );
-}
+import { Header } from './Header';
+import { Brand } from './Brand';
+import { Button } from '../ui/Button';
 
 export function AppShell() {
   const { sidebarCollapsed, toggleSidebar } = useUiStore();
@@ -55,16 +46,18 @@ export function AppShell() {
         </button>
       </aside>
       <div className="workspace">
-        <header className="topbar">
-          <div className="topbar-location">
+        <Header
+          mobileNavigation={
             <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
               <Dialog.Trigger asChild>
-                <button
-                  className="icon-button mobile-menu"
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="mobile-menu"
                   aria-label="Open navigation"
                 >
-                  <Menu size={22} />
-                </button>
+                  <Menu size={22} aria-hidden="true" />
+                </Button>
               </Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Overlay className="dialog-overlay" />
@@ -75,46 +68,31 @@ export function AppShell() {
                   </Dialog.Description>
                   <Brand />
                   <Dialog.Close asChild>
-                    <button
-                      className="icon-button dialog-close"
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="dialog-close"
                       aria-label="Close navigation"
                     >
-                      <X size={20} />
-                    </button>
+                      <X size={20} aria-hidden="true" />
+                    </Button>
                   </Dialog.Close>
                   <Navigation onNavigate={() => setMobileOpen(false)} />
                 </Dialog.Content>
               </Dialog.Portal>
             </Dialog.Root>
-            <span className="breadcrumb">
-              Workspace <span>/</span>{' '}
-              <strong>
-                {location.pathname === '/'
-                  ? 'Overview'
-                  : location.pathname
-                      .split('/')[1]
-                      ?.replace('privacy', 'Privacy Lab')}
-              </strong>
-            </span>
-          </div>
-          <div className="topbar-status">
-            <span className="environment-label">{env.VITE_APP_ENV}</span>
-            <span className="transport-pill">
-              <span className="status-dot" />
-              Transport not initialized
-            </span>
-          </div>
-        </header>
+          }
+        />
         <main id="main-content" tabIndex={-1} ref={main}>
           <Outlet />
         </main>
         <footer className="app-footer">
           <span>
-            <Shield size={14} aria-hidden="true" /> Your permissions. Your
-            perspective.
+            <Shield size={14} aria-hidden="true" />
+            Your permissions. Your perspective.
           </span>
           <span>
-            Module 1 <span className="footer-divider">/</span> No blockchain
+            Module 2<span className="footer-divider">/</span>No blockchain
             requests
           </span>
         </footer>

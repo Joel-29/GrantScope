@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
-import { EmptyState } from '../components/ui/EmptyState';
+import { Notice } from '../components/ui/Notice';
+import { Panel } from '../components/ui/Panel';
+import { StatePanel } from '../components/ui/StatePanel';
+import { PermissionInventory } from '../components/permissions/PermissionInventory';
 
 export function PermissionsPage() {
   return (
@@ -8,19 +11,45 @@ export function PermissionsPage() {
       <PageHeader
         eyebrow="SPENDING AUTHORITY"
         title="Permissions"
-        description="Supported ERC-20 and Permit2 permissions will appear here after a live scan."
+        description="A focused inventory of supported permissions and the conditions behind them."
       />
-      <div className="panel">
-        <EmptyState title="Permission scanning is not implemented">
-          <p>
-            This foundation contains no permission records. Historical
-            discovery, allowance reads, and transaction actions are planned for
-            later modules.
-          </p>
-          <Link to="/about" className="text-link">
-            Explore the methodology
-          </Link>
-        </EmptyState>
+      <Notice title="Permission discovery is not active">
+        The table is ready for future verified results. No approvals, balances,
+        or classifications have been loaded.
+      </Notice>
+      <PermissionInventory />
+      <div className="two-column">
+        <Panel title="Know the layers">
+          <div className="panel-body">
+            <details className="disclosure">
+              <summary>ERC-20 approvals</summary>
+              <p>
+                A token-level allowance bounds a spender’s authority. A positive
+                or unlimited allowance does not prove malicious behavior.
+              </p>
+            </details>
+            <details className="disclosure">
+              <summary>Permit2 authorizations</summary>
+              <p>
+                The underlying ERC-20 approval and Permit2’s per-spender
+                allowance are overlapping permission layers. SignatureTransfer
+                signatures cannot be universally enumerated before use.
+              </p>
+            </details>
+          </div>
+        </Panel>
+        <Panel title="Coverage comes with context">
+          <div className="panel-body prose-copy">
+            <p>
+              Known token/spender pairs and bounded historical discovery will
+              each report their coverage. Neither should be presented as a
+              complete inventory.
+            </p>
+            <Link to="/about" className="text-link">
+              Read the methodology →
+            </Link>
+          </div>
+        </Panel>
       </div>
     </div>
   );
@@ -32,19 +61,19 @@ export function PermissionDetailPage() {
       <PageHeader
         eyebrow="PERMISSION INSPECTION"
         title="Permission unavailable"
-        description="No verified permission records exist in this foundation build."
+        description="No verified permission records exist in this interface release."
       />
-      <div className="panel">
-        <EmptyState title="Nothing to inspect yet">
-          <p>
-            A URL alone does not identify a verified allowance. Permission
-            details will require a successful live scan.
-          </p>
-          <Link to="/permissions" className="button button-secondary">
-            Back to permissions
-          </Link>
-        </EmptyState>
-      </div>
+      <Panel title="Authorization details">
+        <StatePanel
+          title="Nothing to inspect yet"
+          description="A URL alone does not identify a verified allowance. Permission details require a successful live scan."
+          action={
+            <Link to="/permissions" className="button button-secondary">
+              Back to permissions
+            </Link>
+          }
+        />
+      </Panel>
     </div>
   );
 }

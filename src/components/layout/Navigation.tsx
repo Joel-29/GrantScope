@@ -49,8 +49,8 @@ export function Navigation({
           <div className="build-note">
             <Activity size={16} aria-hidden="true" />
             <span>
-              Foundation build
-              <span className="muted">Live features coming next</span>
+              Interface release
+              <span className="muted">Module 2 · No live integrations</span>
             </span>
           </div>
           <a

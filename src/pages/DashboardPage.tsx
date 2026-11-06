@@ -1,7 +1,20 @@
-import { Fingerprint, Layers3, ScanLine, ShieldCheck } from 'lucide-react';
+import {
+  Fingerprint,
+  Layers3,
+  ScanLine,
+  ShieldCheck,
+  Infinity as InfinityIcon,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
-import { EmptyState } from '../components/ui/EmptyState';
+import { Notice } from '../components/ui/Notice';
+import { Panel } from '../components/ui/Panel';
+import { Badge } from '../components/ui/Badge';
+import { StatePanel } from '../components/ui/StatePanel';
+import { MetricCard } from '../components/dashboard/MetricCard';
+import { AccountCard } from '../components/dashboard/AccountCard';
+import { InspectionDialog } from '../components/layout/Header';
+import { PermissionInventory } from '../components/permissions/PermissionInventory';
 
 export function DashboardPage() {
   return (
@@ -9,47 +22,77 @@ export function DashboardPage() {
       <PageHeader
         eyebrow="YOUR WORKSPACE"
         title="Wallet overview"
-        description="A clear view starts with verified onchain state."
+        description="Understand spending authority, one verified permission at a time."
+        action={<InspectionDialog />}
       />
-      <div className="notice">
-        <ShieldCheck size={19} aria-hidden="true" />
-        <p>
-          <strong>Foundation build</strong> Wallet inspection will become
-          available after the privacy transport is implemented and verified.
-        </p>
-      </div>
+      <Notice title="Interface release · Live inspection unavailable">
+        No wallet has been inspected. The privacy transport, scanner, and
+        transaction modules have not been implemented.
+      </Notice>
+      <AccountCard />
       <div className="summary-grid">
         {[
-          { label: 'Active grants', icon: Layers3 },
-          { label: 'Review suggested', icon: ShieldCheck },
-          { label: 'Scan coverage', icon: ScanLine },
-          { label: 'Anonymous routing', icon: Fingerprint },
-        ].map(({ label, icon: Icon }) => (
-          <section className="summary-card" key={label}>
-            <div>
-              <span>{label}</span>
-              <Icon size={18} aria-hidden="true" />
-            </div>
-            <strong aria-label="Not measured">—</strong>
-            <p>Not measured</p>
-          </section>
+          {
+            title: 'Active grants',
+            icon: Layers3,
+            detail: 'ERC-20 and Permit2 · Not measured',
+          },
+          {
+            title: 'Review suggested',
+            icon: ShieldCheck,
+            detail: 'Evidence-based assessment pending',
+          },
+          {
+            title: 'Unlimited allowances',
+            icon: InfinityIcon,
+            detail: 'Permission sizes · Not measured',
+          },
+          {
+            title: 'Scan coverage',
+            icon: ScanLine,
+            detail: 'Last scanned block unavailable',
+          },
+        ].map((item) => (
+          <MetricCard key={item.title} {...item} />
         ))}
       </div>
-      <div className="panel">
-        <div className="panel-heading">
-          <h2>Permission inventory</h2>
-          <span className="tag">Not scanned</span>
-        </div>
-        <EmptyState title="No wallet has been inspected">
-          <p>
-            Live balances, allowances, account type, and scan history are
-            unavailable in this module. No blockchain requests have been made.
-          </p>
-          <Link className="text-link" to="/about">
-            See the implementation boundaries
-          </Link>
-        </EmptyState>
+      <PermissionInventory />
+      <div className="two-column">
+        <Panel
+          title="Token exposure"
+          description="Overlapping authority will be explained, not added together."
+        >
+          <StatePanel
+            title="Balances and exposure unavailable"
+            description="A successful chain read is required to assess token balances and the bounds of spending authority."
+          />
+        </Panel>
+        <Panel
+          title="Privacy transport"
+          action={<Badge>Not initialized</Badge>}
+        >
+          <div className="transport-summary">
+            <Fingerprint size={34} aria-hidden="true" />
+            <h3>No active anonymous route</h3>
+            <p>
+              There are no recorded application RPC reads, measured latencies,
+              or routing percentages.
+            </p>
+            <Link to="/privacy" className="text-link">
+              Inspect the privacy model →
+            </Link>
+          </div>
+        </Panel>
       </div>
+      <Panel
+        title="Recent revocations"
+        description="Only confirmed transactions with a freshly verified allowance will appear here."
+      >
+        <StatePanel
+          title="No revocation activity"
+          description="Transaction execution has not been implemented. Nothing has been submitted or confirmed."
+        />
+      </Panel>
     </div>
   );
 }

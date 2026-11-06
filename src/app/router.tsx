@@ -2,19 +2,27 @@ import { createBrowserRouter } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { LandingPage } from '../pages/LandingPage';
 import { RouteError } from '../components/ui/RouteError';
+import { WorkspaceSkeleton } from '../components/ui/Skeleton';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: AppShell,
-    hydrateFallbackElement: (
-      <main className="fatal-error" aria-busy="true">
-        <p role="status">Loading GrantScope workspace…</p>
-      </main>
-    ),
+    hydrateFallbackElement: <WorkspaceSkeleton />,
     errorElement: <RouteError />,
     children: [
       { index: true, Component: LandingPage },
+      ...(import.meta.env.DEV
+        ? [
+            {
+              path: 'design-system',
+              lazy: async () => ({
+                Component: (await import('../design-system/DesignPreviewPage'))
+                  .DesignPreviewPage,
+              }),
+            },
+          ]
+        : []),
       {
         path: 'dashboard',
         lazy: async () => ({

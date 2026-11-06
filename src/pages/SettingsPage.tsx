@@ -1,43 +1,166 @@
+import { Monitor, Moon, Sun, Palette, PanelLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/ui/PageHeader';
+import { Panel } from '../components/ui/Panel';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
+import { InfoDialog } from '../components/ui/InfoDialog';
+import { useTheme } from '../hooks/useTheme';
+import { useUiStore, type ThemePreference } from '../store/useUiStore';
+
+const themes = [
+  {
+    value: 'dark',
+    label: 'Dark',
+    description: 'Calm navy surfaces',
+    icon: Moon,
+  },
+  {
+    value: 'light',
+    label: 'Light',
+    description: 'Clear daylight contrast',
+    icon: Sun,
+  },
+  {
+    value: 'system',
+    label: 'System',
+    description: 'Follow your device',
+    icon: Monitor,
+  },
+] as const;
 
 export function SettingsPage() {
+  const { theme, setTheme } = useTheme();
+  const { sidebarCollapsed, toggleSidebar } = useUiStore();
   return (
     <div className="page">
       <PageHeader
-        eyebrow="APPLICATION PREFERENCES"
+        eyebrow="MAKE IT YOURS"
         title="Settings"
-        description="Explicit configuration, with honest defaults."
+        description="A workspace that respects your preferences and makes its boundaries explicit."
       />
-      <section className="panel prose-panel">
-        <h2>Network & transport</h2>
-        <dl className="definition-list">
-          <div>
-            <dt>Blockchain network</dt>
-            <dd>Not configured. No network has been contacted.</dd>
+      <Panel
+        title="Appearance"
+        description="Theme preferences apply immediately and last for this page session."
+        action={<Palette size={18} aria-hidden="true" />}
+      >
+        <fieldset className="theme-fieldset">
+          <legend>Color theme</legend>
+          <div className="theme-options">
+            {themes.map(({ value, label, description, icon: Icon }) => (
+              <label className="theme-option" key={value}>
+                <input
+                  type="radio"
+                  name="color-theme"
+                  value={value}
+                  checked={theme === value}
+                  onChange={(e) => setTheme(e.target.value as ThemePreference)}
+                />
+                <span
+                  className={`theme-swatch swatch-${value}`}
+                  aria-hidden="true"
+                >
+                  <span />
+                  <span />
+                  <span />
+                </span>
+                <span className="theme-option-label">
+                  <Icon size={16} aria-hidden="true" />
+                  <strong>{label}</strong>
+                </span>
+                <span>{description}</span>
+              </label>
+            ))}
           </div>
+        </fieldset>
+        <div className="setting-row">
           <div>
-            <dt>Read transport</dt>
-            <dd>
-              Not implemented. Anon-RPC with an anonymizing worker is the
-              planned default.
-            </dd>
+            <strong>Desktop navigation</strong>
+            <p>Keep labels visible or make more room for your workspace.</p>
           </div>
+          <Button onClick={toggleSidebar} aria-pressed={sidebarCollapsed}>
+            <PanelLeft size={16} aria-hidden="true" />
+            {sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          </Button>
+        </div>
+      </Panel>
+      <Panel
+        title="Network & transport"
+        description="Configuration will unlock with independently tested integrations."
+        action={<Badge>Not configured</Badge>}
+      >
+        <div className="panel-body">
+          <div className="form-grid">
+            <div className="form-field">
+              <label htmlFor="network">Blockchain network</label>
+              <select id="network" disabled aria-describedby="network-help">
+                <option>Not configured</option>
+              </select>
+              <small id="network-help">
+                No blockchain network has been contacted.
+              </small>
+            </div>
+            <div className="form-field">
+              <label htmlFor="transport">Read transport</label>
+              <select id="transport" disabled aria-describedby="transport-help">
+                <option>Anon-RPC · Planned default</option>
+              </select>
+              <small id="transport-help">
+                No harness or worker has been initialized.
+              </small>
+            </div>
+          </div>
+        </div>
+        <div className="setting-row">
           <div>
-            <dt>Direct fallback</dt>
-            <dd>
-              No RPC transport exists in this module. Later modules must fail
-              closed and never silently bypass anonymous routing.
-            </dd>
+            <strong>Direct RPC fallback</strong>
+            <p>
+              No automatic fallback will be permitted. No RPC route exists yet.
+            </p>
           </div>
+          <Badge>Unavailable</Badge>
+        </div>
+      </Panel>
+      <Panel
+        title="Privacy & local data"
+        description="No wallet information is stored by this release."
+      >
+        <div className="setting-row">
           <div>
-            <dt>Local storage</dt>
-            <dd>
-              UI state and query cache are in memory. No wallet targets,
-              balances, or permissions are persisted.
-            </dd>
+            <strong>Session-only preferences</strong>
+            <p>
+              Theme, navigation, and query cache stay in memory. Reloading
+              resets them. System theme changes are followed while selected.
+            </p>
           </div>
-        </dl>
-      </section>
+          <InfoDialog
+            title="What stays in your browser?"
+            description="Only interface preferences and an in-memory query cache exist in Module 2."
+            trigger={<Button>View data policy</Button>}
+          >
+            <p className="prose-copy">
+              No local storage, cookies, wallet targets, balances, or permission
+              records are written by the application. Theme preference resets
+              when the page reloads. Hosting providers still see normal page
+              requests.
+            </p>
+          </InfoDialog>
+        </div>
+      </Panel>
+      {import.meta.env.DEV && (
+        <div className="preview-entry">
+          <div>
+            <strong>Component workshop</strong>
+            <p>
+              Isolated design fixtures, loading states, and error recovery.
+              Development only.
+            </p>
+          </div>
+          <Link to="/design-system" className="button button-secondary">
+            Open design preview
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

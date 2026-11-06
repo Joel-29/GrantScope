@@ -12,10 +12,11 @@ export function AboutPage() {
       <section className="panel prose-panel">
         <h2>Current implementation</h2>
         <p>
-          Module 1 provides the application shell, routes, accessible
-          navigation, and development tooling. There is no wallet connection,
-          RPC transport, scanner, exposure assessment, Permit2 integration, or
-          transaction execution.
+          Module 2 provides the responsive application shell, dark and light
+          themes, accessible dialogs, permission inventory layouts, and
+          development tooling. There is no wallet connection, RPC transport,
+          scanner, exposure assessment, Permit2 integration, or transaction
+          execution.
         </p>
         <h2>The permission model</h2>
         <p>
