@@ -1,5 +1,7 @@
 # Read-only demo readiness check
 
+For the latest local wallet-setup guidance and code validation, see [LOCAL_HANDOFF](LOCAL_HANDOFF.md). The real blockchain sessions below remain dated evidence; the wallet-guidance update did not submit a transaction or repeat those reads.
+
 Run the application in one terminal, then the rehearsal in another:
 
 ```sh

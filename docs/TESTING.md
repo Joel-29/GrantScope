@@ -1,5 +1,9 @@
 # Testing
 
+## Local wallet setup handoff, 6 November 2026
+
+The [local handoff](LOCAL_HANDOFF.md) records 109 unit/UI tests, nine release-tool tests, TypeScript, ESLint, a production build and final browser results. New coverage exercises unsupported networks, a supported but mismatched chain, a different owner, metadata updates, missing inspection targets and the absence of automatic wallet or blockchain requests. These are mocked wallet tests, not actual MetaMask authorization. No new signed or live blockchain result is claimed; earlier real read-only evidence remains separately linked.
+
 ## Live rehearsal follow-up, 6 November 2026
 
 The [latest follow-up](DEMO_CHECK.md) records real successful Nym/Nox probes, positive configured-allowance UI reads and additional failed sessions. It also documents the new read-only rehearsal command, private session URLs, corrected bootstrap URL normalization and isolated browser artifacts. Fresh checks passed 106 unit/UI tests, nine release-tool tests, the production build and 26 browser checks in each mode, with twelve opt-in live skips per regular suite. Signing and hosted deployment remain owner-run steps. The preceding failed review below remains historical evidence.

@@ -2,6 +2,8 @@
 
 **Engineering implementation is available; full submission acceptance remains pending.** Do not describe the project as a completed live end-to-end revocation demo yet.
 
+The [local handoff](LOCAL_HANDOFF.md) adds explicit wallet owner/network guidance and records the final local checks. The owner paused revocation and deferred Vercel work. Signed zero-state, deployment and recording evidence remain intentionally unperformed; no new permission to submit a transaction is inferred from a request to finish project code.
+
 **Latest follow-up:** [real Nym/Nox probes and UI reads](DEMO_CHECK.md) succeeded, including the configured 100 GST allowance. Separate attempts failed and remain documented. A read-only rehearsal command and private permission URLs are implemented. Owner-signed zero verification, the actual deployed origin and the judging recording remain pending; no signing or deployment occurred during this follow-up.
 
 The follow-up review fixed reproduced transport accounting, ABI validation, reorg, cancellation and stale-state defects. Fresh checks passed 95 unit/UI tests and 26 browser checks in each build mode. Nox returned real diagnostic responses and the configured positive allowance; Nym initialization timed out. See [latest test evidence](TESTING.md#follow-up-review-6-november-2026) and [audit findings](AUDIT.md#follow-up-review-6-november-2026). These fixes do not complete the pending owner-signed, deployed-origin and recording evidence below.
