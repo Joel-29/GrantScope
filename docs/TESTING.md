@@ -1,5 +1,9 @@
 # Testing
 
+## Module 9 evidence
+
+67 unit/Testing Library tests passed across eleven files. Security cases cover exact approve-to-zero and canonical lockdown calldata, ownership/network mismatch, code-present accounts, missing contract, already-zero state, false-return simulation, insufficient ETH, unsafe nonce precision, changed allowance/gas/context, wallet rejection, canonical receipt and transaction identity, nonzero post-state, reorg, replacement intent and timeout. UI tests disable smart-account signing, serialize submissions and distinguish receipt confirmation from verified zero. TypeScript, ESLint and production fixture isolation/build passed. The build currently reports the inherited Zod annotation warnings and a larger viem-containing chunk warning. The production browser suite passed 22 tests with ten live cases skipped; wallet rejection remains rejected on desktop and mobile. No signed live transaction or positive allowance revocation has been run: a funded owner-controlled wallet is unavailable in the automated environment. Mocked security cases are not live transaction evidence.
+
 ## Module 8 evidence
 
 53 unit/Testing Library tests passed across nine files. Adversarial cases cover negative/out-of-width amounts, uint256 maximum with zero balance, one-wei precision, expired/dependency-blocked Permit2, exact expiry boundary, unknown spenders, unknown/future event age and mixed-block grouping. A Testing Library query-cache test verifies state updates and accessible filtering without RPC. TypeScript, ESLint and production build passed. The production browser suite passed 20 deterministic tests with ten opt-in live cases skipped. Analysis uses previously verified chain records; these deterministic tests do not create new live blockchain evidence or prove maliciousness detection.

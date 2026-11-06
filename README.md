@@ -4,7 +4,7 @@ See every grant. Understand every risk. Revoke with confidence.
 
 GrantScope is an MIT-licensed Ethereum permission observatory in development for ETHGlobal Mumbai. It aims to make supported ERC-20 and Permit2 spending authority understandable, with application-owned chain reads routed through Anon-RPC by default.
 
-**Current status: Module 8 ? deterministic authority analysis.** Anonymous account inspection, ERC-20 scans, bounded event discovery and Permit2 grant/dependency reads feed explained per-permission bounds and grouped detail views. Unknown spenders are not called malicious; overlapping layers are never summed. Nym is primary, with explicit Nox Sepolia after failure and optional configured Tor. Signing is the next module. See [analysis](docs/EXPOSURE.md), [Permit2](docs/PERMIT2.md) and [transport evidence](docs/ANON_RPC.md).
+**Current status: Module 9 ? owner-authorized revocation.** Verified ERC-20 and Permit2 records support guarded zeroing workflows with wallet review, simulation, receipt/replacement handling, and fresh anonymous zero-state verification. Code-present owners remain read-only. Nym is primary; Nox is an explicit Sepolia alternative after failure. No live signed revocation has been demonstrated in this environment; a funded owner-controlled wallet and positive allowance are still required. See [revocation guards and limits](docs/REVOCATION.md), [analysis](docs/EXPOSURE.md) and [live read evidence](docs/ANON_RPC.md).
 
 ## Problem and intended solution
 
