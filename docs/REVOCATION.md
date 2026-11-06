@@ -1,6 +1,6 @@
 # Owner-authorized revocation (Module 9)
 
-Open a verified permission's detail page, connect its owner in Settings, and select the inspected chain in the wallet. Prepare revocation runs anonymous preflight without requesting a signature. The confirmation dialog discloses owner, chain, target, token/spender, exact zeroing action, and gas budget. Only a separate Confirm in wallet action requests `eth_sendTransaction`.
+Open a verified permission's detail page and use its Signing wallet section to connect the owner on the inspected chain. The configured local demo also exposes wallet setup and preparation directly beside its verified result. Prepare revocation runs anonymous preflight without requesting a signature. The confirmation dialog discloses owner, chain, target, token/spender, exact zeroing action, and gas budget. Only a separate Confirm in wallet action requests `eth_sendTransaction`. [Preparation progress, safe failures and latest unsigned evidence](REVOCATION_PREPARATION.md).
 
 Supported actions are narrowly encoded ERC-20 `approve(spender,0)` and canonical Permit2 `lockdown([(token,spender)])`. Arbitrary calldata, transfers, delegated execution and smart-account signing are unsupported. Code-present owners, including delegated-code accounts, remain read-only. No ownership is inferred from inspecting an address.
 

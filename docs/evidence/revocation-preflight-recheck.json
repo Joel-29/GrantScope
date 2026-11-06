@@ -1,0 +1,19 @@
+{
+  "source": "Real read-only Nox diagnostic; wallet ownership not tested",
+  "chainId": 11155111,
+  "readBlock": "12078620",
+  "transport": "nox",
+  "allowanceUnits": "100000000000000000000",
+  "decimals": 18,
+  "ownerHasNoCode": true,
+  "simulationReturnedTrue": true,
+  "gasEstimateWithinSupportedBounds": true,
+  "sufficientSepoliaEth": true,
+  "nonceReadWithinSupportedPrecision": true,
+  "transactionValueEth": "0",
+  "anonymousResponses": 18,
+  "bootstrapCalls": 2,
+  "walletOwnershipVerified": false,
+  "transactionSubmitted": false,
+  "receiptVerified": false
+}

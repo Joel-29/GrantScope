@@ -44,6 +44,8 @@ Settings explains unsupported wallet networks and owner/network mismatches using
 
 The local demo retains its labeled verified snapshot and permission link when returning from Settings. Failed reads show their stage, with an explicit same-transport restart option; no retry silently changes the route. [Demo recovery and actual read-only evidence](docs/DEMO_RECOVERY.md).
 
+Verified demo results and permission detail pages include **Signing wallet** and **Prepare revocation** together. Preparation reports its current check and safe failure category; owner/network checks, explicit MetaMask confirmation and fresh zero-state verification remain required. [Preparation checks and unsigned evidence](docs/REVOCATION_PREPARATION.md).
+
 The local loader and configured values are excluded from production. Do not copy these identities into README files, fixtures, screenshots, videos or commits. Use a separately consented public demonstration wallet for recordings. Production accepts arbitrary addresses through its ordinary forms. [Demo runbook](docs/DEMO.md).
 
 ## Commands and validation
