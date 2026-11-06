@@ -8,6 +8,11 @@ import { InfoDialog } from '../components/ui/InfoDialog';
 import { useTheme } from '../hooks/useTheme';
 import { useUiStore, type ThemePreference } from '../store/useUiStore';
 import { WalletConnection } from '../features/wallet/WalletConnection';
+import { useAnonRpc } from '../features/anon-rpc/runtime';
+import { useInspectionSession } from '../features/wallet/session';
+import { READ_NETWORKS, WORKERS } from '../features/anon-rpc/transportRegistry';
+import { useQueryClient } from '@tanstack/react-query';
+import { clearInspection } from '../features/wallet/clearInspection';
 
 const themes = [
   {
@@ -31,6 +36,9 @@ const themes = [
 ] as const;
 
 export function SettingsPage() {
+  const transport = useAnonRpc(),
+    { target } = useInspectionSession(),
+    cache = useQueryClient();
   const { theme, setTheme } = useTheme();
   const { sidebarCollapsed, toggleSidebar } = useUiStore();
   return (
@@ -87,29 +95,30 @@ export function SettingsPage() {
       </Panel>
       <Panel
         title="Network & transport"
-        description="Configuration will unlock with independently tested integrations."
-        action={<Badge>Not configured</Badge>}
+        description="Select the inspected chain with an address. Select an anonymous worker in Privacy Lab."
+        action={<Badge>{transport.phase}</Badge>}
       >
         <div className="panel-body">
           <div className="form-grid">
             <div className="form-field">
-              <label htmlFor="network">Blockchain network</label>
-              <select id="network" disabled aria-describedby="network-help">
-                <option>Not configured</option>
-              </select>
-              <small id="network-help">
-                No blockchain network has been contacted.
-              </small>
+              <strong>Inspection network</strong>
+              <p>
+                {target
+                  ? READ_NETWORKS[target.chainId].name
+                  : 'No address selected'}
+              </p>
+              <Link className="text-link" to="/dashboard">
+                Choose an address and network
+              </Link>
             </div>
             <div className="form-field">
-              <label htmlFor="transport">Read transport</label>
-              <select id="transport" disabled aria-describedby="transport-help">
-                <option>Anon-RPC · Nym primary</option>
-              </select>
-              <small id="transport-help">
-                Official anonymous harness integrated. Start and verify the
-                worker in Privacy Lab.
-              </small>
+              <strong>Read transport</strong>
+              <p>
+                {WORKERS[transport.transport].label} · {transport.phase}
+              </p>
+              <Link className="text-link" to="/privacy">
+                Configure and verify the worker
+              </Link>
             </div>
           </div>
         </div>
@@ -126,8 +135,21 @@ export function SettingsPage() {
       </Panel>
       <Panel
         title="Privacy & local data"
-        description="No wallet information is stored by this release."
+        description="Inspection data stays in memory. Worker-internal public-resource caches are separate."
       >
+        <div className="setting-row">
+          <div>
+            <strong>Clear inspection data</strong>
+            <p>
+              Cancel application scans, forget targets and manual pairs, remove
+              scan caches, and close the worker. Payload-free traffic metrics
+              and transaction activity remain for this page session.
+            </p>
+          </div>
+          <Button onClick={() => clearInspection(cache)}>
+            Clear inspection data
+          </Button>
+        </div>
         <div className="setting-row">
           <div>
             <strong>Session-only preferences</strong>

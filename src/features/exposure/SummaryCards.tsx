@@ -9,7 +9,7 @@ import { usePermissionData } from './usePermissionData';
 import { analyze } from './analysis';
 export function SummaryCards() {
   const data = usePermissionData();
-  const assessments = data.records.map((row) =>
+  const assessments = data.currentRecords.map((row) =>
     analyze(row, {
       nowSeconds: BigInt(Math.floor(row.readAt / 1000)),
       incomplete: true,
@@ -48,7 +48,7 @@ export function SummaryCards() {
         value={
           measured
             ? String(
-                data.records.filter((row) =>
+                data.currentRecords.filter((row) =>
                   row.kind === 'erc20'
                     ? row.size === 'maximum' || row.size === 'near-maximum'
                     : row.amount === (1n << 160n) - 1n,

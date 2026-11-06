@@ -6,7 +6,7 @@ export type Activity = {
   id: string;
   recordId: string;
   chainId: ReadChainId;
-  phase: RevocationPhase | 'failed' | 'rejected' | 'unverified';
+  phase: RevocationPhase | 'failed' | 'rejected' | 'unverified' | 'reverted';
   hash?: Hex;
   verifiedBlock?: bigint;
   message?: string;

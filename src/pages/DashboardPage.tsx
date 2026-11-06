@@ -10,6 +10,14 @@ import { AccountCard } from '../components/dashboard/AccountCard';
 import { InspectionDialog } from '../components/layout/Header';
 import { AllowanceInventory } from '../features/erc20/AllowanceInventory';
 import { InspectionPanel } from '../features/wallet/InspectionForm';
+import { lazy, Suspense } from 'react';
+const LocalDemoPanel = import.meta.env.DEV
+  ? lazy(() =>
+      import('../features/demo/LocalDemoPanel').then((module) => ({
+        default: module.LocalDemoPanel,
+      })),
+    )
+  : null;
 
 export function DashboardPage() {
   return (
@@ -27,6 +35,11 @@ export function DashboardPage() {
         required.
       </Notice>
       <InspectionPanel />
+      {LocalDemoPanel && (
+        <Suspense fallback={<p role="status">Loading local demo controls…</p>}>
+          <LocalDemoPanel />
+        </Suspense>
+      )}
       <AccountCard />
       <SummaryCards />
       <AllowanceInventory />

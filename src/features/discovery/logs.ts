@@ -2,6 +2,8 @@ import { type Address, type Hex } from 'viem';
 import type { AnonRpcManager } from '../anon-rpc/AnonRpcManager';
 import type { ReadChainId } from '../anon-rpc/transportRegistry';
 import { rpcQuantity } from '../anon-rpc/JsonRpcAdapter';
+import { JsonRpcError } from '../anon-rpc/JsonRpcAdapter';
+import { abortable } from '../../lib/abortable';
 import { parseAddress } from '../wallet/address';
 
 export type ChainLog = {
@@ -17,7 +19,7 @@ export type ChainLog = {
 export function hash32(value: unknown): Hex {
   if (typeof value !== 'string' || !/^0x[0-9a-f]{64}$/i.test(value))
     throw new Error('Invalid block/log hash');
-  return value as Hex;
+  return value.toLowerCase() as Hex;
 }
 export function logValue(value: unknown): ChainLog {
   if (!value || typeof value !== 'object') throw new Error('Invalid log');
@@ -112,6 +114,7 @@ export async function pagedLogs(
   };
   const seen = new Set<string>();
   let cursor = from;
+  let networkFailures = 0;
   while (cursor <= to && result.requests < cap) {
     options.signal?.throwIfAborted();
     const end = cursor + chunk - 1n > to ? to : cursor + chunk - 1n;
@@ -143,6 +146,7 @@ export async function pagedLogs(
         continue;
       }
       const page = value.map(logValue);
+      networkFailures = 0;
       if (page.some((log) => log.blockNumber < cursor || log.blockNumber > end))
         throw new Error('Out-of-range log response');
       for (const log of page) {
@@ -167,8 +171,46 @@ export async function pagedLogs(
         );
         break;
       }
-    } catch {
+    } catch (error) {
       options.signal?.throwIfAborted();
+      if (manager.getSnapshot().phase !== 'ready') throw error;
+      if (error instanceof JsonRpcError && error.code === -32601) {
+        result.gaps.push({ from: cursor, to });
+        result.warnings.push('Provider does not support this log method.');
+        cursor = to + 1n;
+        break;
+      }
+      const networkError =
+        (error &&
+          typeof error === 'object' &&
+          'name' in error &&
+          error.name === 'TimeoutError') ||
+        (error instanceof Error &&
+          /timed out|timeout|network|HTTP (429|5\d\d)/i.test(error.message));
+      if (networkError) {
+        networkFailures++;
+        if (networkFailures >= 3) {
+          result.gaps.push({ from: cursor, to });
+          result.warnings.push(
+            'Three consecutive network failures; remaining blocks not scanned. Retry explicitly.',
+          );
+          cursor = to + 1n;
+          break;
+        }
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try {
+          await abortable(
+            () =>
+              new Promise<void>((resolve) => {
+                timer = setTimeout(resolve, 250 * 2 ** (networkFailures - 1));
+              }),
+            options.signal ?? new AbortController().signal,
+          );
+        } finally {
+          if (timer) clearTimeout(timer);
+        }
+        continue;
+      }
       if (chunk > 1n) {
         chunk = (chunk + 1n) / 2n;
         continue;

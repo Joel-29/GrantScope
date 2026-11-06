@@ -12,13 +12,14 @@ export function AboutPage() {
       <section className="panel prose-panel">
         <h2>Current implementation</h2>
         <p>
-          Module 4 adds validated read-only account inspection and optional
-          injected wallet connection over the official fail-closed anonymous
-          read adapter. Nym is primary; Nox is an explicit Sepolia alternative,
-          and Tor requires an operational authenticated gateway. Worker
-          readiness and response evidence are reported in Privacy Lab. There is
-          no allowance scanner, exposure assessment, Permit2 integration, or
-          transaction execution.
+          Account inspection, bounded ERC-20 discovery, Permit2
+          AllowanceTransfer, explained authority bounds and owner-authorized
+          zeroing use a fail-closed anonymous read adapter. Nym is primary; Nox
+          is an explicit Sepolia alternative after failure. Tor requires an
+          operational authenticated gateway. Privacy Lab separates worker
+          readiness, real-response evidence, direct bootstrap exceptions and
+          wallet-provider activity. Code-present accounts remain read-only. No
+          unsigned or mocked transaction is called a verified live revocation.
         </p>
         <h2>The permission model</h2>
         <p>
@@ -42,13 +43,13 @@ export function AboutPage() {
         </p>
         <h2>Privacy by evidence</h2>
         <p>
-          Future blockchain reads must use a verified anonymous worker by
-          default. Bootstrap reads and wallet submissions need separate
-          disclosure. The RPC provider still sees query contents, and
+          Application-controlled blockchain reads use the selected anonymous
+          worker by default. Bootstrap reads and wallet submissions need
+          separate disclosure. The RPC provider still sees query contents, and
           transactions remain public onchain.
         </p>
         <Link to="/privacy" className="text-link">
-          Read the planned transparency model
+          Inspect measured routes and exclusions
         </Link>
       </section>
     </div>

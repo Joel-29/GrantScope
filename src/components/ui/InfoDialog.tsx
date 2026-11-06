@@ -12,6 +12,7 @@ export function InfoDialog({
   open,
   onOpenChange,
   onCloseAutoFocus,
+  dismissible = true,
 }: PropsWithChildren<{
   trigger?: ReactElement;
   title: string;
@@ -20,6 +21,7 @@ export function InfoDialog({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   onCloseAutoFocus?: (event: Event) => void;
+  dismissible?: boolean;
 }>) {
   return (
     <Dialog.Root
@@ -30,6 +32,12 @@ export function InfoDialog({
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content
+          onEscapeKeyDown={(event) => {
+            if (!dismissible) event.preventDefault();
+          }}
+          onInteractOutside={(event) => {
+            if (!dismissible) event.preventDefault();
+          }}
           {...(onCloseAutoFocus ? { onCloseAutoFocus } : {})}
           className={
             drawer ? 'dialog-content activity-drawer' : 'dialog-content'
@@ -45,6 +53,7 @@ export function InfoDialog({
               size="icon"
               className="dialog-close"
               aria-label="Close dialog"
+              disabled={!dismissible}
             >
               <X size={20} aria-hidden="true" />
             </Button>
@@ -52,7 +61,7 @@ export function InfoDialog({
           {children}
           <div className="dialog-actions">
             <Dialog.Close asChild>
-              <Button>Close</Button>
+              <Button disabled={!dismissible}>Close</Button>
             </Dialog.Close>
           </div>
         </Dialog.Content>

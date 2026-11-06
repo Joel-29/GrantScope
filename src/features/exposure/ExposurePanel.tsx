@@ -5,13 +5,30 @@ import { Badge } from '../../components/ui/Badge';
 import { tokenAmount } from '../erc20/amounts';
 import { analyze, groupPermissions, type Permission } from './analysis';
 import { usePermissionData } from './usePermissionData';
+import { useTransactions } from '../revocation/store';
 
 export function AnalysisRecord({ record }: { record: Permission }) {
+  const activity = useTransactions((state) => state.activity);
+  const superseded = activity.find(
+    (entry) =>
+      entry.recordId === record.id &&
+      entry.phase === 'verified-zero' &&
+      entry.verifiedBlock !== undefined &&
+      entry.verifiedBlock >= record.blockNumber,
+  );
   const assessment = analyze(record, {
     nowSeconds: BigInt(Math.floor(record.readAt / 1000)),
     incomplete: true,
   });
   const token = record.kind === 'erc20' ? record : record.underlying;
+  if (superseded)
+    return (
+      <p role="status">
+        This earlier scan is superseded by a verified zero allowance at block{' '}
+        {superseded.verifiedBlock?.toString()}. Refresh the permission scan for
+        current state. Later grants can restore authority.
+      </p>
+    );
   return (
     <div className="permission-analysis">
       <Badge tone={assessment.needsReview ? 'warning' : 'neutral'}>
@@ -59,6 +76,12 @@ export function ExposurePanel() {
           </p>
         ) : (
           <>
+            {data.failedRefreshes > 0 && (
+              <p role="alert">
+                A refresh failed. Displayed records retain earlier successful
+                snapshots and may be stale.
+              </p>
+            )}
             <p>
               {data.records.length} unique checked records · {data.failures}{' '}
               failed reads across retained scan results. Coverage remains

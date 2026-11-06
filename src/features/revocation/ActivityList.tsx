@@ -24,7 +24,17 @@ export function ActivityList() {
               : ''}
           </p>
           {entry.hash && (
-            <p className="address-value">Transaction: {entry.hash}</p>
+            <p className="address-value">
+              Transaction: {entry.hash}{' '}
+              <a
+                className="text-link"
+                href={`${READ_NETWORKS[entry.chainId].explorer}/tx/${entry.hash}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                View on explorer (shares transaction hash)
+              </a>
+            </p>
           )}
           {entry.message && <p>{entry.message}</p>}
           {entry.phase === 'confirmed' && (

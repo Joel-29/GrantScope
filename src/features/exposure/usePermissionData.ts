@@ -5,6 +5,7 @@ import { anonRpc, useAnonRpc } from '../anon-rpc/runtime';
 import type { AllowanceScan, Erc20Permission } from '../erc20/types';
 import type { Permit2Grant } from '../permit2/engine';
 import type { Permission } from './analysis';
+import { useTransactions } from '../revocation/store';
 
 export function usePermissionData() {
   const client = useQueryClient(),
@@ -12,6 +13,7 @@ export function usePermissionData() {
     transport = useAnonRpc(),
     manager = anonRpc.current();
   const cache = client.getQueryCache();
+  const activity = useTransactions((state) => state.activity);
   const store = useMemo(() => {
     let version = 0;
     return {
@@ -28,7 +30,8 @@ export function usePermissionData() {
   useSyncExternalStore(store.subscribe, store.get, store.get);
   const records = new Map<string, Permission>();
   let failures = 0,
-    scans = 0;
+    scans = 0,
+    failedRefreshes = 0;
   const coverages: string[] = [];
   function put(row: Permission) {
     const previous = records.get(row.id);
@@ -43,7 +46,9 @@ export function usePermissionData() {
     const key = query.queryKey;
     if (
       !target ||
-      !['allowances', 'discovery', 'permit2'].includes(String(key[0])) ||
+      !['allowances', 'discovery', 'permit2', 'local-demo'].includes(
+        String(key[0]),
+      ) ||
       key[1] !== target.chainId ||
       key[2] !== target.address ||
       key[3] !== transport.transport ||
@@ -54,6 +59,7 @@ export function usePermissionData() {
       continue;
     // Only this application's typed query functions write these cache namespaces.
     scans++;
+    if (query.state.status === 'error') failedRefreshes++;
     if (key[0] === 'permit2') {
       const data = query.state.data as {
         verification: {
@@ -70,7 +76,7 @@ export function usePermissionData() {
       coverages.push(data.verification.coverage);
     } else {
       const data =
-        key[0] === 'allowances'
+        key[0] === 'allowances' || key[0] === 'local-demo'
           ? (query.state.data as AllowanceScan)
           : (query.state.data as { verification: AllowanceScan }).verification;
       data.rows.forEach((row: Erc20Permission) => put(row));
@@ -78,5 +84,23 @@ export function usePermissionData() {
       coverages.push(data.coverage);
     }
   }
-  return { records: [...records.values()], failures, scans, coverages, target };
+  const currentRecords = [...records.values()].filter(
+    (record) =>
+      !activity.some(
+        (entry) =>
+          entry.recordId === record.id &&
+          entry.phase === 'verified-zero' &&
+          entry.verifiedBlock !== undefined &&
+          entry.verifiedBlock >= record.blockNumber,
+      ),
+  );
+  return {
+    records: [...records.values()],
+    currentRecords,
+    failedRefreshes,
+    failures,
+    scans,
+    coverages,
+    target,
+  };
 }

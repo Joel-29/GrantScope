@@ -52,6 +52,17 @@ export function permitEventPair(
     log.topics[1]?.toLowerCase() !== pad(owner).toLowerCase()
   )
     return null;
+  if (
+    !log.topics.slice(2).every((topic) => /^0x0{24}[0-9a-f]{40}$/i.test(topic))
+  )
+    return null;
+  const expected =
+    log.topics[0] === PERMIT_TOPIC
+      ? 194
+      : log.topics[0] === PERMIT_APPROVAL_TOPIC
+        ? 130
+        : 0;
+  if (!expected || log.data.length !== expected) return null;
   try {
     const decoded = decodeEventLog({
       abi: permit2Abi,
@@ -61,6 +72,10 @@ export function permitEventPair(
     });
     if (decoded.eventName !== 'Permit' && decoded.eventName !== 'Approval')
       return null;
+    if (decoded.args.amount < 0n || decoded.args.amount > (1n << 160n) - 1n)
+      return null;
+    smallUint(decoded.args.expiration);
+    if (decoded.eventName === 'Permit') smallUint(decoded.args.nonce);
     return {
       token: parseAddress(decoded.args.token),
       spender: parseAddress(decoded.args.spender),
@@ -183,6 +198,9 @@ export async function inspectPermit2(
       failures.push(pair);
     }
   }
+  const after = await blockHeader(manager, chainId, blockNumber, signal);
+  if (after.hash !== header.hash)
+    throw new Error('Permit2 snapshot changed during scan; discard and retry');
   return {
     rows,
     failures,

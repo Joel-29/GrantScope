@@ -157,9 +157,12 @@ export function RevocationControl({ record }: { record: Permission }) {
       state.update(id, {
         phase: rejected
           ? 'rejected'
-          : submitted || walletRequested
-            ? 'unverified'
-            : 'failed',
+          : e instanceof RevocationError &&
+              e.message.includes('Transaction reverted')
+            ? 'reverted'
+            : submitted || walletRequested
+              ? 'unverified'
+              : 'failed',
         message,
       });
     } finally {
@@ -218,6 +221,7 @@ export function RevocationControl({ record }: { record: Permission }) {
         title="Confirm revocation"
         description="Review the exact target and zeroing action. Your wallet will ask for final authorization."
         open={open}
+        dismissible={!transactions.busy}
         onOpenChange={(value) => {
           if (!transactions.busy) {
             setOpen(value);
@@ -226,7 +230,13 @@ export function RevocationControl({ record }: { record: Permission }) {
         }}
         onCloseAutoFocus={(event) => {
           event.preventDefault();
-          prepareButton.current?.focus();
+          if (prepareButton.current?.disabled)
+            document
+              .querySelector<HTMLButtonElement>(
+                '[aria-label="Open transaction activity"]',
+              )
+              ?.focus();
+          else prepareButton.current?.focus();
         }}
       >
         {prepared && (
