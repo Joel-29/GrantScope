@@ -1,8 +1,8 @@
 # Privacy
 
-Status: Module 2 interface only; no Anon-RPC integration or anonymity claim.
+Status: Module 3 anonymous transport. Nym primary; explicitly selected Nox for Sepolia; optional Tor requires an operational authenticated gateway. See [ANON_RPC](ANON_RPC.md) for observed successes, failures and trust boundaries.
 
-The current shell makes no application blockchain reads and contains no analytics, third-party fonts, indexers, or wallet connection code. UI state and query cache are in memory. No wallet targets, permission relationships, payloads, or balances are persisted. Hosting providers still observe ordinary page/asset requests. Opening a documentation link contacts its destination.
+The application contains no analytics, third-party fonts, indexers, or wallet connection code. UI state and query cache are in memory. No wallet targets, permission relationships, payloads, or balances are persisted by the application. Explicit diagnostics make real worker-routed reads and fixed direct specifier bootstrap reads. The official harness grants worker-scoped IndexedDB storage; worker caches can persist. Hosting providers observe page/asset requests. Opening a documentation link contacts its destination.
 
 Theme and sidebar preferences are session-only. The system-theme option reads a browser media preference and subscribes to changes; it does not transmit the value. The development-only design workshop contains labeled fictional records. Those fixtures and the preview route are excluded from production, and a build check guards against accidental inclusion. Privacy Lab has no active ledger or export; its export control stays disabled.
 

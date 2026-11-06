@@ -6,7 +6,11 @@ For every completed module, create **exactly four cohesive conventional commits*
 
 ## Module boundaries
 
-Implement only the module explicitly requested. Summarize the delivered work, executed checks, remaining gaps, and the four pushed commits, then stop. Do not begin the next module automatically.
+Implement only explicitly requested modules. For a single-module request, summarize the delivered work, executed checks, remaining gaps, and four pushed commits, then stop. The user has explicitly requested Modules 3–12 consecutively: validate and push each module in four commits, report its evidence and gaps, then continue to the next requested module. Do not treat a mocked test as live integration evidence.
+
+## Anonymous transport preference
+
+The user superseded Tor-as-primary after the official demonstration gateway timed out: Nym is primary, using official specifier `0x3aCD9742C68F6d993066Ae25533e09b9e1f60eD0`. Tor remains optional and needs an operational authenticated KPS gateway; do not retry the failed demonstration gateway indefinitely or invent addresses. Only investigate official Nox for Sepolia if Nym fails. Never silently fall back to ordinary RPC or passthrough. Only successful real worker responses may be reported as anonymized.
 
 ## Verification and privacy
 

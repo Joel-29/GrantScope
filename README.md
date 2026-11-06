@@ -4,7 +4,7 @@ See every grant. Understand every risk. Revoke with confidence.
 
 GrantScope is an MIT-licensed Ethereum permission observatory in development for ETHGlobal Mumbai. It aims to make supported ERC-20 and Permit2 spending authority understandable, with application-owned chain reads routed through Anon-RPC by default.
 
-**Current status: Module 2 — design system and application shell.** The responsive interface has dark, light, and system themes, accessible dialogs, dashboard cards, permission inventory layouts, and privacy/settings pages. There are no blockchain reads, wallet connections, scans, allowances, risk scores, or transactions. Anon-RPC is not integrated or verified. Production pages display unavailable states, never design fixtures as wallet data.
+**Current status: Module 3 — anonymous RPC integration.** The official hash-verifying browser harness is integrated with Nym as primary, an explicit verified Sepolia Nox option, and optional Tor requiring an authenticated operational gateway. Privacy Lab contains a real block/balance diagnostic. No wallet connection, address scanner, allowance engine, risk scoring, or transaction execution exists yet. Nym and Nox have returned real blockchain responses; Nym also had transient request timeouts, and the official Tor demo gateway timed out. See [real evidence and boundaries](docs/ANON_RPC.md). Production pages never display design fixtures as wallet data.
 
 ## Problem and intended solution
 
@@ -76,7 +76,9 @@ scripts          Production fixture-isolation check
 docs             Architecture, privacy, limitations, and implementation status
 ```
 
-See [ARCHITECTURE](docs/ARCHITECTURE.md). Blockchain features will stay separate from presentation. viem, wagmi, and the official `@anon-rpc/browser-harness` will be introduced with their integration modules after API and compatibility verification; they are intentionally not imported or initialized by this foundation.
+See [ARCHITECTURE](docs/ARCHITECTURE.md). Blockchain services stay separate from presentation. Module 3 integrates viem and the official `@anon-rpc/browser-harness`; a wallet signing adapter will be introduced separately. Workers are not initialized until explicitly requested.
+
+Module 3 now uses viem and the official harness through a fail-closed adapter. Read-only wallet inspection and signing are still pending. Use `npm run test:live` only when intentionally running the real external worker diagnostic; ordinary unit/browser tests do not establish anonymity.
 
 See the [complete file tree](docs/FILE_TREE.md) for every source and configuration file.
 
@@ -84,14 +86,14 @@ See the [complete file tree](docs/FILE_TREE.md) for every source and configurati
 
 - **Censorship resistance:** planned interchangeable anonymous RPC routes; no operational transport yet.
 - **Open source:** MIT license and reproducible source setup. Source is maintained in [Joel-29/GrantScope](https://github.com/Joel-29/GrantScope).
-- **Privacy:** no analytics, remote fonts, indexers, RPC calls, or durable wallet storage in the shell. Future bootstrap and wallet exceptions must be disclosed.
+- **Privacy:** no analytics, remote fonts, indexers, or persisted wallet records. Chain reads use anonymous workers; fixed specifier bootstrap exceptions are direct and disclosed. The official worker has a separate IndexedDB namespace. Wallet-provider traffic remains outside these guarantees.
 - **Security:** truthful unavailable states, strict types, no signing or permission-changing code, and automated shell checks. No security audit has been performed.
 
 See [CROPS](docs/CROPS.md), [PRIVACY](docs/PRIVACY.md), and [LIMITATIONS](docs/LIMITATIONS.md).
 
 ## Networks and demo
 
-No blockchain network is supported operationally yet. Sepolia is the planned first real demo; the specifier chain and the chain queried by the worker are separate configuration concepts. No deployed test token, transaction hashes, or live worker evidence exist in this module. See [DEMO](docs/DEMO.md) and [TESTING](docs/TESTING.md).
+Sepolia anonymous reads have returned real responses through Nym and Nox. Nym also experienced transient request timeouts; Tor's demonstration gateway is unavailable and optional Tor needs an operational KPS gateway. Mainnet is a configured target, not yet independently verified through this diagnostic. The specifier chain and queried chain are separate concepts. No deployed test token or revocation transaction evidence exists yet. See [ANON_RPC](docs/ANON_RPC.md), [DEMO](docs/DEMO.md), and [TESTING](docs/TESTING.md).
 
 ## Screenshots
 
@@ -131,4 +133,4 @@ The Module 1 foundation and Module 2 design system, UI, tests, and documentation
 
 ## Module boundary
 
-Stop after Module 2. Next implementation work requires an explicit module request. The user’s standing instruction is to commit and push each completed module in exactly four cohesive conventional commits after validation; this is recorded in [AGENTS.md](AGENTS.md).
+The user explicitly requested Modules 3–12 in sequence. Each module is validated and pushed in exactly four cohesive conventional commits before the next requested module; this standing instruction is recorded in [AGENTS.md](AGENTS.md). Unexecuted or failed live checks are never reported as passing.

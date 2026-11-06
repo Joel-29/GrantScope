@@ -1,5 +1,11 @@
 # Testing
 
+## Module 3 live and deterministic evidence
+
+The official harness/adapter integration adds nine deterministic transport tests (24 unit tests overall), covering viem compatibility, worker reuse, unavailable Tor, restricted bootstrap, malformed RPC responses, initialization timeout, stale-session protection, cancellation, and no direct fallback. Strict TypeScript, ESLint and production fixture isolation passed. The ordinary production browser suite passed 12 tests with two opt-in live tests correctly skipped.
+
+Separately, the real production browser test passed for Nym (42.2 seconds) and explicitly selected Nox (15.0 seconds), returning valid Sepolia chain ID, block and balance results via actual workers. Two specifier calls were the only direct RPC reads observed. Independent probes and a same-worker raw/manager comparison also returned real data. Tor failed KPS dialing, and earlier Nym request attempts timed out; neither was reported as an anonymous success. See [ANON_RPC](ANON_RPC.md) for the observed values, source/API verification, storage trust boundaries and reproduction commands.
+
 Run `npm ci`, then `npm run check`. For browser tests, run `npx playwright install chromium` and `npm run test:e2e`.
 
 To use an already-installed Chrome instead of downloading Playwright Chromium, set `PLAYWRIGHT_CHANNEL=chrome` before running the browser tests. In PowerShell: `$env:PLAYWRIGHT_CHANNEL='chrome'; npm.cmd run test:e2e`. CI uses the default Playwright-managed Chromium.

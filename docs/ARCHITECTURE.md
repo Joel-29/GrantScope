@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Module 2 design system and application shell.
+Status: Module 3 anonymous transport on the Module 2 design system.
 
 `main.tsx` mounts the strict-mode React application. `app/providers.tsx` owns an in-memory TanStack Query client, a render error boundary, and Motion’s reduced-motion policy. `app/router.tsx` owns route composition and lazy secondary pages. `components/layout` handles navigation and route-change focus. Pages contain presentation, not blockchain logic.
 
@@ -18,4 +18,4 @@ Future ownership:
 - Exposure: deterministic BigInt analysis, explicit evidence, overlapping permissions.
 - Revocation: account/chain authorization, simulation, wallet submission, receipt and fresh allowance verification.
 
-All remain unimplemented. No smart-account execution adapter is included.
+Module 3 implements the official harness lifecycle, restricted specifier bootstrap provider, validated JSON-RPC adapter, viem custom transport, worker metrics and live diagnostic in `features/anon-rpc`. All application reads require a ready selected worker. Nym is primary; Nox is an explicit Sepolia alternative; Tor requires an authenticated configured gateway. The scanner, exposure and revocation services remain unimplemented. No smart-account execution adapter is included.
