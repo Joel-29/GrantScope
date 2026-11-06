@@ -172,6 +172,7 @@ export async function readErc20Pair(
     spenderName: classification.name,
     source: pair.source,
     warnings,
+    ...(pair.observedAt === undefined ? {} : { observedAt: pair.observedAt }),
   };
 }
 export async function scanAllowances(

@@ -6,6 +6,7 @@ export type TokenSpenderPair = {
   token: Address;
   spender: Address;
   source: 'known-pair' | 'manual' | 'event';
+  observedAt?: bigint;
 };
 export type Erc20Permission = {
   id: string;
@@ -26,6 +27,7 @@ export type Erc20Permission = {
   spenderName: string;
   source: TokenSpenderPair['source'];
   warnings: string[];
+  observedAt?: bigint;
 };
 export type ReadFailure = { pair: TokenSpenderPair; reason: string };
 export type AllowanceScan = {
