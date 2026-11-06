@@ -1,5 +1,9 @@
 # Testing
 
+## Module 8 evidence
+
+53 unit/Testing Library tests passed across nine files. Adversarial cases cover negative/out-of-width amounts, uint256 maximum with zero balance, one-wei precision, expired/dependency-blocked Permit2, exact expiry boundary, unknown spenders, unknown/future event age and mixed-block grouping. A Testing Library query-cache test verifies state updates and accessible filtering without RPC. TypeScript, ESLint and production build passed. The production browser suite passed 20 deterministic tests with ten opt-in live cases skipped. Analysis uses previously verified chain records; these deterministic tests do not create new live blockchain evidence or prove maliciousness detection.
+
 ## Module 7 evidence
 
 45 unit tests passed across seven files, including both official Permit2 grant event layouts, foreign emitters, uint160 maximum, uint48 maximum nonce, expiry at the exact boundary, shared zero underlying approval and chain mismatch. TypeScript, ESLint and production build passed. The deterministic production browser suite passed 20 tests with ten live cases skipped. The separately opted-in Nox browser test passed in 58.8 seconds, reading four canonical Sepolia Permit2 pairs and their actual ERC-20 dependencies with zero unreadable pairs. The zero owner produced no claimed positive authorization; no signed Permit or lockdown transaction has been demonstrated. Reproduce with `e2e/permit2.spec.ts --grep "live canonical"` and the explicit live environment variables.
