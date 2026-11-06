@@ -95,7 +95,7 @@ describe('Module 2 design system', () => {
     await user.click(trigger);
     expect(
       screen.getByRole('dialog', {
-        name: 'Wallet inspection is not available yet',
+        name: 'Inspect a public address',
       }),
     ).toBeInTheDocument();
     await user.keyboard('{Escape}');

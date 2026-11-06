@@ -28,7 +28,7 @@ test('themes, keyboard dialog focus, and honest activity work on desktop and mob
   });
   await inspectionTrigger.click();
   const dialog = page.getByRole('dialog', {
-    name: 'Wallet inspection is not available yet',
+    name: 'Inspect a public address',
   });
   await expect(dialog).toBeVisible();
   for (let i = 0; i < 5; i++) {
