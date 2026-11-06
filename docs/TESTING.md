@@ -1,5 +1,9 @@
 # Testing
 
+## Module 4 evidence
+
+32 unit tests passed across four files. Strict TypeScript, ESLint and production build passed. The deterministic production browser suite passed 14 tests with four live cases skipped. A separately opted-in real Sepolia inspection via explicitly selected Nox passed in 30.4 seconds, displaying native ETH and no-code account detection without a wallet connection and without direct target RPC. A preceding Nym initialization timed out and remained a visible failure. No signing or transaction was exercised. See [INSPECTION](INSPECTION.md).
+
 ## Module 3 live and deterministic evidence
 
 The official harness/adapter integration adds nine deterministic transport tests (24 unit tests overall), covering viem compatibility, worker reuse, unavailable Tor, restricted bootstrap, malformed RPC responses, initialization timeout, stale-session protection, cancellation, and no direct fallback. Strict TypeScript, ESLint and production fixture isolation passed. The ordinary production browser suite passed 12 tests with two opt-in live tests correctly skipped.
