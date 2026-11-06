@@ -5,7 +5,7 @@ import { anonRpc, useAnonRpc } from '../anon-rpc/runtime';
 import type { AllowanceScan, Erc20Permission } from '../erc20/types';
 import type { Permit2Grant } from '../permit2/engine';
 import type { Permission } from './analysis';
-import { useTransactions } from '../revocation/store';
+import { supersedingVerification, useTransactions } from '../revocation/store';
 
 export function usePermissionData() {
   const client = useQueryClient(),
@@ -20,7 +20,7 @@ export function usePermissionData() {
       get: () => version,
       subscribe: (listener: () => void) =>
         cache.subscribe((event) => {
-          if (event.type === 'updated') {
+          if (event.type === 'updated' || event.type === 'removed') {
             version++;
             listener();
           }
@@ -37,8 +37,8 @@ export function usePermissionData() {
     const previous = records.get(row.id);
     if (
       !previous ||
-      row.blockNumber > previous.blockNumber ||
-      (row.blockNumber === previous.blockNumber && row.readAt > previous.readAt)
+      row.readAt > previous.readAt ||
+      (row.readAt === previous.readAt && row.blockNumber > previous.blockNumber)
     )
       records.set(row.id, row);
   }
@@ -85,14 +85,7 @@ export function usePermissionData() {
     }
   }
   const currentRecords = [...records.values()].filter(
-    (record) =>
-      !activity.some(
-        (entry) =>
-          entry.recordId === record.id &&
-          entry.phase === 'verified-zero' &&
-          entry.verifiedBlock !== undefined &&
-          entry.verifiedBlock >= record.blockNumber,
-      ),
+    (record) => !supersedingVerification(record, activity, true),
   );
   return {
     records: [...records.values()],

@@ -7,6 +7,8 @@ import { AnalysisRecord, ExposurePanel } from './ExposurePanel';
 import { useInspectionSession } from '../wallet/session';
 import { anonRpc } from '../anon-rpc/runtime';
 import type { Erc20Permission } from '../erc20/types';
+import { useTransactions } from '../revocation/store';
+import type { Permit2Grant } from '../permit2/engine';
 describe('analysis presentation', () => {
   it('updates from real query state and filters records without initiating reads', async () => {
     const address = '0x0000000000000000000000000000000000000001';
@@ -105,5 +107,32 @@ describe('analysis presentation', () => {
       screen.getByText(/Unknown does not mean malicious/),
     ).toBeInTheDocument();
     expect(screen.getByText('Evidence limits')).toBeInTheDocument();
+    const grant = {
+      ...record,
+      id: 'grant-unit',
+      kind: 'permit2',
+      underlying: record,
+      expiration: 1000n,
+      blockTimestamp: 1n,
+    } as unknown as Permit2Grant;
+    act(() =>
+      useTransactions.setState({
+        activity: [
+          {
+            id: 'verified-unit',
+            recordId: record.id,
+            chainId: 1,
+            phase: 'verified-zero',
+            verifiedBlock: 2n,
+            verifiedAt: 2,
+          },
+        ],
+      }),
+    );
+    render(<AnalysisRecord record={grant} />);
+    expect(
+      screen.getByText(/The stored Permit2 grant was not cleared/),
+    ).toBeInTheDocument();
+    act(() => useTransactions.setState({ activity: [] }));
   });
 });

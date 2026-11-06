@@ -5,22 +5,25 @@ import { Badge } from '../../components/ui/Badge';
 import { tokenAmount } from '../erc20/amounts';
 import { analyze, groupPermissions, type Permission } from './analysis';
 import { usePermissionData } from './usePermissionData';
-import { useTransactions } from '../revocation/store';
+import { supersedingVerification, useTransactions } from '../revocation/store';
 
 export function AnalysisRecord({ record }: { record: Permission }) {
   const activity = useTransactions((state) => state.activity);
-  const superseded = activity.find(
-    (entry) =>
-      entry.recordId === record.id &&
-      entry.phase === 'verified-zero' &&
-      entry.verifiedBlock !== undefined &&
-      entry.verifiedBlock >= record.blockNumber,
-  );
+  const superseded = supersedingVerification(record, activity, true);
   const assessment = analyze(record, {
     nowSeconds: BigInt(Math.floor(record.readAt / 1000)),
     incomplete: true,
   });
   const token = record.kind === 'erc20' ? record : record.underlying;
+  if (superseded && superseded.recordId !== record.id)
+    return (
+      <p role="status">
+        This older Permit2 dependency snapshot was superseded by an ERC-20
+        allowance verified zero at block {superseded.verifiedBlock?.toString()}.
+        The stored Permit2 grant was not cleared. Refresh both layers before
+        assessing current authority; later approvals can restore it.
+      </p>
+    );
   if (superseded)
     return (
       <p role="status">
@@ -55,7 +58,9 @@ export function AnalysisRecord({ record }: { record: Permission }) {
 export function ExposurePanel() {
   const data = usePermissionData();
   const [filter, setFilter] = useState('all');
-  const records = data.records.filter(
+  const records = (
+    filter === 'all' ? data.records : data.currentRecords
+  ).filter(
     (record) =>
       filter === 'all' ||
       analyze(record, {
